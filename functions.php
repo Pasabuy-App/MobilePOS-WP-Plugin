@@ -3,7 +3,7 @@
     /*
         Plugin Name: MobilePOS WP Plugin
         Plugin URI: http://www.bytescrafter.net/projects/mobilepos
-        Description: mobilepos WP Plugin is a user management for your application or game users.
+        Description: Plugin for handling Frontend UI and RestAPI with our POS Software.
         Version: 0.1.0
         Author: Bytes Crafter
         Author URI:   https://www.bytescrafter.net/about-us
