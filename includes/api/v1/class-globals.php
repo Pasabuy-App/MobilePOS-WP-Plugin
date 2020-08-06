@@ -17,11 +17,13 @@
 		}
 		
 		// verify if datavice plugin is activated
-		public static function verifiy_datavice_plugin(){
-            if(!class_exists('DV_Verification')){
+		public static function verifiy_plugins(){
+            if(!class_exists('DV_Verification') || !class_exists('TP_Globals') ){
                 return false;
             }else{
                 return true;
             }
         }
+
+        
     }
