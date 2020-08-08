@@ -22,7 +22,7 @@
         // Example
         register_rest_route( 'mobilepos/v1/user', 'auth', array(
             'methods' => 'POST',
-            'callback' => array('DV_Authenticate','initialize'),
+            'callback' => array('MP_Authenticate','listen'),
         ));       
     }
     add_action( 'rest_api_init', 'mobilepos_route' );

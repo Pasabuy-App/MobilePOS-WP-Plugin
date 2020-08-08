@@ -28,17 +28,20 @@
     }
     #endregion
 
+    define("MP_PLUGIN_PATH", plugin_dirs_path( __FILE__ ) );
+    define("MP_PLUGIN_URL", plugin_dir_url( __FILE__ ) );
+
     //Important config files and plugin updates.
-    include_once ( plugin_dir_path( __FILE__ ) . '/includes/core/config.php' );
-    include_once ( plugin_dir_path( __FILE__ ) . '/includes/core/update.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/core/config.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/core/update.php' );
 
      //Make sure to create required mysql tables.
-    include_once ( plugin_dir_path( __FILE__ ) . '/includes/core/dbhook.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/core/dbhook.php' );
 
     //Includes assets if page is defined.
-    include_once ( plugin_dir_path( __FILE__ ) . '/includes/core/assets.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/core/assets.php' );
 
     //Include the REST API of USocketNet to be accessible.
-    include_once ( plugin_dir_path( __FILE__ ) . '/includes/api/routes.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/api/routes.php' );
 
 ?>

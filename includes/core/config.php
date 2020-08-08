@@ -13,6 +13,6 @@
 <?php
 
 	//Defining Global Variables
-	define('SP_PREFIX', 'sp_');
+	define('MP_PREFIX', 'mp_');
 
 ?>

@@ -8,13 +8,13 @@ Please read [CONTRIBUTING](CONTRIBUTING) for details on our code of conduct, and
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/BytesCrafter/SocioPress-WP-Plugin/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/BytesCrafter/MobilePOS-WP-Plugin/tags). 
 
 ## Authors
 
-* **Bytes Crafter** - *Initial work* - [Github](https://github.com/BytesCrafter/SocioPress-WP-Plugin.git)
+* **Bytes Crafter** - *Initial work* - [Github](https://github.com/BytesCrafter/MobilePOS-WP-Plugin.git)
 
-See also the list of [contributors](https://github.com/BytesCrafter/SocioPress-WP-Plugin/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/BytesCrafter/MobilePOS-WP-Plugin/graphs/contributors) who participated in this project.
 
 ## License
 
@@ -23,4 +23,3 @@ This project is licensed under the GNU GPL License - see the [LICENSE](LICENSE) 
 ## Acknowledgments
 
 * WordPress.Org
-* BitCoin.Org
