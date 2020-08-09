@@ -21,6 +21,9 @@
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
     
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
+
+    //Order Class
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     
 	// Init check if USocketNet successfully request from wapi.
     function mobilepos_route()
@@ -45,6 +48,10 @@
             register_rest_route( 'mobilepos/v1/orders', 'insert', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Insert_Order','listen'),
+            ));
+            register_rest_route( 'mobilepos/v1/orders', 'listing', array(
+                'methods' => 'POST',
+                'callback' => array('TP_OrdersList','listen'),
             ));
 
 
