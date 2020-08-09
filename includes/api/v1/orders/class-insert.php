@@ -68,7 +68,7 @@
             }
 
             $date = MP_Globals:: date_stamp();
-            $user = MP_Orders:: catch_post();
+            $user = MP_Insert_Order:: catch_post();
 
             // order items table 
             $order_items_fields = MP_ORDER_ITEMS_TABLE_FIELD;                                 
@@ -76,7 +76,7 @@
 
             // order table 
             $order_fields = MP_ORDER_TABLE_FIELD;                                 
-            $order_table = MP_ORDER_TABLE;
+            $order_table = MP_ORDERS_TABLE;
 
 
             $wpdb->query("START TRANSACTION");
@@ -89,7 +89,6 @@
 
                 $result = $wpdb->query("UPDATE $order_items_table SET odid = $order WHERE ID IN ($order_items) ");
 
-
             if ($order_items < 1 || $order < 1 || $result < 1 ) {
  
                  //If failed, do mysql rollback (discard the insert queries(no inserted data))
@@ -101,19 +100,11 @@
                          "message" => "An error occured while submitting data to the server."
                      )
                  );
-             }
- 
-            //If no problems found in queries above, do mysql commit (do changes(insert rows))
-            $wpdb->query("COMMIT");
-
-            if ($result < 1) {
-                return rest_ensure_response( 
-                    array(
-                        "status" => "failed",
-                        "message" => "An error occured while submitting data to the server."
-                    )
-                );
+             
             }else{
+                //If no problems found in queries above, do mysql commit (do changes(insert rows))
+                $wpdb->query("COMMIT");
+
                 return rest_ensure_response( 
                     array(
                         "status" => "success",
@@ -121,6 +112,8 @@
                     )
                 );
             }
+
+          
             
         }
         
