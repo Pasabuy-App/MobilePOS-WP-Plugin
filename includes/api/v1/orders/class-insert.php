@@ -12,12 +12,12 @@
 	*/
 ?>
 <?php
-	class MP_Orders {
+	class MP_Insert_Order {
         public static function listen(){
             global $wpdb;
            
             // Step1 : check if datavice plugin is activated
-            if (MP_Globals::verifiy_datavice_plugin() == false) {
+            if (MP_Globals::verify_plugins() == false) {
                 return rest_ensure_response( 
                     array(
                         "status" => "unknown",

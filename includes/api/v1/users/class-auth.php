@@ -12,11 +12,7 @@
 	*/
 ?>
 <?php
-<<<<<<< HEAD
-	class MP_Authenticate {
-=======
 	// class DV_Authenticate {
->>>>>>> eaa98e7e4809fb6d8fb5b1407abc3ebed8103169
 
 	// 	//Get the user session token string and if nothing, create and return one.
 	// 	public static function dv_get_session( $user_id ) {
@@ -30,13 +26,8 @@
 	// 		return $session_now;
 	// 	}
 
-<<<<<<< HEAD
-		//Authenticate user via Rest Api.
-		public static function listen() {
-=======
 	// 	//Authenticate user via Rest Api.
 	// 	public static function initialize() {
->>>>>>> eaa98e7e4809fb6d8fb5b1407abc3ebed8103169
 		
 	// 		// Check that we're trying to authenticate
 	// 		if (!isset($_POST["UN"]) || !isset($_POST["PW"])) {
@@ -65,19 +56,6 @@
 	// 			);
 	// 		}
 	
-<<<<<<< HEAD
-			return rest_ensure_response( 
-				array(
-					"status" => "success",
-					"data" => array(
-						"snky" => MP_Authenticate::dv_get_session($user->ID), 
-						"wpid" => $user->ID
-						)
-					)  
-				);
-		}
-	}
-=======
 	// 		return rest_ensure_response( 
 	// 			array(
 	// 				"status" => "success",
@@ -89,6 +67,5 @@
 	// 			);
 	// 	}
 	// }
->>>>>>> eaa98e7e4809fb6d8fb5b1407abc3ebed8103169
 
 ?>

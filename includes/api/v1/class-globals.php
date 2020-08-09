@@ -17,7 +17,7 @@
 		}
 		
 		// verify if datavice plugin is activated
-		public static function verifiy_plugins(){
+		public static function verify_plugins(){
             if(!class_exists('DV_Verification') || !class_exists('TP_Globals') ){
                 return false;
             }else{
