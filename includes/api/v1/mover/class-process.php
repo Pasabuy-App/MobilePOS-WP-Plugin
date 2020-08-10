@@ -62,6 +62,7 @@
                 );
             }
 
+            // Step5 : Check if order id is valid
             $verify_store =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
 
             if (!$verify_store) {
@@ -71,7 +72,7 @@
                 );
             }
 
-            // Check if stage input is for received or pending
+            // Step6 : Check if stage input is for received or pending
             if ($stage == 'received' || $stage == 'pending') {
                 return array(
                     "status" => "failed",
@@ -79,7 +80,7 @@
                 );
             }
 
-            // Check the order status if the same in the stage input
+            // Step7 : Check the order status if the same in the stage input
             $verify_stage =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = '$stage'");
             if ($verify_stage) {
                 return array(
@@ -88,7 +89,7 @@
                 );
             }
 
-            // Check the order status if received for shipping
+            // Step8 : Check the order status if received for shipping
             if ($stage == 'shipping') {
                 $verify_shipping =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'received'");
                 if (!$verify_shipping) {
@@ -99,7 +100,7 @@
                 }
             }
 
-            // Check the order status if shipping for delivered or cancelled
+            // Step9 : Check the order status if shipping for delivered or cancelled
             if ($stage == 'delivered' || $stage == 'cancelled') {
                 $verify_shipping =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'shipping'");
                 if (!$verify_shipping) {
@@ -110,6 +111,7 @@
                 }
             }
             
+            // Step10 : Query
             $result = $wpdb->query("UPDATE mp_orders SET  `status` = '$stage' WHERE ID = '$odid'");
             
             if ( $result < 1 ) {
