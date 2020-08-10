@@ -16,7 +16,8 @@
     //Require the USocketNet class which have the core function of this plguin. 
     require plugin_dir_path(__FILE__) . '/v1/users/class-auth.php'; // Example
     // orders folder
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-insert.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order-store.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     
@@ -44,11 +45,7 @@
         /*
          * ORDER RESTAPI
         */
-            register_rest_route( 'mobilepos/v1/orders', 'insert', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Insert_Order','listen'),
-            ));
-
+           
             register_rest_route( 'mobilepos/v1/orders', 'listing', array(
                 'methods' => 'POST',
                 'callback' => array('TP_OrdersList','listen'),
@@ -56,9 +53,22 @@
 
             register_rest_route( 'mobilepos/v1/orders', 'cancel/store', array(
                 'methods' => 'POST',
-                'callback' => array('MP_Cancel_Order','listen'),
+                'callback' => array('MP_Cancel_Order_Store','listen'),
             ));
 
+        
+        /*
+         * ORDER RESTAPI
+        */
+            register_rest_route( 'mobilepos/v1/customer', 'insert', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Insert_Order','listen'),
+            ));
+
+            register_rest_route( 'mobilepos/v1/customer', 'cancel', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Cancel_Order','listen'),
+            ));
 
 
     }
