@@ -79,7 +79,7 @@
         /*
          * MOVER RESTAPI
         */
-        register_rest_route( 'mobilepos/v1/mover', 'shipping', array(
+        register_rest_route( 'mobilepos/v1/mover', 'process', array(
             'methods' => 'POST',
             'callback' => array('MP_Process','listen'),
         ));
