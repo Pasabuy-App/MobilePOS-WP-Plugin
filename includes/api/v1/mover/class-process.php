@@ -21,6 +21,11 @@
 
             global $wpdb;
 
+            // Get Order ID and status order (shipping/delivered/cancelled)
+            $table_order = MP_ORDERS_TABLE;
+            $odid = $_POST['odid'];
+            $stage = $_POST['stage'];
+
             // Step1 : check if datavice plugin is activated
             if (MP_Globals::verify_plugins() == false) {
                 return rest_ensure_response( 
@@ -56,11 +61,6 @@
                         "message" => "Required fields cannot be empty.",
                 );
             }
-
-            // Get Order ID and status order (shipping/delivered/cancelled)
-            $table_order = MP_ORDERS_TABLE;
-            $odid = $_POST['odid'];
-            $stage = $_POST['stage'];
 
             $verify_store =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
 
