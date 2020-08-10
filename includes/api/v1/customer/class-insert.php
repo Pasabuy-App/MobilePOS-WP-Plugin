@@ -10,8 +10,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-?>
-<?php
+
 	class MP_Insert_Order {
         public static function listen(){
             global $wpdb;

@@ -9,8 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-?>
-<?php
+
 	class MP_Cancel_Order {
         public static function listen(){
             global $wpdb;
@@ -72,4 +71,3 @@
             }
 		}
 	}
-?>

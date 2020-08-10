@@ -8,9 +8,8 @@
 	/** 
         * @package mobilepos-wp-plugin
         * @version 0.1.0
-	*/
-?>
-<?php
+    */
+    
   	class MP_Globals {
         public static function date_stamp(){
             return date("Y-m-d h:i:s");
