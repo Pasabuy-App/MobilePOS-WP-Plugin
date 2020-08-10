@@ -31,7 +31,7 @@
                 return rest_ensure_response( 
                     array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Request Unknown!",
+                        "message" => "Please contact your administrator. Verification Issues!",
                     )
                 );
             }
@@ -48,10 +48,10 @@
 
             // Step 2: Sanitize and validate all requests
             if (empty($_POST["qty"]) || empty($_POST["pdid"]) 
-              || empty($_POST["stid"]) || empty($_POST["opid"])  ) {
+            || empty($_POST["stid"]) || empty($_POST["opid"])  ) {
                 return array(
                         "status" => "failed",
-                        "message" => "Please contact your administrator. Request Unknown!",
+                        "message" => "Required fields cannot be empty.",
                 );
                   
             }
@@ -62,7 +62,7 @@
             || !is_numeric($_POST["opid"])  ) {
 				return array(
 						"status" => "failed",
-						"message" => "Please contact your administrator. Request Unknown!",
+						"message" => "Required ID is not in valid format.",
                 );
                 
             }
@@ -78,6 +78,26 @@
             $order_fields = MP_ORDER_TABLE_FIELD;                                 
             $order_table = MP_ORDERS_TABLE;
 
+            // tp tables 
+            $tp_revs_table = TP_REVISION_TABLE;
+            $tp_prod_table = TP_PRODUCT_TABLE;
+
+            // validation of product 
+             $get_product_status = $wpdb->get_row("SELECT
+                    tp_rev.child_val as `status`
+                FROM
+                    $tp_prod_table tp_prod
+                    LEFT JOIN $tp_revs_table tp_rev ON tp_rev.ID = tp_prod.`status` 
+                WHERE
+                    tp_prod.ID = {$user["product_id"]}");
+                    
+            if ($get_product_status->status === '0' ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This product does not exist.."
+                 );
+
+            }
 
             $wpdb->query("START TRANSACTION");
     
@@ -94,11 +114,9 @@
                  //If failed, do mysql rollback (discard the insert queries(no inserted data))
                  $wpdb->query("ROLLBACK");
                     
-                 return rest_ensure_response( 
-                     array(
-                         "status" => "error",
-                         "message" => "An error occured while submitting data to the server."
-                     )
+                 return array(
+                    "status" => "error",
+                    "message" => "An error occured while submitting data to the server."
                  );
              
             }else{

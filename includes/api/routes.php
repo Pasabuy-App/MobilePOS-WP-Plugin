@@ -14,13 +14,16 @@
 <?php
 
     //Require the USocketNet class which have the core function of this plguin. 
-    require plugin_dir_path(__FILE__) . '/v1/users/class-auth.php'; // Example
-    // orders folder
+
+    // customer folder
     require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel-order.php';
+    
+    // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order-store.php';
-    //require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     
+    // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
 
     // mover process order
