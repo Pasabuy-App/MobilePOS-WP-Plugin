@@ -22,12 +22,11 @@
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order-store.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-process.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing-status.php';
     
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
-
-    // mover process order
-    require plugin_dir_path(__FILE__) . '/v1/mover/class-process.php';
     
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
@@ -61,7 +60,16 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Cancel_Order_Store','listen'),
             ));
+            
+            register_rest_route( 'mobilepos/v1/order', 'process', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Process','listen'),
+            ));
 
+            register_rest_route( 'mobilepos/v1/order', 'bystatus', array(
+                'methods' => 'POST',
+                'callback' => array('MP_OrdersByStatus','listen'),
+            ));
         
         /*
          * ORDER RESTAPI
@@ -75,14 +83,6 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Cancel_Order','listen'),
             ));
-              
-        /*
-         * MOVER RESTAPI
-        */
-        register_rest_route( 'mobilepos/v1/mover', 'process', array(
-            'methods' => 'POST',
-            'callback' => array('MP_Process','listen'),
-        ));
 
 
     }

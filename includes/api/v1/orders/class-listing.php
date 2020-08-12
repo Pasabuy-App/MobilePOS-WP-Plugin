@@ -22,10 +22,11 @@
             global $wpdb;
             
             // Step1 : check if datavice plugin is activated
-            if (TP_Globals::verify_datavice_plugin() == false) {
+            $plugin = TP_Globals::verify_prerequisites();
+            if ($plugin !== true) {
                 return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Plugin Missing!",
+                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
            
@@ -40,7 +41,7 @@
             // variables for query
             $table_store = TP_STORES_TABLE;
             $table_products = TP_PRODUCT_TABLE;
-            $table_revs = TP_REVISION_TABLE;
+            $table_revs = 'tp_revisions';
             $table_orders = MP_ORDERS_TABLE;
             $table_ordes_items = MP_ORDER_ITEMS_TABLE;
         

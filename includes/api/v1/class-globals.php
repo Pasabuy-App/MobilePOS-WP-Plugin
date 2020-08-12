@@ -16,13 +16,26 @@
 		}
 		
 		// verify if datavice plugin is activated
-		public static function verify_plugins(){
+		/*public static function verify_plugins(){
             if(!class_exists('DV_Verification') || !class_exists('TP_Globals') ){
                 return false;
             }else{
                 return true;
             }
-        }
+        }*/
 
+        public static function verify_prerequisites(){
+
+            if(!class_exists('DV_Verification') ){
+                return 'DataVice';
+            }
+
+            if(!class_exists('TP_Globals') ){
+                return 'TindaPress';
+             }
+
+            return true;
+
+        }
         
     }

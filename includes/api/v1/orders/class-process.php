@@ -26,28 +26,26 @@
             $odid = $_POST['odid'];
             $stage = $_POST['stage'];
 
-            // Step1 : check if datavice plugin is activated
-            if (MP_Globals::verify_plugins() == false) {
-                return rest_ensure_response( 
-                    array(
+            //Step1 : Check if prerequisites plugin are missing
+            $plugin = MP_Globals::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Plugin Missing!",
-                    )
+                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
-            // Step2: Validate user
-            if ( DV_Verification::is_verified() == false ) {
-                return rest_ensure_response( 
-                    array(
+            // Step2 : Check if wpid and snky is valid
+            if (DV_Verification::is_verified() == false) {
+                return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Request Unknown!",
-                    )
+                        "message" => "Please contact your administrator. Verification Issues!",
                 );
             }
             
             // Step3 : Sanitize all Request
-            if (!isset($_POST["odid"]) || !isset($_POST["stage"])) {
+            if (!isset($_POST["odid"]) 
+                || !isset($_POST["stage"])) {
                 return array(
                         "status" => "unknown",
                         "message" => "Please contact your administrator. Request unknown!",
@@ -55,7 +53,8 @@
             }
 
             // Step4 : Sanitize if all variables is empty
-            if (empty($_POST["odid"]) || empty($_POST["stage"])) {
+            if (empty($_POST["odid"]) 
+                || empty($_POST["stage"])) {
                 return array(
                         "status" => "failed",
                         "message" => "Required fields cannot be empty.",
@@ -63,50 +62,52 @@
             }
 
             // Step5 : Check if order id is valid
-            $verify_store =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
+            $verify_id =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
 
-            if (!$verify_store) {
+            if (!$verify_id) {
                 return array(
                     "status" => "failed",
-                    "message" => "No order found with this value!",
+                    "message" => "No order found with this value.",
                 );
             }
 
             // Step6 : Check if stage input is for received or pending
-            if ($stage == 'received' || $stage == 'pending') {
+            if ($stage === 'received' 
+                || $stage === 'pending') {
                 return array(
                     "status" => "failed",
-                    "message" => "This process is for mover only!",
+                    "message" => "This process is for mover only.",
                 );
             }
 
             // Step7 : Check the order status if the same in the stage input
-            $verify_stage =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = '$stage'");
+            $verify_stage = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = '$stage'");
             if ($verify_stage) {
                 return array(
                     "status" => "failed",
-                    "message" => "This order has already been $stage!",
+                    "message" => "This order has already been $stage.",
                 );
             }
 
             // Step8 : Check the order status if received for shipping
-            if ($stage == 'shipping') {
-                $verify_shipping =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'received'");
+            if ($stage === 'shipping') {
+                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'received'");
                 if (!$verify_shipping) {
                     return array(
                         "status" => "failed",
-                        "message" => "This order is not for shipping!",
+                        "message" => "This order is not for shipping.",
                     );
                 }
             }
 
             // Step9 : Check the order status if shipping for delivered or cancelled
-            if ($stage == 'delivered' || $stage == 'cancelled') {
-                $verify_shipping =$wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'shipping'");
+            if ($stage === 'delivered' 
+                || $stage === 'cancelled') {
+                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'shipping'");
                 if (!$verify_shipping) {
                     return array(
                         "status" => "failed",
-                        "message" => "This order is not for complete!",
+                        "message" => "This order is not for complete.",
                     );
                 }
             }
@@ -117,13 +118,13 @@
             if ( $result < 1 ) {
                 return array(
                     "status"  => "failed",
-                    "message" => "An error occured while submiting data to server!",
+                    "message" => "An error occured while submiting data to server.",
                 );
 
             }else{
                 return array(
                     "status"  => "success",
-                    "message" => "Order has been $stage successfully!",
+                    "message" => "Order status change to $stage.",
                 );
             }
 
