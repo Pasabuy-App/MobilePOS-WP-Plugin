@@ -55,7 +55,7 @@
             }
 
             // Step 4: Validate order using order id and user id
-            $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = $odid  AND wpid = $user_id");
+            $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid'  AND wpid = '$user_id' ");
             if (!$check_order) {
                 return array(
                     "status" => "failed",
