@@ -84,8 +84,6 @@
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= "`odid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order id which this item belongs to', ";
 				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product id of this item',  ";
-				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'No of items',  ";
-				$sql .= "`order_rev_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Title order id',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this order was created.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
