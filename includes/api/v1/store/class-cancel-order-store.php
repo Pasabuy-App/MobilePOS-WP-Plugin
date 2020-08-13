@@ -28,7 +28,7 @@
             $stid = $_POST['stid'];
             $odid = $_POST['odid'];
             $wpid = $_POST['wpid'];
-            $status = 'cancelled';
+            $status = $_POST['status'];
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();

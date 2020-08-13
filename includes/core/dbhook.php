@@ -72,7 +72,6 @@
 				$sql .= "`wpid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id',  ";
 				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this order',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this inventory was created.', ";
-				$sql .= "`status` enum('pending','received','shipping','delivered','cancelled') NOT NULL COMMENT 'Status or stage of this order.', ";	
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);

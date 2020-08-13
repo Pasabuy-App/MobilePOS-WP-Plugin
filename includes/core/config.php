@@ -24,11 +24,11 @@
 
 	//Orders config
 	define('MP_ORDERS_TABLE', MP_PREFIX.'orders');
-	define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, `status`, created_by, date_created)");
+	define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, created_by, date_created)");
 
 	//Order Items config
 	define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
-	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, `status`, date_created)");
+	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, date_created)");
 
 	//Revisions config
 	define('MP_REVISIONS_TABLE', MP_PREFIX.'revisions');
