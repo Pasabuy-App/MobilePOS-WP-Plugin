@@ -20,7 +20,8 @@
         public static function list_open(){
 
             global $wpdb;
-                                
+                           
+            $date = MP_Globals:: date_stamp();     
             $table_ord = MP_ORDERS_TABLE;                                     
             $table_mp_revs = MP_REVISIONS_TABLE;
             $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
@@ -62,7 +63,7 @@
                 );
             }
             
-            // Step 5: Check if order status is not cancelled, received, delivered, shipping
+            // Step 5: Check if order status is pending or not
             $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs INNER JOIN mp_orders ON mp_revisions.parent_id = mp_orders.ID 
             where mp_revisions.parent_id = '$odid' order by mp_revisions.id desc limit 1");
             if (!($check_status->status === 'pending')) {
