@@ -49,7 +49,7 @@
             if (!isset($_POST['odid'])) {
                 return array(
                     "status" => "unknown",
-                    "message" => "Please contact your administrator. Request Unknown!",
+                    "message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -77,7 +77,7 @@
             $order_revs = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($odid) ");
 
-			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id ");
+			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
             if ( $order_revs < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(

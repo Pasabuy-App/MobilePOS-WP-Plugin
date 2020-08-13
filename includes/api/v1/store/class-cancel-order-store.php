@@ -21,8 +21,14 @@
 
             global $wpdb;
             
+            $table_store = TP_STORES_TABLE;
+            $table_ord = MP_ORDERS_TABLE;                                     
+            $table_mp_revs = MP_REVISIONS_TABLE;
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
             $stid = $_POST['stid'];
             $odid = $_POST['odid'];
+            $wpid = $_POST['wpid'];
+            $status = 'cancelled';
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -40,37 +46,51 @@
                         "message" => "Please contact your administrator. Verification Issues!",
                 );
             }
-
-
-            $verify_store =$wpdb->get_row("SELECT ID FROM tp_stores WHERE ID = 1 ");
-
-            if (!$verify_store) {
+            
+            // Step 3: Check if required parameters are passed
+            if (!isset($_POST['odid'])
+                || !isset($_POST['stid'])) {
                 return array(
                     "status" => "unknown",
-                    "message" => "An error occured while fetching data to server."
+                    "message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
-            $check_order = $wpdb->get_row("SELECT `status` FROM mp_orders WHERE ID = $odid");
-            if ($check_order == 'cancelled') {
+            // Step 4: Validate order using order id and user id
+            $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = $odid  AND stid = $stid");
+            if (!$check_order) {
                 return array(
                     "status" => "failed",
-                    "message" => "This order has already been cancelled."
+                    "message" => "No order found."
+                );
+            }
+
+            // Step 5: Check if order status is not cancelled, received, delivered, shipping
+            $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = $odid  AND stid = $stid)");
+            if (!($check_status->status === 'pending')) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This order cannot be $status."
                 );
             }
             
-            $result = $wpdb->query("UPDATE mp_orders SET  `status` = 'cancelled' WHERE ID = $odid AND stid = $store_id");
-            
-            if ( $result < 1 ) {
+            // Step 6: Update order status to cancelled
+            $wpdb->query("START TRANSACTION");
+            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '{$user["uid"]}', '$date') ");
+            $order_revs = $wpdb->insert_id;
+            $result = $wpdb->query("UPDATE $table_ord SET `status` = $order_revs, created_by = '$wpid' WHERE ID IN ($odid) ");
+
+            if ( $order_revs < 1 || $result < 1 ) {
+                $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",
                     "message" => "An error occured while submiting data to server."
                 );
-
-            }else{
+            } else {
+                $wpdb->query("COMMIT");
                 return array(
                     "status"  => "success",
-                    "message" => "Order has been cancelled successfully."
+                    "message" => "Order has been $status successfully."
                 );
             }
 

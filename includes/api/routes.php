@@ -56,7 +56,7 @@
                 'callback' => array('TP_OrdersList','listen'),
             ));
 
-            register_rest_route( 'mobilepos/v1/orders', 'cancel/store', array(
+            register_rest_route( 'mobilepos/v1/store/order', 'cancel', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Cancel_Order_Store','listen'),
             ));

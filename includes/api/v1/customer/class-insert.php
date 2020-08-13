@@ -65,7 +65,7 @@
                 || !isset($_POST["opid"])  ) {
 				return array(
 						"status" => "unknown",
-						"message" => "Please contact your administrator. Request Unknown!",
+						"message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -105,6 +105,7 @@
                     "message" => "No product found.",
                 );
             }
+
             $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' ");
             $child_key = array( 
                 'title'     =>$get_data->name_id, 
@@ -130,11 +131,10 @@
 
             $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
             $order_revs = $wpdb->insert_id;
-            $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($order_id) ");
-            //return $last_id;
-            //return $insert_result;
-            if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $update_result < 1 ) {
 
+            $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($order_id) ");
+        
+            if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $update_result < 1 ) {
                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
                 $wpdb->query("ROLLBACK");
                 return array(
@@ -142,7 +142,6 @@
                    "message" => "An error occured while submitting data to the server."
                 );
             }else{
-
                 // Step 10: If no problems found in queries above, do mysql commit (do changes(insert rows))
                 $wpdb->query("COMMIT");
                 return array(
