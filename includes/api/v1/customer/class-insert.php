@@ -12,59 +12,16 @@
 	*/
 
 	class MP_Insert_Order {
+
         public static function listen(){
+            return rest_ensure_response( 
+                MP_Insert_Order:: list_open()
+            );
+        }
+        
+        public static function list_open(){
+            
             global $wpdb;
-           
-            // Step1 : check if datavice plugin is activated
-            if (MP_Globals::verify_plugins() == false) {
-                return rest_ensure_response( 
-                    array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Plugin Missing!",
-                    )
-                );
-            }
-
-            // Step1: Validate user
-            if ( DV_Verification::is_verified() == false ) {
-                return rest_ensure_response( 
-                    array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
-                    )
-                );
-            }
-
-            // Step 2: Sanitize and validate all requests
-            if (!isset($_POST["qty"]) || !isset($_POST["pdid"]) 
-            || !isset($_POST["stid"]) || !isset($_POST["opid"])  ) {
-				return array(
-						"status" => "failed",
-						"message" => "Please contact your administrator. Request Unknown!",
-                );
-                
-            }
-
-            // Step 2: Sanitize and validate all requests
-            if (empty($_POST["qty"]) || empty($_POST["pdid"]) 
-            || empty($_POST["stid"]) || empty($_POST["opid"])  ) {
-                return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
-                );
-                  
-            }
-
-            // Step 2: Sanitize and validate all requests
-            if (!is_numeric($_POST["wpid"]) || !is_numeric($_POST["qty"]) 
-            || !is_numeric($_POST["pdid"]) || !is_numeric($_POST["stid"]) 
-            || !is_numeric($_POST["opid"])  ) {
-				return array(
-						"status" => "failed",
-						"message" => "Required ID is not in valid format.",
-                );
-                
-            }
 
             $date = MP_Globals:: date_stamp();
             $user = MP_Insert_Order:: catch_post();
@@ -78,11 +35,78 @@
             $order_table = MP_ORDERS_TABLE;
 
             // tp tables 
-            $tp_revs_table = TP_REVISION_TABLE;
-            $tp_prod_table = TP_PRODUCT_TABLE;
+            $table_prod = TP_PRODUCT_TABLE;
+            $table_store = TP_STORES_TABLE;
+            $table_tp_revs = TP_REVISIONS_TABLE;
+           
+            //Step1 : Check if prerequisites plugin are missing
+            $plugin = MP_Globals::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
+                        "status" => "unknown",
+                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                );
+            }
 
-            // validation of product 
-             $get_product_status = $wpdb->get_row("SELECT
+            // Step2 : Check if wpid and snky is valid
+            if (DV_Verification::is_verified() == false) {
+                return array(
+                        "status" => "unknown",
+                        "message" => "Please contact your administrator. Verification Issues!",
+                );
+            }
+
+            // Step 2: Sanitize and validate all requests
+            if (!isset($_POST["qty"]) 
+                || !isset($_POST["pdid"]) 
+                || !isset($_POST["stid"]) 
+                || !isset($_POST["opid"])  ) {
+				return array(
+						"status" => "unknown",
+						"message" => "Please contact your administrator. Request Unknown!",
+                );
+            }
+
+            // Step 2: Sanitize and validate all requests
+            if (empty($_POST["qty"]) 
+                || empty($_POST["pdid"]) 
+                || empty($_POST["stid"]) 
+                || empty($_POST["opid"])  ) {
+                return array(
+                        "status" => "failed",
+                        "message" => "Required fields cannot be empty.",
+                );  
+            }
+
+            // Step 2: Sanitize and validate all requests
+            if (!is_numeric($_POST["qty"])  ) {
+				return array(
+						"status" => "failed",
+						"message" => "Required ID is not in valid format.",
+                );
+            }
+
+            // Step3 : Validate store id and operation id if exists or not
+            $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["store_id"]}' ");
+            if (!$verify_store) {
+                return array(
+                    "status" => "failed",
+                    "message" => "No store found.",
+                );
+            }
+
+            // Step4 : Check if there's a product inside the store and validate the status if active or not
+            $verify_status = $wpdb->get_row("SELECT child_val FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["product_id"]}' AND stid = '{$user["store_id"]}')");
+            if ($verify_status->$status < 1) {
+                return array(
+                    "status" => "failed",
+                    "message" => "No product found.",
+                );
+            }
+            return 'added';
+
+            // validation of product -> old query
+            /* $get_product_status = $wpdb->get_row("SELECT
                     tp_rev.child_val as `status`
                 FROM
                     $tp_prod_table tp_prod
@@ -93,11 +117,11 @@
             if ($get_product_status->status === '0' ) {
                 return array(
                     "status" => "failed",
-                    "message" => "This product does not exist.."
+                    "message" => "This product does not exist."
                  );
+            }*/
 
-            }
-
+            // Step5 : Insert Query
             $wpdb->query("START TRANSACTION");
     
                 $wpdb->query("INSERT INTO $order_items_table $order_items_fields VALUES ('0', '{$user["product_id"]}', '{$user["quantity"]}', '0', '$date') ");
@@ -109,29 +133,22 @@
                 $result = $wpdb->query("UPDATE $order_items_table SET odid = $order WHERE ID IN ($order_items) ");
 
             if ($order_items < 1 || $order < 1 || $result < 1 ) {
- 
-                 //If failed, do mysql rollback (discard the insert queries(no inserted data))
+
+                 // Step6 : If failed, do mysql rollback (discard the insert queries(no inserted data))
                  $wpdb->query("ROLLBACK");
-                    
                  return array(
-                    "status" => "error",
+                    "status" => "failed",
                     "message" => "An error occured while submitting data to the server."
                  );
-             
             }else{
-                //If no problems found in queries above, do mysql commit (do changes(insert rows))
-                $wpdb->query("COMMIT");
 
-                return rest_ensure_response( 
-                    array(
+                // Step7 : If no problems found in queries above, do mysql commit (do changes(insert rows))
+                $wpdb->query("COMMIT");
+                return array(
                         "status" => "success",
                         "message" => "Order added successfully."
-                    )
                 );
             }
-
-          
-            
         }
         
         // Catch Post 

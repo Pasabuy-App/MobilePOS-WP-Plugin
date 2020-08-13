@@ -63,7 +63,6 @@
 
             // Step5 : Check if order id is valid
             $verify_id =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
-
             if (!$verify_id) {
                 return array(
                     "status" => "failed",
