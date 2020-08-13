@@ -18,16 +18,15 @@
     // customer folder
     require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel-order.php';
-    require plugin_dir_path(__FILE__) . '/v1/customer/class-update.php';
     
     // order folder
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-cancel-order-store.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-process.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing-status.php';
     
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-cancel-order-store.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
     
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
@@ -83,11 +82,6 @@
             register_rest_route( 'mobilepos/v1/customer/order', 'cancel', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Cancel_Order','listen'),
-            ));
-
-            register_rest_route( 'mobilepos/v1/customer/order', 'update', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Update_Order','listen'),
             ));
 
 

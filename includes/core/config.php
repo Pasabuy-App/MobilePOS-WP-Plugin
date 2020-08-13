@@ -28,7 +28,8 @@
 
 	//Order Items config
 	define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
-	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, quantity, order_rev_id, date_created)");
+	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, date_created)");
 
 	//Revisions config
 	define('MP_REVISIONS_TABLE', MP_PREFIX.'revisions');
+	define("MP_REVISIONS_TABLE_FIELD", "(revs_type, parent_id, child_key, child_val, created_by, date_created)");

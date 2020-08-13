@@ -32,6 +32,9 @@
             // order table 
             $fields_ord = MP_ORDER_TABLE_FIELD;                                 
             $table_ord = MP_ORDERS_TABLE;
+                                           
+            $table_mp_revs = MP_REVISIONS_TABLE;
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
 
             // tp tables 
             $table_prod = TP_PRODUCT_TABLE;
@@ -86,7 +89,7 @@
             }
 
             // Step 6: Check if store id and operation id are exists or not
-            $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["store_id"]}' ");
+            $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["stid"]}' ");
             if (!$verify_store) {
                 return array(
                     "status" => "failed",
@@ -95,14 +98,49 @@
             }
 
             // Step 7: Check if the product is inside the store and the status is active or not
-            $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["product_id"]}' AND stid = '{$user["store_id"]}')");
+            $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}')");
             if (!($verify_status->status === '1')) {
                 return array(
                     "status" => "failed",
                     "message" => "No product found.",
                 );
             }
-            
+            $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' ");
+            $child_key = array( 
+                'title'     =>$get_data->name_id, 
+                'price'     =>$get_data ->price_id, 
+                'quantity'  =>$user["qty"]
+            );
+
+            // Step 8: Insert Query
+            $wpdb->query("START TRANSACTION");
+            $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '$date', 'pending') ");
+            $order = $wpdb->insert_id;
+
+            $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order', '{$user["pid"]}', '$date') ");
+            $order_items = $wpdb->insert_id;
+
+            foreach ( $child_key as $key => $child_val) {
+                $result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items', '$key', '$child_val', '{$user["uid"]}', '$date') ");
+            }
+            //return $insert_result;
+            if ($order_items < 1 || $order < 1 || $result < 1 ) {
+
+                // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
+                $wpdb->query("ROLLBACK");
+                return array(
+                   "status" => "failed",
+                   "message" => "An error occured while submitting data to the server."
+                );
+            }else{
+
+                // Step 10: If no problems found in queries above, do mysql commit (do changes(insert rows))
+                $wpdb->query("COMMIT");
+                return array(
+                        "status" => "success",
+                        "message" => "Order added successfully."
+                );
+            }
             // validation of product -> old query
             /* $get_product_status = $wpdb->get_row("SELECT
                     tp_rev.child_val as `status`
@@ -120,7 +158,7 @@
             }*/
 
             // Step 8: Insert Query
-            $wpdb->query("START TRANSACTION");
+            /*$wpdb->query("START TRANSACTION");
     
                 $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('0', '{$user["product_id"]}', '{$user["quantity"]}', '0', '$date') ");
                 $order_items = $wpdb->insert_id;
@@ -146,7 +184,7 @@
                         "status" => "success",
                         "message" => "Order added successfully."
                 );
-            }
+            }*/
         }
         
         // Catch Post 
@@ -154,11 +192,12 @@
         {
 			$cur_user = array();
 			
-            $cur_user['product_id']    = $_POST['pdid'];
-            $cur_user['quantity']      = $_POST['qty'];
-			$cur_user['created_by']    = $_POST['wpid'];
-			$cur_user['store_id']      = $_POST['stid'];
-			$cur_user['operation_id']      = $_POST['opid'];
+            $cur_user['pid'] = $_POST['pdid'];
+            $cur_user['qty']  = $_POST['qty'];
+			$cur_user['uid']  = $_POST['wpid'];
+			$cur_user['stid'] = $_POST['stid'];
+			$cur_user['opid'] = $_POST['opid'];
+			$cur_user['type'] = 'orders';
 
             return  $cur_user;
         }
