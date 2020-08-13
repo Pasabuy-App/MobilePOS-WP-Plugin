@@ -116,16 +116,19 @@
 
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
+            // Insert into table orders (store id, operation id, customer id, user id = 0 and date)
             $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '$date') ");
+            // Get last id of insert of order
             $order_id = $wpdb->insert_id;
-
+            // Insert into table order items (order id, customer id who create and date)
             $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '$date') ");
+            // Get last id of insert of order items
             $order_items_id = $wpdb->insert_id;
-
+            // Loop data array from child key with child value and insert to table revisions (revision type, last id of insert of order items, key, value, cusotmer id and date)
             foreach ( $child_key as $key => $child_val) {
                 $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
             }
-            
+            // Insert into table revisions (revision type = orders, last id of insert of order, key = status, value = pending, customer id and date )
             $result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
         
             if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $result < 1 ) {

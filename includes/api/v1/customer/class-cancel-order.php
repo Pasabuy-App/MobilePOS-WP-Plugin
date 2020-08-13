@@ -75,8 +75,10 @@
             
             // Step 6: Update order status to cancelled
             $wpdb->query("START TRANSACTION");
+            // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
             $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
-            $result = $wpdb->query("UPDATE $table_ord SET created_by = '$user_id' WHERE ID IN ($odid) ");
+            // Update for store only not for customer
+            //$result = $wpdb->query("UPDATE $table_ord SET created_by = '$user_id' WHERE ID IN ($odid) ");
 
 			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
             if ( $insert < 1 || $result < 1 ) {
