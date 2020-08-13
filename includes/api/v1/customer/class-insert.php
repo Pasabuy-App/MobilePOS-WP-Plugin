@@ -10,7 +10,6 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-
 	class MP_Insert_Order {
 
         public static function listen(){
@@ -27,19 +26,19 @@
             $user = MP_Insert_Order:: catch_post();
 
             // order items table 
-            $order_items_fields = MP_ORDER_ITEMS_TABLE_FIELD;                                 
-            $order_items_table = MP_ORDER_ITEMS_TABLE;
+            $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;                                 
+            $table_ord_it = MP_ORDER_ITEMS_TABLE;
 
             // order table 
-            $order_fields = MP_ORDER_TABLE_FIELD;                                 
-            $order_table = MP_ORDERS_TABLE;
+            $fields_ord = MP_ORDER_TABLE_FIELD;                                 
+            $table_ord = MP_ORDERS_TABLE;
 
             // tp tables 
             $table_prod = TP_PRODUCT_TABLE;
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;
            
-            //Step1 : Check if prerequisites plugin are missing
+            //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
@@ -48,7 +47,7 @@
                 );
             }
 
-            // Step2 : Check if wpid and snky is valid
+            // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
@@ -56,7 +55,7 @@
                 );
             }
 
-            // Step 2: Sanitize and validate all requests
+            // Step 3: Check if required parameters are passed
             if (!isset($_POST["qty"]) 
                 || !isset($_POST["pdid"]) 
                 || !isset($_POST["stid"]) 
@@ -67,7 +66,7 @@
                 );
             }
 
-            // Step 2: Sanitize and validate all requests
+            // Step 4: Check if parameters passed are empty
             if (empty($_POST["qty"]) 
                 || empty($_POST["pdid"]) 
                 || empty($_POST["stid"]) 
@@ -78,7 +77,7 @@
                 );  
             }
 
-            // Step 2: Sanitize and validate all requests
+            // Step 5: Check if parameters passed is numeric
             if (!is_numeric($_POST["qty"])  ) {
 				return array(
 						"status" => "failed",
@@ -86,7 +85,7 @@
                 );
             }
 
-            // Step3 : Validate store id and operation id if exists or not
+            // Step 6: Check if store id and operation id are exists or not
             $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["store_id"]}' ");
             if (!$verify_store) {
                 return array(
@@ -95,16 +94,15 @@
                 );
             }
 
-            // Step4 : Check if there's a product inside the store and validate the status if active or not
-            $verify_status = $wpdb->get_row("SELECT child_val FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["product_id"]}' AND stid = '{$user["store_id"]}')");
-            if ($verify_status->$status < 1) {
+            // Step 7: Check if the product is inside the store and the status is active or not
+            $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["product_id"]}' AND stid = '{$user["store_id"]}')");
+            if (!($verify_status->status === '1')) {
                 return array(
                     "status" => "failed",
                     "message" => "No product found.",
                 );
             }
-            return 'added';
-
+            
             // validation of product -> old query
             /* $get_product_status = $wpdb->get_row("SELECT
                     tp_rev.child_val as `status`
@@ -121,20 +119,20 @@
                  );
             }*/
 
-            // Step5 : Insert Query
+            // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
     
-                $wpdb->query("INSERT INTO $order_items_table $order_items_fields VALUES ('0', '{$user["product_id"]}', '{$user["quantity"]}', '0', '$date') ");
+                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('0', '{$user["product_id"]}', '{$user["quantity"]}', '0', '$date') ");
                 $order_items = $wpdb->insert_id;
                                                                                 
-                $wpdb->query("INSERT INTO $order_table $order_fields VALUES ('{$user["store_id"]}', '{$user["operation_id"]}', '{$user["created_by"]}', '{$user["created_by"]}', '$date', 'pending'  ) ");
+                $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["store_id"]}', '{$user["operation_id"]}', '{$user["created_by"]}', '{$user["created_by"]}', '$date', 'pending') ");
                 $order = $wpdb->insert_id;
 
-                $result = $wpdb->query("UPDATE $order_items_table SET odid = $order WHERE ID IN ($order_items) ");
+                $result = $wpdb->query("UPDATE $table_ord_it SET odid = $order WHERE ID IN ($order_items) ");
 
             if ($order_items < 1 || $order < 1 || $result < 1 ) {
 
-                 // Step6 : If failed, do mysql rollback (discard the insert queries(no inserted data))
+                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
                  $wpdb->query("ROLLBACK");
                  return array(
                     "status" => "failed",
@@ -142,7 +140,7 @@
                  );
             }else{
 
-                // Step7 : If no problems found in queries above, do mysql commit (do changes(insert rows))
+                // Step 10: If no problems found in queries above, do mysql commit (do changes(insert rows))
                 $wpdb->query("COMMIT");
                 return array(
                         "status" => "success",

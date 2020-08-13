@@ -23,13 +23,13 @@
 
             // variables for query
             $table_store = TP_STORES_TABLE;
-            $table_products = TP_PRODUCT_TABLE;
-            $table_revs = TP_REVISIONS_TABLE;
-            $table_orders = 'mp_orders';
-            $table_order_items = 'mp_order_items';
+            $table_prod = TP_PRODUCT_TABLE;
+            $table_revs = TP_REVISIONS_TABLE;                               
+            $table_ord = MP_ORDERS_TABLE;
+            $table_ord_it = MP_ORDER_ITEMS_TABLE;
             $status = $_POST['status'];
             
-            //Step1 : Check if prerequisites plugin are missing
+            //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
@@ -38,7 +38,7 @@
                 );
             }
 
-            // Step2 : Check if wpid and snky is valid
+            // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
@@ -46,7 +46,7 @@
                 );
             }
             
-            // Step3 : Sanitize all Request
+            // Step 3: Check if required parameters are passed
             if (!isset($_POST["status"])) {
                 return array(
                         "status" => "unknown",
@@ -54,7 +54,7 @@
                 );
             }
 
-            // Step4 : Sanitize all Request
+            // Step 4: Check if parameters passed are empty
             if (empty($_POST["status"])) {
                 return array(
                         "status" => "failed",
@@ -62,7 +62,7 @@
                 );
             }
 
-            //Ensures that `stage` is correct
+            // Step 5: Ensures that `stage` is correct
             if ( !($status === 'pending')  
                 && !($status === 'received') 
                 && !($status === 'delivered') 
@@ -74,23 +74,23 @@
                 );
             }
             
-            // Step5 : Query
+            // Step 6: Select query
             $result = $wpdb->get_results("SELECT
                 mp_ordtem.ID,
-                mp_ord.`status` AS STATUS,
-                (SELECT child_val FROM tp_revisions WHERE id = ( SELECT title FROM tp_stores WHERE id = mp_ord.stid )) AS store,
-                (SELECT child_val FROM tp_revisions WHERE id = ( SELECT title FROM tp_products WHERE id = mp_ordtem.pdid )) AS orders,
+                mp_ord.`status` AS status,
+                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
+                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS orders,
                 mp_ordtem.quantity AS qty,
                 mp_ord.date_created AS date_ordered 
             FROM
-                mp_order_items AS mp_ordtem
+                $table_ord_it  AS mp_ordtem
             INNER JOIN 
-                mp_orders AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
+                $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
             WHERE
                 mp_ord.`status` = '$status'
             ");
             
-            // Step6 : Check if no result
+            // Step 7: Check if no rows found
             if (!$result)
             {
                 return array(
@@ -99,7 +99,6 @@
                 );
             }
             
-            // Step7 : Return Result 
             return array(
                     "status" => "success",
                     "data" => $result

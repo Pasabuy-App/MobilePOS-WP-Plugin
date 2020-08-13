@@ -22,11 +22,11 @@
             global $wpdb;
 
             // Get Order ID and status order (shipping/delivered/cancelled)
-            $table_order = MP_ORDERS_TABLE;
+            $table_ord = MP_ORDERS_TABLE;
             $odid = $_POST['odid'];
             $stage = $_POST['stage'];
 
-            //Step1 : Check if prerequisites plugin are missing
+            //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
@@ -35,7 +35,7 @@
                 );
             }
 
-            // Step2 : Check if wpid and snky is valid
+            // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
@@ -43,7 +43,7 @@
                 );
             }
             
-            // Step3 : Sanitize all Request
+            // Step 3: Check if required parameters are passed
             if (!isset($_POST["odid"]) 
                 || !isset($_POST["stage"])) {
                 return array(
@@ -52,7 +52,7 @@
                 );
             }
 
-            // Step4 : Sanitize if all variables is empty
+            // Step 4: Check if parameters passed are empty
             if (empty($_POST["odid"]) 
                 || empty($_POST["stage"])) {
                 return array(
@@ -61,8 +61,8 @@
                 );
             }
 
-            // Step5 : Check if order id is valid
-            $verify_id =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
+            // Step 5: Check if order id is valid
+            $verify_id =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' ");
             if (!$verify_id) {
                 return array(
                     "status" => "failed",
@@ -70,7 +70,7 @@
                 );
             }
 
-            // Step6 : Check if stage input is for received or pending
+            // Step 6: Check if stage input is received or pending
             if ($stage === 'received' 
                 || $stage === 'pending') {
                 return array(
@@ -79,8 +79,8 @@
                 );
             }
 
-            // Step7 : Check the order status if the same in the stage input
-            $verify_stage = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = '$stage'");
+            // Step 7: Check order status if same in stage input
+            $verify_stage = $wpdb->get_row("SELECT `status` FROM $table_ord WHERE  ID = '$odid' and `status` = '$stage'");
             if ($verify_stage) {
                 return array(
                     "status" => "failed",
@@ -88,9 +88,9 @@
                 );
             }
 
-            // Step8 : Check the order status if received for shipping
+            // Step 8: Check order status if received for shipping
             if ($stage === 'shipping') {
-                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'received'");
+                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_ord WHERE  ID = '$odid' and `status` = 'received'");
                 if (!$verify_shipping) {
                     return array(
                         "status" => "failed",
@@ -99,10 +99,10 @@
                 }
             }
 
-            // Step9 : Check the order status if shipping for delivered or cancelled
+            // Step 9: Check order status if shipping for delivered or cancelled
             if ($stage === 'delivered' 
                 || $stage === 'cancelled') {
-                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_order WHERE  ID = '$odid' and `status` = 'shipping'");
+                $verify_shipping = $wpdb->get_row("SELECT `status` FROM $table_ord WHERE  ID = '$odid' and `status` = 'shipping'");
                 if (!$verify_shipping) {
                     return array(
                         "status" => "failed",
@@ -111,9 +111,8 @@
                 }
             }
             
-            // Step10 : Query
-            $result = $wpdb->query("UPDATE mp_orders SET  `status` = '$stage' WHERE ID = '$odid'");
-            
+            // Step 10: Update query
+            $result = $wpdb->query("UPDATE $table_ord SET  `status` = '$stage' WHERE ID = '$odid'");
             if ( $result < 1 ) {
                 return array(
                     "status"  => "failed",

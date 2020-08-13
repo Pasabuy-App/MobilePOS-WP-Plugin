@@ -21,14 +21,14 @@
 
             global $wpdb;
             
-            $table_order_items = MP_ORDER_ITEMS_TABLE;
-            $table_order = MP_ORDERS_TABLE;
-            $table_tp_revs = 'tp_revisions';
-            $table_store = 'tp_stores';
-            $table_products = 'tp_products';
+            $table_ord_it = MP_ORDER_ITEMS_TABLE;
+            $table_ord = MP_ORDERS_TABLE;
+            $table_prod = TP_PRODUCT_TABLE;
+            $table_store = TP_STORES_TABLE;
+            $table_tp_revs = TP_REVISIONS_TABLE;
             $odid = $_POST['odid'];
 
-            //Step1 : Check if prerequisites plugin are missing
+            //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
@@ -37,7 +37,7 @@
                 );
             }
 
-            // Step2 : Check if wpid and snky is valid
+            // Step 2: Check if wpid and snky is valid
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
@@ -45,7 +45,7 @@
                 );
             }
             
-            // Step3 : Sanitize all Request
+            // Step 3: Sanitize all Request
             if (!isset($_POST["odid"]))  {
                 return array(
                         "status" => "unknown",
@@ -53,7 +53,7 @@
                 );
             }
 
-            // Step4 : Sanitize if all variables is empty
+            // Step 4: Sanitize if all variables is empty
             if (empty($_POST["odid"])) {
                 return array(
                         "status" => "failed",
@@ -61,8 +61,8 @@
                 );
             }
             
-             // Step5 : Check if order id is valid
-             $verify_id =$wpdb->get_row("SELECT ID FROM $table_order WHERE ID = '$odid' ");
+             // Step 5: Check if order id is valid
+             $verify_id =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' ");
 
              if (!$verify_id) {
                  return array(
@@ -71,7 +71,7 @@
                  );
              }
             
-             // Step3 : Query
+             // Step 6: Query
             $result = $wpdb->get_results("SELECT
                 ord.ID,
                 ( SELECT wp_users.display_name FROM wp_users WHERE wp_users.ID = ord.wpid ) AS ordered_by,
@@ -81,13 +81,13 @@
                 FROM
                     $table_tp_revs 
                 WHERE
-                    $table_tp_revs.ID = ( SELECT $table_products.title FROM $table_products WHERE $table_products.ID = ord_it.pdid )) AS `product_name`,
+                    $table_tp_revs.ID = ( SELECT $table_prod.title FROM $table_prod WHERE $table_prod.ID = ord_it.pdid )) AS `product_name`,
                     ord_it.quantity AS order_quantity,
                     ord.date_created AS order_created 
             FROM
-                $table_order AS ord
+                $table_ord AS ord
             LEFT JOIN 
-                $table_order_items AS ord_it ON ord_it.odid = ord.ID
+                $table_ord_it AS ord_it ON ord_it.odid = ord.ID
             LEFT JOIN 
                 $table_store ON $table_store.ID = ord.stid 
             WHERE 
@@ -95,7 +95,7 @@
             AND 
                 ord.`status` = 'pending'");
 
-             // Step4 : Check if no result
+             // Step 7: Check if no result
              if (!$result)
              {
                  return array(
@@ -104,7 +104,7 @@
                  );
              }
              
-             // Step5 : Return Result 
+             // Step 8: Return Result 
              return array(
                      "status" => "success",
                      "data" => $result

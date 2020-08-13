@@ -9,32 +9,38 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-
 	class MP_Cancel_Order_Store {
+
         public static function listen(){
+            return rest_ensure_response( 
+                MP_Cancel_Order_Store:: list_open()
+            );
+        }
+
+        public static function list_open(){
+
             global $wpdb;
-            // Step1 : check if datavice plugin is activated
-            if (MP_Globals::verify_plugins() == false) {
-                return rest_ensure_response( 
-                    array(
+            
+            $stid = $_POST['stid'];
+            $odid = $_POST['odid'];
+            
+            //Step 1: Check if prerequisites plugin are missing
+            $plugin = MP_Globals::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Plugin Missing!",
-                    )
+                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
-            // Step1: Validate user
-            if ( DV_Verification::is_verified() == false ) {
-                return rest_ensure_response( 
-                    array(
+            // Step 2: Validate user
+            if (DV_Verification::is_verified() == false) {
+                return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Request Unknown!",
-                    )
+                        "message" => "Please contact your administrator. Verification Issues!",
                 );
             }
 
-            $store_id = $_POST['stid'];
-            $order_id = $_POST['odid'];
 
             $verify_store =$wpdb->get_row("SELECT ID FROM tp_stores WHERE ID = 1 ");
 
@@ -45,7 +51,7 @@
                 );
             }
 
-            $check_order = $wpdb->get_row("SELECT `status` FROM mp_orders WHERE ID = $order_id");
+            $check_order = $wpdb->get_row("SELECT `status` FROM mp_orders WHERE ID = $odid");
             if ($check_order == 'cancelled') {
                 return array(
                     "status" => "failed",
@@ -53,7 +59,7 @@
                 );
             }
             
-            $result = $wpdb->query("UPDATE mp_orders SET  `status` = 'cancelled' WHERE ID = $order_id AND stid = $store_id");
+            $result = $wpdb->query("UPDATE mp_orders SET  `status` = 'cancelled' WHERE ID = $odid AND stid = $store_id");
             
             if ( $result < 1 ) {
                 return array(
