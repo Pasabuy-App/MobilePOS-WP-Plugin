@@ -61,9 +61,10 @@
                     "message" => "No order found."
                 );
             }
-
+            
             // Step 5: Check if order status is not cancelled, received, delivered, shipping
-            $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = $odid  AND wpid = $user_id)");
+            $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs INNER JOIN mp_orders ON mp_revisions.parent_id = mp_orders.ID 
+            where mp_revisions.parent_id = '$odid' order by mp_revisions.id desc limit 1");
             if (!($check_status->status === 'pending')) {
                 return array(
                     "status" => "failed",
@@ -73,12 +74,11 @@
             
             // Step 6: Update order status to cancelled
             $wpdb->query("START TRANSACTION");
-            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '{$user["uid"]}', '$date') ");
-            $order_revs = $wpdb->insert_id;
-            $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($odid) ");
+            $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
+            $result = $wpdb->query("UPDATE $table_ord SET created_by = '$user_id' WHERE ID IN ($odid) ");
 
 			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
-            if ( $order_revs < 1 || $result < 1 ) {
+            if ( $insert < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",
