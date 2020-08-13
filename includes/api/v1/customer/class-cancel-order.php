@@ -21,7 +21,9 @@
 
             global $wpdb;
                                 
-            $table_ord = MP_ORDERS_TABLE;
+            $table_ord = MP_ORDERS_TABLE;                                     
+            $table_mp_revs = MP_REVISIONS_TABLE;
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
             $odid = $_POST['odid'];
             $user_id = $_POST['wpid'];
             $status = 'cancelled';
@@ -61,7 +63,7 @@
             }
 
             // Step 5: Check if order status is not cancelled, received, delivered, shipping
-            $check_status = $wpdb->get_row("SELECT `status` FROM $table_ord WHERE ID = $odid  AND wpid = $user_id");
+            $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = $odid  AND wpid = $user_id)");
             if (!($check_status->status === 'pending')) {
                 return array(
                     "status" => "failed",
@@ -70,17 +72,24 @@
             }
             
             // Step 6: Update order status to cancelled
-			$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id ");
-            if ( $result < 1 ) {
+            $wpdb->query("START TRANSACTION");
+            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '{$user["uid"]}', '$date') ");
+            $order_revs = $wpdb->insert_id;
+            $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($odid) ");
+
+			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id ");
+            if ( $order_revs < 1 || $result < 1 ) {
+                $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",
                     "message" => "An error occured while submiting data to server."
                 );
+            } else {
+                $wpdb->query("COMMIT");
+                return array(
+                    "status"  => "success",
+                    "message" => "Order has been $status successfully."
+                );
             }
-
-            return array(
-                "status"  => "success",
-                "message" => "Order has been $status successfully."
-            );
 		}
 	}

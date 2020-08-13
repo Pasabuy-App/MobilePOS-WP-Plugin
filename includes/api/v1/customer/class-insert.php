@@ -115,21 +115,25 @@
 
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
-            $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '$date', 'pending') ");
-            $order = $wpdb->insert_id;
+            $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '$date') ");
+            $order_id = $wpdb->insert_id;
 
-            $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order', '{$user["pid"]}', '$date') ");
-            $order_items = $wpdb->insert_id;
+            $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '$date') ");
+             $order_items_id = $wpdb->insert_id;
 
             foreach ( $child_key as $key => $child_val) {
-                $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items', '$key', '$child_val', '{$user["uid"]}', '$date') ");
+                $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
                 $last_id = $wpdb->insert_id;
             }
             
-            $result = $wpdb->query("UPDATE $table_ord_it SET status = $last_id WHERE ID IN ($order_items) ");
+            $update_result = $wpdb->query("UPDATE $table_ord_it SET `status` = $last_id WHERE ID IN ($order_items_id) ");
+
+            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
+            $order_revs = $wpdb->insert_id;
+            $result = $wpdb->query("UPDATE $table_ord SET status = $order_revs WHERE ID IN ($order_id) ");
             //return $last_id;
             //return $insert_result;
-            if ($order_items < 1 || $order < 1 || $insert_result < 1 || $result < 1 ) {
+            if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $update_result < 1 ) {
 
                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
                 $wpdb->query("ROLLBACK");
