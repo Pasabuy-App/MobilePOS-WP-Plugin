@@ -84,6 +84,7 @@
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= "`odid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order id which this item belongs to', ";
 				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product id of this item',  ";
+				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this revision',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this order was created.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
@@ -94,7 +95,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_revisions'" ) != $tbl_revisions) {
 			$sql = "CREATE TABLE `".$tbl_revisions."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`status` enum('none','configs','orders','categories','products') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
+				$sql .= "`revs_type` enum('none','configs','orders','order_items') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
 				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
 				$sql .= "`child_key` varchar(20) NOT NULL DEFAULT 0 COMMENT 'Column name on the table',  ";
 				$sql .= "`child_val` varchar(50) NOT NULL DEFAULT 0 COMMENT 'Value of the row key',  ";

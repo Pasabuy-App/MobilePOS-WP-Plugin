@@ -109,7 +109,8 @@
             $child_key = array( 
                 'title'     =>$get_data->name_id, 
                 'price'     =>$get_data ->price_id, 
-                'quantity'  =>$user["qty"]
+                'quantity'  =>$user["qty"], 
+                'status'    =>$user["status"]
             );
 
             // Step 8: Insert Query
@@ -121,10 +122,14 @@
             $order_items = $wpdb->insert_id;
 
             foreach ( $child_key as $key => $child_val) {
-                $result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items', '$key', '$child_val', '{$user["uid"]}', '$date') ");
+                $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items', '$key', '$child_val', '{$user["uid"]}', '$date') ");
+                $last_id = $wpdb->insert_id;
             }
+            
+            $result = $wpdb->query("UPDATE $table_ord_it SET status = $last_id WHERE ID IN ($order_items) ");
+            //return $last_id;
             //return $insert_result;
-            if ($order_items < 1 || $order < 1 || $result < 1 ) {
+            if ($order_items < 1 || $order < 1 || $insert_result < 1 || $result < 1 ) {
 
                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
                 $wpdb->query("ROLLBACK");
@@ -197,7 +202,8 @@
 			$cur_user['uid']  = $_POST['wpid'];
 			$cur_user['stid'] = $_POST['stid'];
 			$cur_user['opid'] = $_POST['opid'];
-			$cur_user['type'] = 'orders';
+			$cur_user['type'] = 'order_items';
+			$cur_user['status'] = '1';
 
             return  $cur_user;
         }
