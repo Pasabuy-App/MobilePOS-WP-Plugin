@@ -81,9 +81,10 @@
                 );
             }
 
-            // Step 6: Check if store id and //operation id are exists or not
-            $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["stid"]}' ");
-            if (!$verify_store) {
+            // Step 6: Check if store is exist/active and // TODO : operation is exists/active
+            $verify_store = $wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["stid"]}' ");
+            $verify_store_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE id = (SELECT status FROM tp_stores WHERE ID = '{$user["stid"]}')");
+            if (!$verify_store || !($verify_store_stat->status === '1')) {
                 return array(
                     "status" => "failed",
                     "message" => "No store found.",
@@ -91,8 +92,9 @@
             }
 
             // Step 7: Check if the product is inside the store and the status is active or not
+            $verify_prod = $wpdb->get_row("SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}'");
             $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}')");
-            if (!($verify_status->status === '1')) {
+            if (!$verify_prod || !($verify_status->status === '1')) {
                 return array(
                     "status" => "failed",
                     "message" => "No product found.",
