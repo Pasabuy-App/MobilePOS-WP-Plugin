@@ -10,11 +10,11 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Update_Order {
+	class MP_Delete_Order {
 
         public static function listen(){
             return rest_ensure_response( 
-                MP_Update_Order:: list_open()
+                MP_Delete_Order:: list_open()
             );
         }
         
@@ -30,7 +30,6 @@
             $wpid =$_POST["wpid"];
             $odid =$_POST["odid"];
             $pid =$_POST["pid"];
-            $qty =$_POST["qty"];
            
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -50,8 +49,7 @@
             }
 
             // Step 3: Check if required parameters are passed
-            if (!isset($_POST["qty"]) 
-                || !isset($_POST["odid"])
+            if (!isset($_POST["odid"])
                 || !isset($_POST["pid"])  ) {
 				return array(
 						"status" => "unknown",
@@ -60,21 +58,12 @@
             }
 
             // Step 4: Check if parameters passed are empty
-            if (empty($_POST["qty"]) 
-                || empty($_POST["odid"]) 
+            if (empty($_POST["odid"]) 
                 || empty($_POST["pid"])  ) {
                 return array(
                         "status" => "failed",
                         "message" => "Required fields cannot be empty.",
                 );  
-            }
-
-            // Step 5: Check if parameters passed is numeric
-            if (!is_numeric($_POST["qty"])  ) {
-				return array(
-						"status" => "failed",
-						"message" => "Required ID is not in valid format.",
-                );
             }
 
             // Step 6: Validate order using order id and user id
@@ -106,12 +95,12 @@
             }
             
             // Step 8: Insert Query
-            // Insert into table revisions (revision type = order_items, order id, key = quantity, value = quantity, customer id and date )
-            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$odid', 'quantity', '$qty', '$wpid', '$date') ");
-            $ordid_qty = $wpdb->insert_id;
-            $result = $wpdb->query("UPDATE $table_ord_it SET quantity = '$ordid_qty' WHERE ID IN ($check_status->ID) "); // Update the quantity of order items table
+            // Insert into table revisions (revision type = order_items, order id, key = status, value = 0, customer id and date )
+            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$odid', 'status', '0', '$wpid', '$date') ");
+            $ordid_stat = $wpdb->insert_id;
+            $result = $wpdb->query("UPDATE $table_ord_it SET status = '$ordid_stat' WHERE ID IN ($check_status->ID) "); // Update the status of order items table
         
-            if ( $ordid_qty < 1  || $result < 1 ) {
+            if ( $ordid_stat < 1  || $result < 1 ) {
                 return array(
                    "status" => "failed",
                    "message" => "An error occured while submitting data to the server."
@@ -119,7 +108,7 @@
             }else{
                 return array(
                         "status" => "success",
-                        "message" => "Order updated successfully."
+                        "message" => "Order deleted successfully."
                 );
             }
         }

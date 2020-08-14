@@ -19,6 +19,7 @@
     require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel-order.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-update.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
     
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
@@ -88,6 +89,11 @@
             register_rest_route( 'mobilepos/v1/customer/order', 'update', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Update_Order','listen'),
+            ));
+
+            register_rest_route( 'mobilepos/v1/customer/order', 'delete', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Delete_Order','listen'),
             ));
 
 
