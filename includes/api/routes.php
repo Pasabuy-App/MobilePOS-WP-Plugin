@@ -17,7 +17,7 @@
 
     // customer folder
     require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
-    require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel-order.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-update.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
     
