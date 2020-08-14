@@ -22,6 +22,7 @@
             global $wpdb;
 
             // Get Order ID and status order (received/cancelled)
+            $date = MP_Globals:: date_stamp(); 
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = 'tp_revisions';
             $table_ord = MP_ORDERS_TABLE;                                     
@@ -100,8 +101,8 @@
                 }
 
                 // Step 9: Check if order status is pending
-                $verify_stage = $wpdb->get_row("SELECT child_val AS status FROM mp_revisions WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = '$odid' AND stid = '$stid') ");
-                if (!($verify_stage->status === $stage)) {
+                $verify_stage = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = '$odid' AND stid = '$stid') ");
+                if ($verify_stage->status === $stage) {
                     return array(
                         "status" => "failed",
                         "message" => "This order has already been $verify_stage->status.",
@@ -110,7 +111,7 @@
                 if (!($verify_stage->status === 'pending')) {
                     return array(
                         "status" => "failed",
-                        "message" => "This order has already been $stage.",
+                        "message" => "This order can't be $stage.",
                     );
                 }
             
