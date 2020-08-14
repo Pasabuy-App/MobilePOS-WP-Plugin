@@ -24,19 +24,12 @@
 
             $date = MP_Globals:: date_stamp();
             $user = MP_Insert_Order:: catch_post();
-
-            // order items table 
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;                                 
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
-
-            // order table 
             $fields_ord = MP_ORDER_TABLE_FIELD;                                 
-            $table_ord = MP_ORDERS_TABLE;
-                                           
+            $table_ord = MP_ORDERS_TABLE;   
             $table_mp_revs = MP_REVISIONS_TABLE;
             $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
-
-            // tp tables 
             $table_prod = TP_PRODUCT_TABLE;
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;

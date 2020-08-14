@@ -64,7 +64,7 @@
             }
             
             // Step 5: Check if order status is pending or not
-            $check_status = $wpdb->get_row("SELECT (Select child_val from mp_revisions where id = mp_orders.status) AS status FROM mp_orders where id = '$odid'");
+            $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
             if ($check_status->status == $status) {
                 return array(
                     "status" => "failed",
