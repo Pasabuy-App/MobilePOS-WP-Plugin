@@ -66,17 +66,7 @@
                 );  
             }
 
-            // Step 5: Validate product and status using prodcut id
-            $check_prod = $wpdb->get_row("SELECT ID FROM tp_products WHERE ID = '$pid' ");
-            $check_prod_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE ID = (SELECT status FROM tp_products WHERE ID = '$pid') ");
-            if (!$check_prod || !($check_prod_stat->status === '1')) {
-                return array(
-                    "status" => "failed",
-                    "message" => "No product found."
-                );
-            }
-
-            // Step 6: Validate order using order id and user id
+            // Step 5: Validate order using order id and user id
             $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND wpid = '$wpid' ");
             $check_prod = $wpdb->get_row("SELECT ID FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid' ");
             if (!$check_order || !$check_prod) {
@@ -86,7 +76,7 @@
                 );
             }
             
-            // Step 7: Check if order status is pending using order id
+            // Step 6: Check if order status is pending using order id
             $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
             if (!($check_status->status === 'pending')) {
                 return array(
@@ -95,7 +85,7 @@
                 );
             }
 
-            // Step 8: Check if product status inside order using order id and product id
+            // Step 7: Check if product status inside order using order id and product id
             $check_status = $wpdb->get_row("SELECT ID,(SELECT child_val AS status FROM $table_mp_revs WHERE ID = $table_ord_it.status) AS status FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid'");
             if (!($check_status->status === '1')) {
                 return array(
@@ -104,7 +94,7 @@
                 );
             }
             
-            // Step 9: Insert Query and Update
+            // Step 8: Insert Query and Update
             // Insert into table revisions (revision type = order_items, order id, key = status, value = 0, customer id and date )
             $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$odid', 'status', '0', '$wpid', '$date') ");
             $ordid_stat = $wpdb->insert_id;
