@@ -87,7 +87,7 @@
                     "message" => "No order found.",
                 );
             }
-            
+            // TODO : Check the orders status if pending or not and order items status if active or not
             $verify_odiditem = $wpdb->get_row("SELECT ID FROM $table_ord_it WHERE odid = '$verify_odid->ID' ");
 
             // Step 8: Insert Query
