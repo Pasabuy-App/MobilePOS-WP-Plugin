@@ -79,15 +79,25 @@
                 );
             }
 
-            // Step 6: Check if store id and //operation id are exists or not
-            $verify_odid =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' ");
+            // Step 6: Check if order is exist
+            $verify_odid =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid'");
             if (!$verify_odid) {
                 return array(
                     "status" => "failed",
                     "message" => "No order found.",
                 );
             }
-            // TODO : Check the orders status if pending or not and order items status if active or not
+
+            // Step 6: Check if order is exist
+            $verify_odid =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid'");
+            if (!$verify_odid) {
+                return array(
+                    "status" => "failed",
+                    "message" => "No order found.",
+                );
+            }
+
+            // TODO : Check the orders status if pending and order items status if active or not
             $verify_odiditem = $wpdb->get_row("SELECT ID FROM $table_ord_it WHERE odid = '$verify_odid->ID' ");
 
             // Step 8: Insert Query
