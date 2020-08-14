@@ -55,7 +55,7 @@
             }
 
             // Step 4: Validate order using order id and user id
-            $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid'  AND wpid = '$user_id' ");
+            $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND wpid = '$user_id' ");
             if (!$check_order) {
                 return array(
                     "status" => "failed",
@@ -64,8 +64,13 @@
             }
             
             // Step 5: Check if order status is pending or not
-            $check_status = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs INNER JOIN mp_orders ON mp_revisions.parent_id = mp_orders.ID 
-            where mp_revisions.parent_id = '$odid' order by mp_revisions.id desc limit 1");
+            $check_status = $wpdb->get_row("SELECT (Select child_val from mp_revisions where id = mp_orders.status) AS status FROM mp_orders where id = '$odid'");
+            if ($check_status->status == $status) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This order has already been $status."
+                );
+            }
             if (!($check_status->status === 'pending')) {
                 return array(
                     "status" => "failed",
@@ -77,8 +82,8 @@
             $wpdb->query("START TRANSACTION");
             // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
             $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
-            // Update for store only not for customer
-            //$result = $wpdb->query("UPDATE $table_ord SET created_by = '$user_id' WHERE ID IN ($odid) ");
+            $order_status = $wpdb->insert_id;
+            $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) ");
 
 			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
             if ( $insert < 1 || $result < 1 ) {
