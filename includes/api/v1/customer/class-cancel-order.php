@@ -65,10 +65,16 @@
             
             // Step 5: Check if order status is pending
             $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
-            if ($check_status->status == $status) {
+            if ($check_status->status === $status) {
                 return array(
                     "status" => "failed",
                     "message" => "This order has already been $status."
+                );
+            }
+            if (!($check_status->status === $status)) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This order has already been $check_status->status."
                 );
             }
             if (!($check_status->status === 'pending')) {
