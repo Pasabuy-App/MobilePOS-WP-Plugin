@@ -48,6 +48,11 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Select_Order','listen'),
             ));
+            
+            register_rest_route( 'mobilepos/v1/store/order', 'process', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Process','listen'),
+            ));
 
         /*
          * ORDER RESTAPI
@@ -61,11 +66,6 @@
             register_rest_route( 'mobilepos/v1/store/order', 'cancel', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Cancel_Order_Store','listen'),
-            ));
-            
-            register_rest_route( 'mobilepos/v1/order', 'process', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Process','listen'),
             ));
 
             register_rest_route( 'mobilepos/v1/order', 'bystatus', array(

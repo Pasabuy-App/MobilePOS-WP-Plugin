@@ -96,7 +96,7 @@
             
             // Step 8: Insert Query and Update
             // Insert into table revisions (revision type = order_items, order id, key = status, value = 0, customer id and date )
-            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$odid', 'status', '0', '$wpid', '$date') ");
+            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$check_order->ID', 'status', '0', '$wpid', '$date') ");
             $ordid_stat = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord_it SET status = '$ordid_stat' WHERE ID IN ($check_status->ID) "); // Update the status of order items table
         
