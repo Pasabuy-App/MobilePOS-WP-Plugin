@@ -86,7 +86,6 @@
 				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product id of this item',  ";
 				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Quantity revision id', ";
 				$sql .= "`status` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Status revision id 1 or 0',  ";
-				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this revision',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this order was created.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
