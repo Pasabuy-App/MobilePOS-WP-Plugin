@@ -22,12 +22,10 @@
     require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
     
     // order folder
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing-status.php';
     
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
-    require plugin_dir_path(__FILE__) . '/v1/store/class-cancel-order-store.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
     
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
@@ -57,16 +55,6 @@
         /*
          * ORDER RESTAPI
         */
-           
-            register_rest_route( 'mobilepos/v1/orders', 'listing', array(
-                'methods' => 'POST',
-                'callback' => array('TP_OrdersList','listen'),
-            ));
-
-            register_rest_route( 'mobilepos/v1/store/order', 'cancel', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Cancel_Order_Store','listen'),
-            ));
 
             register_rest_route( 'mobilepos/v1/order', 'bystatus', array(
                 'methods' => 'POST',

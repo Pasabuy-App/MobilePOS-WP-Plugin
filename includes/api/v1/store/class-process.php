@@ -78,7 +78,7 @@
                 );
             }
 
-            // Step 7: Validate store
+            // Step 6: Validate store
             $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' ");
             $verify_store_stat =$wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_store WHERE ID = '$stid') ");
             if (!$verify_store || !($verify_store_stat->status === '1')) {
@@ -88,7 +88,7 @@
                 );
             }
 
-            // Step 8: Validate order using order id and store id
+            // Step 7: Validate order using order id and store id
             $verify_order =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND stid = '$stid' ");
             if (!$verify_order) {
                 return array(
@@ -97,7 +97,7 @@
                 );
             }
 
-            // Step 6: Check if stage input is received or rejected
+            // Step 8: Check if stage input is received or rejected
             if ($stage === 'received' || $stage === 'rejected' || $stage === 'shipping') {
 
 
@@ -111,7 +111,7 @@
                 }
                 
                 if ($stage === 'received' || $stage === 'rejected'){
-                    // Step 9: Check if order status is pending
+                    // Step 10: Check if order status is pending
                     if (!($verify_stage->status === 'pending')) {
                         return array(
                             "status" => "failed",
@@ -121,7 +121,7 @@
                 }
                 
                 if ($stage === 'shipping'){
-                    // Step 9: Check if order status is received
+                    // Step 11: Check if order status is received
                     if (!($verify_stage->status === 'received')) {
                         return array(
                             "status" => "failed",
@@ -130,14 +130,14 @@
                     }
                 }
             
-                // Step 10: Update query
+                // Step 12: Update query
                 $wpdb->query("START TRANSACTION");
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$stage', '$wpid', '$date') ");
                 $order_status = $wpdb->insert_id;
                 $result = $wpdb->query("UPDATE $table_ord SET created_by = '$wpid', status = '$order_status' WHERE ID IN ($odid) ");
 
-                //$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
+                // Step 13: Check result
                 if ( $insert < 1 || $result < 1 ) {
                     $wpdb->query("ROLLBACK");
                     return array(
