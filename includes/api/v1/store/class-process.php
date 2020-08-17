@@ -71,36 +71,37 @@
             }
 
             // Step 5: Check if stage input is not received or rejected
-            if ($stage === 'pending' || $stage === 'shipping' || $stage === 'completed') {
+            if ($stage === 'pending' || $stage === 'completed') {
                 return array(
                     "status" => "failed",
                     "message" => "This process is not for $stage.",
                 );
             }
 
+            // Step 7: Validate store
+            $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' ");
+            $verify_store_stat =$wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_store WHERE ID = '$stid') ");
+            if (!$verify_store || !($verify_store_stat->status === '1')) {
+                return array(
+                    "status" => "failed",
+                    "message" => "No store found.",
+                );
+            }
+
+            // Step 8: Validate order using order id and store id
+            $verify_order =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND stid = '$stid' ");
+            if (!$verify_order) {
+                return array(
+                    "status" => "failed",
+                    "message" => "No order found.",
+                );
+            }
+
             // Step 6: Check if stage input is received or rejected
-            if ($stage === 'received' || $stage === 'rejected') {
+            if ($stage === 'received' || $stage === 'rejected' || $stage === 'shipping') {
 
-                // Step 7: Validate store
-                $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' ");
-                $verify_store_stat =$wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_store WHERE ID = '$stid') ");
-                if (!$verify_store || !($verify_store_stat->status === '1')) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "No store found.",
-                    );
-                }
 
-                // Step 8: Validate order using order id and store id
-                $verify_order =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND stid = '$stid' ");
-                if (!$verify_order) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "No order found.",
-                    );
-                }
-
-                // Step 9: Check if order status is pending
+                // Step 9: Check if order status is the same in stage input
                 $verify_stage = $wpdb->get_row("SELECT child_val AS status FROM $table_mp_revs WHERE ID = (SELECT `status` FROM $table_ord WHERE ID = '$odid' AND stid = '$stid') ");
                 if ($verify_stage->status === $stage) {
                     return array(
@@ -108,11 +109,25 @@
                         "message" => "This order has already been $verify_stage->status.",
                     );
                 }
-                if (!($verify_stage->status === 'pending')) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This order can't be $stage.",
-                    );
+                
+                if ($stage === 'received' || $stage === 'rejected'){
+                    // Step 9: Check if order status is pending
+                    if (!($verify_stage->status === 'pending')) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This order can't be $stage.",
+                        );
+                    }
+                }
+                
+                if ($stage === 'shipping'){
+                    // Step 9: Check if order status is received
+                    if (!($verify_stage->status === 'received')) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This order can't be $stage.",
+                        );
+                    }
                 }
             
                 // Step 10: Update query
@@ -141,7 +156,7 @@
             else{
                 return array(
                     "status" => "failed",
-                    "message" => "Invalid input value.",
+                    "message" => "Invalid stage.",
                 );
             }
 
