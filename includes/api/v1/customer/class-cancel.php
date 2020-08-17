@@ -71,12 +71,6 @@
                     "message" => "This order has already been $status."
                 );
             }
-            if (!($check_status->status === $status)) {
-                return array(
-                    "status" => "failed",
-                    "message" => "This order has already been $check_status->status."
-                );
-            }
             if (!($check_status->status === 'pending')) {
                 return array(
                     "status" => "failed",
@@ -87,12 +81,13 @@
             // Step 6: Update order status to cancelled
             $wpdb->query("START TRANSACTION");
             // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
-            $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
+            $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");
+            $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
             $order_status = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) ");
 
 			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
-            if ( $insert < 1 || $result < 1 ) {
+            if ( $insert1 < 1 ||  $insert2 < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",

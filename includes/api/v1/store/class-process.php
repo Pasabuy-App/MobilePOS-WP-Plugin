@@ -122,7 +122,7 @@
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 
                 if ($stage === 'cancelled') {
-                    $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'store', '$wpid', '$date') ");
+                    $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'store', '$stid', '$date') ");
                 }
 
                 $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$stage', '$wpid', '$date') ");
