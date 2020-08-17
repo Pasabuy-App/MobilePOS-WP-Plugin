@@ -111,10 +111,10 @@
 
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
-            // Insert into table orders (store id, operation id, customer id, user id = 0 and date)
+            // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
             $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '$date') ");
             $order_id = $wpdb->insert_id;
-            // Insert into table order items (order id, customer id who create and date)
+            // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
             $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
             $order_items_id = $wpdb->insert_id;
             $id = array();
@@ -145,50 +145,6 @@
                         "message" => "Order added successfully."
                 );
             }
-            // validation of product -> old query
-            /* $get_product_status = $wpdb->get_row("SELECT
-                    tp_rev.child_val as `status`
-                FROM
-                    $tp_prod_table tp_prod
-                    LEFT JOIN $tp_revs_table tp_rev ON tp_rev.ID = tp_prod.`status` 
-                WHERE
-                    tp_prod.ID = {$user["product_id"]}");
-                    
-            if ($get_product_status->status === '0' ) {
-                return array(
-                    "status" => "failed",
-                    "message" => "This product does not exist."
-                 );
-            }*/
-
-            // Step 8: Insert Query
-            /*$wpdb->query("START TRANSACTION");
-    
-                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('0', '{$user["product_id"]}', '{$user["quantity"]}', '0', '$date') ");
-                $order_items = $wpdb->insert_id;
-                                                                                
-                $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["store_id"]}', '{$user["operation_id"]}', '{$user["created_by"]}', '{$user["created_by"]}', '$date', 'pending') ");
-                $order = $wpdb->insert_id;
-
-                $result = $wpdb->query("UPDATE $table_ord_it SET odid = $order WHERE ID IN ($order_items) ");
-
-            if ($order_items < 1 || $order < 1 || $result < 1 ) {
-
-                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
-                 $wpdb->query("ROLLBACK");
-                 return array(
-                    "status" => "failed",
-                    "message" => "An error occured while submitting data to the server."
-                 );
-            }else{
-
-                // Step 10: If no problems found in queries above, do mysql commit (do changes(insert rows))
-                $wpdb->query("COMMIT");
-                return array(
-                        "status" => "success",
-                        "message" => "Order added successfully."
-                );
-            }*/
         }
         
         // Catch Post 
