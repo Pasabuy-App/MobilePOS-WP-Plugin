@@ -27,7 +27,7 @@
             $table_revs = TP_REVISIONS_TABLE;                               
             $table_ord = MP_ORDERS_TABLE;
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
-            $status = $_POST['status'];
+            $stage = $_POST['stage'];
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -47,7 +47,7 @@
             }
             
             // Step 3: Check if required parameters are passed
-            if (!isset($_POST["status"])) {
+            if (!isset($_POST["stage"])) {
                 return array(
                         "status" => "unknown",
                         "message" => "Please contact your administrator. Request unknown!",
@@ -55,7 +55,7 @@
             }
 
             // Step 4: Check if parameters passed are empty
-            if (empty($_POST["status"])) {
+            if (empty($_POST["stage"])) {
                 return array(
                         "status" => "failed",
                         "message" => "Required fileds cannot be empty.",
@@ -63,14 +63,15 @@
             }
 
             // Step 5: Ensures that `stage` is correct
-            if ( !($status === 'pending')  
-                && !($status === 'received') 
-                && !($status === 'delivered') 
-                && !($status === 'shipping') 
-                && !($status === 'cancelled') ) {
+            if ( !($_POST['stage'] === 'pending') 
+                && !($_POST['stage'] === 'received') 
+                && !($_POST['stage'] === 'completed') 
+                && !($_POST['stage'] === 'shipping') 
+                && !($_POST['stage'] === 'cancelled')
+                && !($_POST['stage'] === 'rejected') ) {
                 return array(
                     "status" => "failed",
-                    "message" => "Invalid status.",
+                    "message" => "Invalid stage.",
                 );
             }
             
@@ -87,7 +88,7 @@
             INNER JOIN 
                 $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
             WHERE
-                mp_ord.`status` = '$status'
+                (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'
             ");
             
             // Step 7: Check if no rows found

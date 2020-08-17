@@ -21,7 +21,7 @@
 
             global $wpdb;
 
-            // Get Order ID and status order (received/cancelled)
+            // Get Order ID and status order (received/rejected)
             $date = MP_Globals:: date_stamp(); 
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = 'tp_revisions';
@@ -70,16 +70,16 @@
                 );
             }
 
-            // Step 5: Check if stage input is not received or cancelled
-            if ($stage === 'pending' || $stage === 'shipping' || $stage === 'delivered') {
+            // Step 5: Check if stage input is not received or rejected
+            if ($stage === 'pending' || $stage === 'shipping' || $stage === 'completed') {
                 return array(
                     "status" => "failed",
                     "message" => "This process is not for $stage.",
                 );
             }
 
-            // Step 6: Check if stage input is received or cancelled
-            if ($stage === 'received' || $stage === 'cancelled') {
+            // Step 6: Check if stage input is received or rejected
+            if ($stage === 'received' || $stage === 'rejected') {
 
                 // Step 7: Validate store
                 $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' ");
