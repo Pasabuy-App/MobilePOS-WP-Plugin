@@ -109,6 +109,8 @@
                 'status'    =>$user["status"]
             );
 
+            isset($_POST['msg']) ? $remarks = trim($_POST['msg']) : $remarks = NULL  ;
+
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
 
@@ -126,7 +128,9 @@
                     $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
                     $id[] = $wpdb->insert_id; // Insert last id to array
                 }
-
+                if ( !empty($remarks) ) { // if remarks is not empty, insert to mp revisions
+                    $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'remarks', '$remarks', '{$user["uid"]}', '$date' ) ");   
+                }
                 // Insert into table revisions (revision type = orders, last id of insert of order, key = status, value = pending, customer id and date )
                 $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
                 $order_status_id = $wpdb->insert_id;
