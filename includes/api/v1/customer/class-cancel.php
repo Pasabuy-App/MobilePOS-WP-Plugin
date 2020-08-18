@@ -47,7 +47,7 @@
             }
             
             // Step 3: Check if required parameters are passed
-            if (!isset($_POST['odid'])) {
+            if (!isset($odid)) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown!",
@@ -63,7 +63,7 @@
                 );
             }
             
-            // Step 5: Check if order status is pending
+            // Step 5: Check if order status is pending and if the same in cancelled status
             $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
             if ($check_status->status === $status) {
                 return array(
@@ -81,13 +81,13 @@
             // Step 6: Update order status to cancelled
             $wpdb->query("START TRANSACTION");
             // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
-            $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'ordering', '$user_id', '$date') ");
-            $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");
+            $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'ordering', '$user_id', '$date') ");// Add key_type
+            $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");// Add cancel_by
             $insert3 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
             $order_status = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) ");
 
-			//$result = $wpdb->query("UPDATE $table_ord SET `status` = '$status' WHERE ID = $odid AND wpid = $user_id "); -> old query
+            // Step 7: Check result
             if ( $insert1 < 1 ||  $insert2 < 1 ||   $insert3 < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(

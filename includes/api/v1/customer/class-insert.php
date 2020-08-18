@@ -101,8 +101,8 @@
                 );
             }
 
-            $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' ");
-            $child_key = array( 
+            $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' "); // get product name and price
+            $child_key = array( //stored in array
                 'title'     =>$get_data->name_id, 
                 'price'     =>$get_data ->price_id, 
                 'quantity'  =>$user["qty"], 
@@ -111,24 +111,29 @@
 
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");
-            // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
-            $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '$date') ");
-            $order_id = $wpdb->insert_id;
-            // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
-            $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
-            $order_items_id = $wpdb->insert_id;
-            $id = array();
-            // Loop data array from child key with child value and insert to table revisions (revision type, last id of insert of order items, key, value, cusotmer id and date)
-            foreach ( $child_key as $key => $child_val) {
-                $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
-                $id[] = $wpdb->insert_id; // Insert last id to array
-            }
-            // Insert into table revisions (revision type = orders, last id of insert of order, key = status, value = pending, customer id and date )
-            $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
-            $order_status_id = $wpdb->insert_id;
-            // Update status of order and quantity
-            $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id WHERE ID IN ($order_id) ");
-            $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
+
+                // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
+                $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '$date') ");
+                $order_id = $wpdb->insert_id;
+
+                // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
+                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
+                $order_items_id = $wpdb->insert_id;
+
+                $id = array();
+                // Loop data array from child key with child value and insert to table revisions (revision type, last id of insert of order items, key, value, cusotmer id and date)
+                foreach ( $child_key as $key => $child_val) {
+                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
+                    $id[] = $wpdb->insert_id; // Insert last id to array
+                }
+
+                // Insert into table revisions (revision type = orders, last id of insert of order, key = status, value = pending, customer id and date )
+                $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
+                $order_status_id = $wpdb->insert_id;
+
+                // Update status of order and quantity
+                $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id WHERE ID IN ($order_id) ");
+                $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
             
             if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1 || $update_ordit < 1 ) {
                 // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))

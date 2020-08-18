@@ -50,9 +50,9 @@
             }
 
             // Step 3: Check if required parameters are passed
-            if (!isset($_POST["qty"]) 
-                || !isset($_POST["odid"])
-                || !isset($_POST["pid"])  ) {
+            if (!isset($qty) 
+                || !isset($odid)
+                || !isset($pid)  ) {
 				return array(
 						"status" => "unknown",
 						"message" => "Please contact your administrator. Request unknown!",
@@ -60,9 +60,9 @@
             }
 
             // Step 4: Check if parameters passed are empty
-            if (empty($_POST["qty"]) 
-                || empty($_POST["odid"]) 
-                || empty($_POST["pid"])  ) {
+            if (empty($qty) 
+                || empty($odid) 
+                || empty($pid)  ) {
                 return array(
                         "status" => "failed",
                         "message" => "Required fields cannot be empty.",
@@ -70,7 +70,7 @@
             }
 
             // Step 5: Check if parameters passed is numeric
-            if (!is_numeric($_POST["qty"])  ) {
+            if (!is_numeric($qty)  ) {
 				return array(
 						"status" => "failed",
 						"message" => "Required ID is not in valid format.",
@@ -97,7 +97,8 @@
             }
 
             // Step 8: Check if product status inside order using order id and product id
-            $check_status = $wpdb->get_row("SELECT ID,(SELECT child_val AS status FROM $table_mp_revs WHERE ID = $table_ord_it.status) AS status FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid'");
+            $check_status = $wpdb->get_row("SELECT ID,(SELECT child_val AS status FROM $table_mp_revs WHERE ID = $table_ord_it.status) AS status 
+                FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid'");
             if (!($check_status->status === '1')) {
                 return array(
                     "status" => "failed",
@@ -106,11 +107,12 @@
             }
             
             // Step 9: Insert Query and Update
-            // Insert into table revisions (revision type = order_items, order id, key = quantity, value = quantity, customer id and date )
+                // Insert into table revisions (revision type = order_items, order id, key = quantity, value = quantity, customer id and date )
             $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$check_ord_prod->ID', 'quantity', '$qty', '$wpid', '$date') ");
             $ordid_qty = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord_it SET quantity = '$ordid_qty' WHERE ID IN ($check_status->ID) "); // Update the quantity of order items table
-        
+            
+            // Step 10: Check result
             if ( $ordid_qty < 1  || $result < 1 ) {
                 return array(
                    "status" => "failed",

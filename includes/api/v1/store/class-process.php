@@ -133,12 +133,12 @@
                 $wpdb->query("START TRANSACTION");
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 
-                if ($stage === 'cancelled') {
+                if ($stage === 'cancelled') { // if cancelled, add key_type and cancel_by in mp revisions
                     $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'preparing', '$wpid', '$date') ");
                     $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'store', '$stid', '$date') ");
                 }
 
-                $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$stage', '$wpid', '$date') ");
+                $insert = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$stage', '$wpid', '$date') ");// received, cancelled or shipping order status
                 $order_status = $wpdb->insert_id;
                 $result = $wpdb->query("UPDATE $table_ord SET created_by = '$wpid', status = '$order_status' WHERE ID IN ($odid) ");
 

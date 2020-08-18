@@ -63,8 +63,7 @@
                     && !($stage === 'received') 
                     && !($stage === 'completed') 
                     && !($stage === 'shipping') 
-                    && !($stage === 'cancelled')
-                    && !($stage === 'rejected') ) {
+                    && !($stage === 'cancelled')) {
                     return array(
                         "status" => "failed",
                         "message" => "Invalid stage.",
