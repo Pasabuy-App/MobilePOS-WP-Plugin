@@ -71,7 +71,7 @@
             }
 
             // Step 5: Check if stage input is not received or cancelled
-            if ($stage === 'pending' || $stage === 'completed' || $stage === 'shipping') {
+            if ($stage === 'pending' || $stage === 'completed') {
                 return array(
                     "status" => "failed",
                     "message" => "This process is not for $stage.",
@@ -79,7 +79,7 @@
             }
 
             // Step 6: Check if stage input is received or cancelled
-            if ($stage === 'received' || $stage === 'cancelled') {
+            if ($stage === 'received' || $stage === 'cancelled' || $stage === 'shipping') {
 
                 // Step 7: Validate store and store staus if active
                 $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' "); // Check if store is exist or not
@@ -108,13 +108,25 @@
                         "message" => "This order has already been $verify_stage->status.",
                     );
                 }
+
+                if ($stage === 'received' || $stage === 'cancelled'){
+                    // Step 9: Check if order status is pending
+                    if (!($verify_stage->status === 'pending')) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This order can't be $stage.",
+                        );
+                    }
+                }
                 
-                // Step 10: Check if order status is pending
-                if (!($verify_stage->status === 'pending')) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This order can't be $stage.",
-                    );
+                if ($stage === 'shipping'){
+                    // Step 9: Check if order status is received
+                    if (!($verify_stage->status === 'received')) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This order can't be $stage.",
+                        );
+                    }
                 }
             
                 // Step 11: Update query
@@ -122,6 +134,7 @@
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 
                 if ($stage === 'cancelled') {
+                    $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'preparing', '$wpid', '$date') ");
                     $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'store', '$stid', '$date') ");
                 }
 
