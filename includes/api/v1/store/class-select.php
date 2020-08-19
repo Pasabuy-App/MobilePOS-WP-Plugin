@@ -26,6 +26,7 @@
             $table_prod = TP_PRODUCT_TABLE;
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;
+            $table_revs = MP_REVISIONS_TABLE;
             $odid = $_POST['odid'];
 
             //Step 1: Check if prerequisites plugin are missing
@@ -73,27 +74,26 @@
             
              // Step 6: Query
             $result = $wpdb->get_results("SELECT
-                ord.ID,
-                ( SELECT wp_users.display_name FROM wp_users WHERE wp_users.ID = ord.wpid ) AS ordered_by,
-                ( SELECT $table_tp_revs.child_val FROM $table_tp_revs WHERE ID = $table_store.title AND $table_tp_revs.parent_id = $table_store.ID ) AS `store_name`,
-                ( SELECT
-                    $table_tp_revs.child_val 
-                FROM
-                    $table_tp_revs 
-                WHERE
-                    $table_tp_revs.ID = ( SELECT $table_prod.title FROM $table_prod WHERE $table_prod.ID = ord_it.pdid )) AS `product_name`,
-                    ord_it.quantity AS order_quantity,
-                    ord.date_created AS order_created 
+                od_it.odid AS order_id, 
+                (SELECT wp_users.display_name FROM wp_users WHERE wp_users.ID = ord.wpid ) AS ordered_by,
+                (SELECT child_val FROM $table_tp_revs WHERE ID = str.title) AS store_name, 
+                (SELECT child_val FROM $table_tp_revs WHERE ID = prd.title) AS product_name,
+                od_it.quantity,
+                ord.date_created
             FROM
                 $table_ord AS ord
-            LEFT JOIN 
-                $table_ord_it AS ord_it ON ord_it.odid = ord.ID
-            LEFT JOIN 
-                $table_store ON $table_store.ID = ord.stid 
+            INNER JOIN 
+                $table_ord_it AS od_it ON  ord.ID = od_it.odid
+            INNER JOIN 
+                $table_store AS str ON  ord.stid = str.ID
+            INNER JOIN 
+                $table_prod AS prd ON od_it.pdid = prd.ID
+            INNER JOIN 
+                $table_revs AS mprevs ON od_it.quantity = mprevs.ID
             WHERE 
                 ord.ID = '$odid' 
             AND 
-                ord.`status` = 'pending'");
+            (SELECT child_val FROM $table_revs WHERE ID = ord.`status`) = 'pending'");
 
              // Step 7: Check if no result
              if (!$result)
