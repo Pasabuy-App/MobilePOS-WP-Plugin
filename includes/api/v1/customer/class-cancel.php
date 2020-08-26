@@ -59,8 +59,8 @@
             $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND wpid = '$user_id' ");
             if (!$check_order) {
                 return array(
-                    "status" => "failed",
-                    "message" => "No order found."
+                    "status" => "success",
+                    "message" => "No data found."
                 );
             }
             
@@ -68,13 +68,13 @@
             $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
             if ($check_status->status === $status) {
                 return array(
-                    "status" => "failed",
+                    "status" => "success",
                     "message" => "This order has already been $status."
                 );
             }
             if (!($check_status->status === 'pending')) {
                 return array(
-                    "status" => "failed",
+                    "status" => "success",
                     "message" => "This order cannot be $status."
                 );
             }
