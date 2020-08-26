@@ -36,16 +36,16 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
             // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
 
@@ -55,8 +55,8 @@
                 || !isset($_POST["stid"]) 
                 || !isset($_POST["opid"])  ) {
 				return array(
-						"status" => "unknown",
-						"message" => "Please contact your administrator. Request unknown!",
+					"status" => "unknown",
+					"message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -66,16 +66,16 @@
                 || empty($_POST["stid"]) 
                 || empty($_POST["opid"])  ) {
                 return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
                 );  
             }
 
             // Step 5: Check if parameters passed is numeric
             if (!is_numeric($_POST["qty"])  ) {
 				return array(
-						"status" => "failed",
-						"message" => "Required ID is not in valid format.",
+					"status" => "failed",
+					"message" => "Required ID is not in valid format.",
                 );
             }
             
@@ -89,7 +89,7 @@
             if (!$verify_store || !($verify_store_stat->status === '1')) {
                 return array(
                     "status" => "failed",
-                    "message" => "No store found.",
+                    "message" => "No data found.",
                 );
             }
 
@@ -99,11 +99,12 @@
             if (!$verify_prod || !($verify_status->status === '1')) {
                 return array(
                     "status" => "failed",
-                    "message" => "No product found.",
+                    "message" => "No data found.",
                 );
             }
 
             $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' "); // get product name and price
+
             $child_key = array( //stored in array
                 'title'     =>$get_data->name_id, 
                 'price'     =>$get_data ->price_id, 
@@ -113,7 +114,7 @@
 
             isset($_POST['msg']) ? $remarks = trim($_POST['msg']) : $remarks = NULL  ; // set message is null
 
-            // Step 8: Insert Query
+            // Step 8: Start mysql transaction
             $wpdb->query("START TRANSACTION");
 
                 // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
@@ -141,21 +142,22 @@
                 $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id WHERE ID IN ($order_id) ");
                 $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
             
+                
+            // Step 9: Check if any queries above failed
             if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1 || $update_ordit < 1 ) {
-                // Step 9: If failed, do mysql rollback (discard the insert queries(no inserted data))
                 $wpdb->query("ROLLBACK");
                 return array(
-                   "status" => "failed",
-                   "message" => "An error occured while submitting data to the server."
-                );
-            }else{
-                // Step 10: If no problems found in queries above, do mysql commit (do changes(insert rows))
-                $wpdb->query("COMMIT");
-                return array(
-                        "status" => "success",
-                        "message" => "Order added successfully."
+                    "status" => "failed",
+                    "message" => "An error occured while submitting data to the server."
                 );
             }
+
+            // Step 10: Commit if no errors found
+            $wpdb->query("COMMIT");
+            return array(
+                "status" => "success",
+                "message" => "Order added successfully."
+            );
         }
         
         // Catch Post 

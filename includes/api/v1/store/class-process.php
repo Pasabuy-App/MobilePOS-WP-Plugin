@@ -32,16 +32,16 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
             // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
 
@@ -51,8 +51,8 @@
                 || !isset($_POST['stage'])
                 || !isset($_POST['stid'])) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Request unknown!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -61,8 +61,8 @@
                 || empty($_POST['stid'])
                 || empty($_POST['stage'])) {
                 return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
                 );
             }
 
@@ -97,7 +97,7 @@
             if (!$verify_store || !($verify_store_stat->status === '1')) {
                 return array(
                     "status" => "success",
-                    "message" => "No store found.",
+                    "message" => "No data found.",
                 );
             }
     
@@ -106,7 +106,7 @@
             if (!$verify_order) {
                 return array(
                     "status" => "success",
-                    "message" => "No order found.",
+                    "message" => "No data found with this value.",
                 );
             }
 
@@ -137,7 +137,7 @@
                 }
             }
             
-                // Step 10: Update query
+            // Step 10: Start mysql transaction
             $wpdb->query("START TRANSACTION");
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 if ($stage === 'cancelled') { // if cancelled, add key_type and cancel_by in mp revisions
@@ -149,20 +149,21 @@
                 $order_status = $wpdb->insert_id;
                 $result = $wpdb->query("UPDATE $table_ord SET created_by = '$wpid', status = '$order_status' WHERE ID IN ($odid) ");
 
-            // Step 11: Check result
+            // Step 11: Check if any queries above failed
             if ( $insert < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",
                     "message" => "An error occured while submiting data to server."
                 );
-            } else {
-                $wpdb->query("COMMIT");
-                return array(
-                    "status"  => "success",
-                    "message" => "Order has been $stage successfully."
-                );
             }
+
+            // Step 12: Commit if no errors found
+            $wpdb->query("COMMIT");
+            return array(
+                "status"  => "success",
+                "message" => "Order has been $stage successfully."
+            );
 
         }
     }

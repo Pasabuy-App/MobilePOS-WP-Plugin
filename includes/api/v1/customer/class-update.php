@@ -31,16 +31,16 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
             // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
 
@@ -49,8 +49,8 @@
                 || !isset($odid)
                 || !isset($pid)  ) {
 				return array(
-						"status" => "unknown",
-						"message" => "Please contact your administrator. Request unknown!",
+					"status" => "unknown",
+					"message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -59,16 +59,16 @@
                 || empty($odid) 
                 || empty($pid)  ) {
                 return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
                 );  
             }
 
             // Step 5: Check if parameters passed is numeric
-            if (!is_numeric($qty)  ) {
+            if ( !is_numeric($qty)  ) {
 				return array(
-						"status" => "failed",
-						"message" => "Required ID is not in valid format.",
+					"status" => "failed",
+					"message" => "Required ID is not in valid format.",
                 );
             }
               
@@ -107,23 +107,24 @@
                 );
             }
             
-            // Step 9: Insert Query and Update
+            // Step 9: Start mysql transaction
                 // Insert into table revisions (revision type = order_items, order id, key = quantity, value = quantity, customer id and date )
             $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$check_ord_prod->ID', 'quantity', '$qty', '$wpid', '$date') ");
             $ordid_qty = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord_it SET quantity = '$ordid_qty' WHERE ID IN ($check_status->ID) "); // Update the quantity of order items table
             
-            // Step 10: Check result
+            // Step 10: Check if any queries above failed
             if ( $ordid_qty < 1  || $result < 1 ) {
                 return array(
                    "status" => "failed",
                    "message" => "An error occured while submitting data to the server."
                 );
-            }else{
-                return array(
-                        "status" => "success",
-                        "message" => "Order updated successfully."
-                );
             }
+            
+            // Step 10: Return result
+            return array(
+                "status" => "success",
+                "message" => "Order updated successfully."
+            );
         }
     }

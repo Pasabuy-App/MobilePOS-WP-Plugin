@@ -32,32 +32,32 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
-            // Step 2: Check if wpid and snky is valid
+            // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
             
-            // Step 3: Sanitize all Request
+            // Step 3: Check if required parameters are passed
             if (!isset($_POST["odid"]))  {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Request unknown!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
-            // Step 4: Sanitize if all variables is empty
+            // Step 4: Check if parameters passed are empty
             if (empty($_POST["odid"])) {
                 return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
                 );
             }
             
@@ -72,7 +72,7 @@
                 );
             }
             
-            // Step 6: Query
+            // Step 6: Start mysql transaction
             $result = $wpdb->get_results("SELECT
                 od_it.odid AS order_id, 
                 (SELECT wp_users.display_name FROM wp_users WHERE wp_users.ID = ord.wpid ) AS ordered_by,
@@ -95,19 +95,18 @@
             AND 
             (SELECT child_val FROM $table_revs WHERE ID = ord.`status`) = 'pending'");
 
-            // Step 7: Check if no result
-            if (!$result)
-            {
+            // Step 7: Check if no rows found
+            if (!$result) {
                 return array(
                     "status" => "success",
-                    "message" => "No results found.",
+                    "message" => "No data found.",
                 );
             }
              
-             // Step 8: Return Result 
-             return array(
-                     "status" => "success",
-                     "data" => $result
-             );
+            // Step 8: Return Result 
+            return array(
+                "status" => "success",
+                "data" => $result
+            );
         }
     }           

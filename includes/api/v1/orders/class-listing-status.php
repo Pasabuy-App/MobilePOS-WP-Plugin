@@ -33,27 +33,27 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
             // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
             
-            // Step 3: Check if post stage is set
+            // Step 3: Check if required parameters are passed
             if (isset($_POST['stage'])) {
                 
                 // Step 4: Check if parameters passed are empty
                 if (empty($_POST['stage'])) {
                     return array(
-                            "status" => "failed",
-                            "message" => "Required fileds cannot be empty.",
+                        "status" => "failed",
+                        "message" => "Required fileds cannot be empty.",
                     );
                 }
 
@@ -71,7 +71,7 @@
             }
             $stage = $_POST['stage'];
             
-            // Step 6: Query to variable
+            // Step 6: Start mysql transaction
             $sql = "SELECT
                 mp_ordtem.ID,
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
@@ -91,18 +91,17 @@
             $result = $wpdb->get_results($sql);
             
             // Step 7: Check if no rows found
-            if (!$result)
-            {
+            if (!$result) {
                 return array(
                         "status" => "success",
                         "message" => "No data found.",
                 );
             }
             
+            // Step 8: Return result
             return array(
                     "status" => "success",
                     "data" => $result
-                
             );
             
         }

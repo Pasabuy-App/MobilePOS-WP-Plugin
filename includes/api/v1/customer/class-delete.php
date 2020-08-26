@@ -40,7 +40,7 @@
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                        "message" => "Please contact your administrator. Verification issues!",
                 );
             }
 
@@ -96,23 +96,24 @@
                 );
             }
             
-            // Step 8: Insert Query and Update
+            // Step 8: Start mysql transaction
                 // Insert into table revisions (revision type = order_items, order id, key = status, value = 0, customer id and date )
             $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('order_items', '$check_status->ID', 'status', '0', '$wpid', '$date') "); // Add status
             $ordid_stat = $wpdb->insert_id;
             $result = $wpdb->query("UPDATE $table_ord_it SET status = '$ordid_stat' WHERE ID IN ($check_status->ID) "); // Update the status of order items table
         
-            // Step 9: Check result
+            // Step 9: Check if any queries above failed
             if ( $ordid_stat < 1  || $result < 1 ) {
                 return array(
                    "status" => "failed",
                    "message" => "An error occured while submitting data to the server."
                 );
-            }else{
-                return array(
-                        "status" => "success",
-                        "message" => "Order deleted successfully."
-                );
             }
+            
+            // Step 10: Return result
+            return array(
+                "status" => "success",
+                "message" => "Order deleted successfully."
+            );
         }
     }

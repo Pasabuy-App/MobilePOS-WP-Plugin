@@ -38,7 +38,7 @@
             if (DV_Verification::is_verified() == false) {
                 return array(
                         "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification Issues!",
+                        "message" => "Please contact your administrator. Verification issues!",
                 );
             }
             
@@ -79,8 +79,9 @@
                 );
             }
             
-            // Step 6: Update order status to cancelled
+            // Step 6: Start mysql transaction
             $wpdb->query("START TRANSACTION");
+
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
                 $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'ordering', '$user_id', '$date') ");// Add key_type
                 $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");// Add cancel_by
@@ -88,18 +89,20 @@
                 $order_status = $wpdb->insert_id;
                 $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) "); // Update order status
 
-            // Step 7: Check result
+            // Step 7: Check if any queries above failed
             if ( $insert1 < 1 ||  $insert2 < 1 ||   $insert3 < 1 || $result < 1 ) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status"  => "failed",
                     "message" => "An error occured while submiting data to server."
                 );
-            } else {
-                $wpdb->query("COMMIT");
-                return array(
-                    "status"  => "success",
-                    "message" => "Order has been $status successfully."
+            }
+
+            // Step 8: Commit if no errors found
+            $wpdb->query("COMMIT");
+            return array(
+                "status"  => "success",
+                "message" => "Order has been $status successfully."
                 );
             }
 		}
