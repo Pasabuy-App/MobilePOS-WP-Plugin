@@ -44,7 +44,8 @@
                         "message" => "Please contact your administrator. Verification Issues!",
                 );
             }
-            
+
+            // TODO : Check permission if can process an order (receive, cancel, shipping)
             // Step 3: Check if required parameters are passed
             if (!isset($_POST['odid']) 
                 || !isset($_POST['stage'])
