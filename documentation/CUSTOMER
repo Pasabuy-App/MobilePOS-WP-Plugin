@@ -1,21 +1,22 @@
 ### REST API Implementation
 
 
-#### INSERT ORDER  => mobilepos/v1/customer/insert
+#### INSERT ORDER  => mobilepos/v1/customer/order/insert
 
 REQUEST:
 - Method: POST
 - Header: key=Content-Type, value=application/x-www-form-urlencoded
-- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=qty (value= quantity of order), key=pdid (value= product id), key = stid (store id) , key = opid (operation id)
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=qty (value= quantity of order), key=pdid (value= product id), key = stid (store id), key = opid (operation id), key = msg (Comment/Message (Optional) )
 
 RESPONSE:
-- code: 'unknown' message: 'Please contact your administrator. Plugin Missing!' data: null
-- code: 'unknown' message: 'Please contact your administrator. Verification Issues!' data: null
-- code: 'failed' message: 'Required fields cannot be empty' data: null
-- code: 'failed' message: 'ID is not in valid format.' data: null
-- code: 'failed' message: 'This product does not exist.' data: null
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
 - code: 'failed' message: 'Required ID is not in valid format.' data: null
-- code: 'error' message: 'An error occured while submitting data to database' data: null
+- code: 'success' message: 'No data found.' data: null
+- code: 'success' message: 'No data found with this value.' data: null
+- code: 'failed' message: 'An error occured while submitting data to database' data: null
 
 IF SUCCESS:
 ```
@@ -26,5 +27,77 @@ IF SUCCESS:
 ```
 
 
-#### CANCEL ORDER  => mobilepos/v1/customer/insert
+#### CANCEL ORDER  => mobilepos/v1/customer/order/cancel
 
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=odid (value= order id)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'success' message: 'No data found.' data: null
+- code: 'success' message: 'This order has already been $status.' data: null
+- code: 'success' message: 'This order cannot be $status.' data: null
+- code: 'failed' message: 'An error occured while submitting data to database' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "message": "Order has been $status successfully."
+}
+```
+
+#### UPDATE ORDER  => mobilepos/v1/customer/order/update
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=odid (value= order id), key=pid (value= product id), key=qty (value= quantity of order)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
+- code: 'failed' message: 'Required ID is not in valid format.' data: null
+- code: 'success' message: 'No data found.' data: null
+- code: 'success' message: 'This order has already been $check_status->status..' data: null
+- code: 'success' message: 'No data found with this value.' data: null
+- code: 'failed' message: 'An error occured while submitting data to database' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "message": "Order updated successfully."
+}
+```
+
+#### DELETE ORDER  => mobilepos/v1/customer/order/delete
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=odid (value= order id), key=pid (value= product id)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
+- code: 'success' message: 'No data found.' data: null
+- code: 'success' message: 'This order has already been $check_status->status..' data: null
+- code: 'success' message: 'No data found with this value.' data: null
+- code: 'failed' message: 'An error occured while submitting data to database' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "message": "Order deleted successfully."
+}
+```

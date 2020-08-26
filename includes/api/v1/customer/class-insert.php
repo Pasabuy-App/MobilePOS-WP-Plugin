@@ -88,7 +88,7 @@
             $verify_store_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE id = (SELECT status FROM tp_stores WHERE ID = '{$user["stid"]}')");
             if (!$verify_store || !($verify_store_stat->status === '1')) {
                 return array(
-                    "status" => "failed",
+                    "status" => "success",
                     "message" => "No data found.",
                 );
             }
@@ -98,8 +98,8 @@
             $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}')");
             if (!$verify_prod || !($verify_status->status === '1')) {
                 return array(
-                    "status" => "failed",
-                    "message" => "No data found.",
+                    "status" => "success",
+                    "message" => "No data found with this value.",
                 );
             }
 
