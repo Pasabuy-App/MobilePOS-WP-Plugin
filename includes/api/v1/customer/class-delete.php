@@ -31,16 +31,16 @@
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
 
             // Step 2: Validate user
             if (DV_Verification::is_verified() == false) {
                 return array(
-                        "status" => "unknown",
-                        "message" => "Please contact your administrator. Verification issues!",
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
                 );
             }
 
@@ -48,8 +48,8 @@
             if (!isset($odid)
                 || !isset($pid)  ) {
 				return array(
-						"status" => "unknown",
-						"message" => "Please contact your administrator. Request unknown!",
+					"status" => "unknown",
+					"message" => "Please contact your administrator. Request unknown!",
                 );
             }
 
@@ -57,8 +57,8 @@
             if (empty($odid) 
                 || empty($pid)  ) {
                 return array(
-                        "status" => "failed",
-                        "message" => "Required fields cannot be empty.",
+                    "status" => "failed",
+                    "message" => "Required fields cannot be empty.",
                 );  
             }
 
