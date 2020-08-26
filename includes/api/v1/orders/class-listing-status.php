@@ -28,7 +28,6 @@
             $table_ord = MP_ORDERS_TABLE;
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
             $table_mprevs = MP_REVISIONS_TABLE;
-            $stage = $_POST['stage'];
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -48,10 +47,10 @@
             }
             
             // Step 3: Check if post stage is set
-            if (isset($stage)) {
+            if (isset($_POST['stage'])) {
                 
                 // Step 4: Check if parameters passed are empty
-                if (empty($stage)) {
+                if (empty($_POST['stage'])) {
                     return array(
                             "status" => "failed",
                             "message" => "Required fileds cannot be empty.",
@@ -59,17 +58,18 @@
                 }
 
                 // Step 5: Ensures that `stage` is correct
-                if ( !($stage === 'pending') 
-                    && !($stage === 'received') 
-                    && !($stage === 'completed') 
-                    && !($stage === 'shipping') 
-                    && !($stage === 'cancelled')) {
+                if ( !($_POST['stage'] === 'pending') 
+                    && !($_POST['stage'] === 'received') 
+                    && !($_POST['stage'] === 'completed') 
+                    && !($_POST['stage'] === 'shipping') 
+                    && !($_POST['stage'] === 'cancelled')) {
                     return array(
                         "status" => "failed",
                         "message" => "Invalid stage.",
                     );
                 }
             }
+            $stage = $_POST['stage'];
             
             // Step 6: Query to variable
             $sql = "SELECT
@@ -84,7 +84,7 @@
             INNER JOIN 
                 $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid";
              
-            if($stage != NULL){
+            if($stage != NULL){ // If stage is not null, filter result using stage/status
                 $sql .= " WHERE (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";
             }
             
@@ -94,8 +94,8 @@
             if (!$result)
             {
                 return array(
-                        "status" => "failed",
-                        "message" => "No orders found.",
+                        "status" => "success",
+                        "message" => "No data found.",
                 );
             }
             

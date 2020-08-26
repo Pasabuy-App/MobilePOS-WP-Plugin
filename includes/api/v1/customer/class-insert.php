@@ -22,8 +22,6 @@
             
             global $wpdb;
 
-            $date = MP_Globals:: date_stamp();
-            $user = MP_Insert_Order:: catch_post();
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;                                 
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
             $fields_ord = MP_ORDER_TABLE_FIELD;                                 
@@ -80,8 +78,12 @@
 						"message" => "Required ID is not in valid format.",
                 );
             }
+            
+            $date = MP_Globals:: date_stamp();
+            $user = MP_Insert_Order:: catch_post();
 
-            // Step 6: Check if store is exist/active and // TODO : operation is exists/active
+            // Step 6: Check if store is exist/active and 
+                // TODO : operation is exists/active
             $verify_store = $wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["stid"]}' ");
             $verify_store_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE id = (SELECT status FROM tp_stores WHERE ID = '{$user["stid"]}')");
             if (!$verify_store || !($verify_store_stat->status === '1')) {
@@ -109,7 +111,7 @@
                 'status'    =>$user["status"]
             );
 
-            isset($_POST['msg']) ? $remarks = trim($_POST['msg']) : $remarks = NULL  ;
+            isset($_POST['msg']) ? $remarks = trim($_POST['msg']) : $remarks = NULL  ; // set message is null
 
             // Step 8: Insert Query
             $wpdb->query("START TRANSACTION");

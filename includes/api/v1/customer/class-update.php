@@ -21,16 +21,11 @@
         public static function list_open(){
             
             global $wpdb;
-
-            $date = MP_Globals:: date_stamp();                                
+                              
             $table_ord_it = MP_ORDER_ITEMS_TABLE;                             
             $table_ord = MP_ORDERS_TABLE;                         
             $table_mp_revs = MP_REVISIONS_TABLE;
-            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
-            $wpid =$_POST["wpid"];
-            $odid =$_POST["odid"];
-            $pid =$_POST["pid"];
-            $qty =$_POST["qty"];
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD;
            
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -76,14 +71,20 @@
 						"message" => "Required ID is not in valid format.",
                 );
             }
+              
+            $date = MP_Globals:: date_stamp(); 
+            $wpid =$_POST["wpid"];
+            $odid =$_POST["odid"];
+            $pid =$_POST["pid"];
+            $qty =$_POST["qty"];
             
             // Step 6: Validate order using order id and user id
             $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND wpid = '$wpid' ");
             $check_ord_prod = $wpdb->get_row("SELECT ID FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid' ");
             if (!$check_order || !$check_ord_prod) {
                 return array(
-                    "status" => "failed",
-                    "message" => "No order found."
+                    "status" => "success",
+                    "message" => "No data found."
                 );
             }
             
@@ -91,7 +92,7 @@
             $check_status = $wpdb->get_row("SELECT (Select child_val from $table_mp_revs where id = $table_ord.status) AS status FROM $table_ord where id = '$odid'");
             if (!($check_status->status === 'pending')) {
                 return array(
-                    "status" => "failed",
+                    "status" => "success",
                     "message" => "This order has already been $check_status->status."
                 );
             }
@@ -101,8 +102,8 @@
                 FROM $table_ord_it WHERE odid = '$odid' AND pdid = '$pid'");
             if (!($check_status->status === '1')) {
                 return array(
-                    "status" => "failed",
-                    "message" => "No order found.",
+                    "status" => "success",
+                    "message" => "No data found with this value.",
                 );
             }
             

@@ -27,7 +27,6 @@
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;
             $table_revs = MP_REVISIONS_TABLE;
-            $odid = $_POST['odid'];
 
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -62,17 +61,18 @@
                 );
             }
             
-             // Step 5: Check if order id is valid
-             $verify_id =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' ");
-
-             if (!$verify_id) {
-                 return array(
-                     "status" => "failed",
-                     "message" => "No order found with this value.",
-                 );
-             }
+            $odid = $_POST['odid'];
             
-             // Step 6: Query
+            // Step 5: Check if order id is valid
+            $verify_id =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' ");
+            if (!$verify_id) {
+                return array(
+                    "status" => "success",
+                    "message" => "No data found with this value.",
+                );
+            }
+            
+            // Step 6: Query
             $result = $wpdb->get_results("SELECT
                 od_it.odid AS order_id, 
                 (SELECT wp_users.display_name FROM wp_users WHERE wp_users.ID = ord.wpid ) AS ordered_by,
@@ -95,14 +95,14 @@
             AND 
             (SELECT child_val FROM $table_revs WHERE ID = ord.`status`) = 'pending'");
 
-             // Step 7: Check if no result
-             if (!$result)
-             {
-                 return array(
-                         "status" => "failed",
-                         "message" => "No results found.",
-                 );
-             }
+            // Step 7: Check if no result
+            if (!$result)
+            {
+                return array(
+                    "status" => "success",
+                    "message" => "No results found.",
+                );
+            }
              
              // Step 8: Return Result 
              return array(

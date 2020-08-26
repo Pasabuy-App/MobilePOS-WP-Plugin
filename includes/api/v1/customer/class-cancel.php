@@ -20,14 +20,10 @@
         public static function list_open(){
 
             global $wpdb;
-                           
-            $date = MP_Globals:: date_stamp();     
+                               
             $table_ord = MP_ORDERS_TABLE;                                     
             $table_mp_revs = MP_REVISIONS_TABLE;
-            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
-            $odid = $_POST['odid'];
-            $user_id = $_POST['wpid'];
-            $status = 'cancelled';
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD;
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -53,6 +49,11 @@
                     "message" => "Please contact your administrator. Request unknown!",
                 );
             }
+             
+            $date = MP_Globals:: date_stamp(); 
+            $odid = $_POST['odid'];
+            $user_id = $_POST['wpid'];
+            $status = 'cancelled';
 
             // Step 4: Validate order using order id and user id
             $check_order = $wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND wpid = '$user_id' ");
@@ -80,12 +81,12 @@
             
             // Step 6: Update order status to cancelled
             $wpdb->query("START TRANSACTION");
-            // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
-            $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'ordering', '$user_id', '$date') ");// Add key_type
-            $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");// Add cancel_by
-            $insert3 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') ");
-            $order_status = $wpdb->insert_id;
-            $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) ");
+                // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)
+                $insert1 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'key_type', 'ordering', '$user_id', '$date') ");// Add key_type
+                $insert2 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'cancel_by', 'customer', '$user_id', '$date') ");// Add cancel_by
+                $insert3 = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$odid', 'status', '$status', '$user_id', '$date') "); // Add status
+                $order_status = $wpdb->insert_id;
+                $result = $wpdb->query("UPDATE $table_ord SET status = '$order_status' WHERE ID IN ($odid) "); // Update order status
 
             // Step 7: Check result
             if ( $insert1 < 1 ||  $insert2 < 1 ||   $insert3 < 1 || $result < 1 ) {
