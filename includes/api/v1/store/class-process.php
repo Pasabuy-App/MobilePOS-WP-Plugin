@@ -67,7 +67,8 @@
             }
 
             // Step 5: Check if stage input is not received or cancelled
-            if ($_POST['stage'] === 'pending' || $_POST['stage'] === 'completed') {
+            if ($_POST['stage'] === 'pending' 
+                || $_POST['stage'] === 'completed') {
                 return array(
                     "status" => "failed",
                     "message" => "This process is not for ".$_POST['stage'].".",
@@ -75,7 +76,9 @@
             }
 
             // Step 6: Check if stage input is received or cancelled
-            if ( !($_POST['stage'] === 'received')  && !($_POST['stage'] === 'cancelled')  && !($_POST['stage'] === 'shipping') ) {
+            if ( !($_POST['stage'] === 'received')  
+                && !($_POST['stage'] === 'cancelled')  
+                && !($_POST['stage'] === 'shipping') ) {
                 return array(
                     "status" => "failed",
                     "message" => "Invalid stage.",
