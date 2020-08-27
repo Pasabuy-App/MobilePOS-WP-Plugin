@@ -21,13 +21,14 @@
             
             global $wpdb;
 
-            // variables for query
+            // tables for query
             $table_store = TP_STORES_TABLE;
             $table_prod = TP_PRODUCT_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;                               
             $table_ord = MP_ORDERS_TABLE;
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
             $table_mprevs = MP_REVISIONS_TABLE;
+            $table_ope = MP_OPERATIONS_TABLE;
             
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -142,8 +143,8 @@
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
                 (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,";
             if ( isset($_POST['opid']) ){
-                $sql .= "(SELECT date_open FROM mp_operations WHERE ID = mp_ord.opid)  AS date_open,
-                    (SELECT date_close FROM mp_operations WHERE ID = mp_ord.opid)  AS date_close, ";
+                $sql .= "(SELECT date_open FROM $table_ope WHERE ID = mp_ord.opid)  AS date_open,
+                    (SELECT date_close FROM $table_ope WHERE ID = mp_ord.opid)  AS date_close, ";
             }
             $sql .= " mp_ord.date_created AS date_ordered 
             FROM
@@ -151,7 +152,7 @@
             INNER JOIN 
                 $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
             INNER JOIN 
-                    mp_operations AS mp_ope ON mp_ope.ID = mp_ord.opid 
+                    $table_ope AS mp_ope ON mp_ope.ID = mp_ord.opid 
             WHERE 
                 mp_ord.$colname = '$user_id' 
             ";

@@ -19,8 +19,7 @@
 
         public static function list_open(){
 
-            global $wpdb;
-                               
+            global $wpdb;       
             $table_ord = MP_ORDERS_TABLE;                                     
             $table_mp_revs = MP_REVISIONS_TABLE;
             $fields_mp_revs = MP_REVISIONS_TABLE_FIELD;
