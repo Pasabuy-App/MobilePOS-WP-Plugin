@@ -6,7 +6,7 @@
 	}
 
 	/** 
-        * @package tindapress-wp-plugin
+        * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
     class MP_Listing_Date {

@@ -1,4 +1,3 @@
-
 <?php
 	// Exit if accessed directly
 	if ( ! defined( 'ABSPATH' ) ) 
@@ -21,7 +20,6 @@
         public static function list_open(){
             
             global $wpdb;
-
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;                                 
             $table_ord_it = MP_ORDER_ITEMS_TABLE;
             $fields_ord = MP_ORDER_TABLE_FIELD;                                 
