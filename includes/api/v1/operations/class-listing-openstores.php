@@ -51,7 +51,7 @@
             $date = MP_Globals::get_user_date($_POST['wpid']);
             
             // Step 4: Start mysql transaction
-            $sql = "SELECT st.ID, date_open, date_close,
+            $sql = "SELECT st.ID, 
                 ( SELECT rev.child_val FROM $table_revs rev WHERE ID = st.title ) AS `title`,
                 ( SELECT rev.child_val FROM $table_revs rev WHERE ID = st.short_info ) AS `short_info`,
                 ( SELECT rev.child_val FROM $table_revs rev WHERE ID = st.long_info ) AS `long_info`,
@@ -61,7 +61,8 @@
                 ( SELECT brgy_name FROM $table_brgy WHERE ID = ( SELECT child_val FROM $table_dvrev WHERE ID = dv_add.brgy ) ) AS brgy,
                 ( SELECT city_name FROM $table_ct WHERE city_code = ( SELECT child_val FROM $table_dvrev WHERE ID = dv_add.city ) ) AS city,
                 ( SELECT prov_name FROM $table_prov WHERE prov_code = ( SELECT child_val FROM $table_dvrev WHERE ID = dv_add.province ) ) AS province,
-                ( SELECT country_name FROM $table_ctry WHERE ID = ( SELECT child_val FROM $table_dvrev WHERE ID = dv_add.country ) ) AS country 
+                ( SELECT country_name FROM $table_ctry WHERE ID = ( SELECT child_val FROM $table_dvrev WHERE ID = dv_add.country ) ) AS country,
+                ops.date_open, ops.date_close 
             FROM
                 $table_store st
             INNER JOIN 
@@ -73,7 +74,7 @@
             WHERE 
                 rev.child_val = 1
             AND
-            '$date' BETWEEN `date_open` AND `date_close`";
+            '$date' BETWEEN ops.`date_open` AND ops.`date_close`";
             
             $result = $wpdb->get_results($sql);
 
