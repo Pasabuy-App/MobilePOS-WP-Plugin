@@ -113,7 +113,7 @@
                 if ( !$valdt) {
                     return array(
                         "status" => "failed",
-                        "message" => "Date is not in valid format!",
+                        "message" => "Date is not in valid format.",
                     );
                 }
             }

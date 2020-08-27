@@ -55,7 +55,7 @@
 			if ( empty($_POST['stid']) ) {
 				return array(
 					"status" => "unknown",
-					"message" => "Please contact your administrator. Request unknown!",
+                    "message" => "Required fields cannot be empty.",
                 );
 			}
 

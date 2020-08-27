@@ -1,0 +1,52 @@
+#### TOTAL SALES => mobilepos/v1/store/total/sales
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key = stid (store id)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
+- code: 'success' message: 'This store does not exists.' data: null
+- code: 'success' message: 'No results found.' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "data": {
+        "total_sales": "150.00"
+    }
+}
+```
+
+#### PROCESS ORDER => mobilepos/v1/store/order/process
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=stid (value= store id), key=odid (value= order id), key = stid (store id), key = stage (Order status - cancelled, received, shipping)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
+- code: 'failed' message: 'This process is not for ".$_POST['stage'].".' data: null
+- code: 'failed' message: 'Invalid stage.' data: null
+- code: 'success' message: 'No data found.' data: null
+- code: 'success' message: 'No data found with this value.' data: null
+- code: 'failed' message: 'his order has already been $verify_stage->status.' data: null
+- code: 'failed' message: 'This order can't be $stage.' data: null
+- code: 'failed' message: 'An error occured while submiting data to server.' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "message": "Order has been $stage successfully."
+}
+```

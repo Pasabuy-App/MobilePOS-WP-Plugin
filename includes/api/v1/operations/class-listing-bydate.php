@@ -69,7 +69,7 @@
             if ( MP_Listing_Date::validateDate($start) == false || MP_Listing_Date::validateDate($end) == false ) {
                 return array(
                     "status" => "failed",
-                    "message" => "Date not in valid format",
+                    "message" => "Date not in valid format.",
                 );
             }
       

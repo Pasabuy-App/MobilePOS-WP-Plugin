@@ -1,0 +1,251 @@
+
+#### LIST OF OPERATIONS BY DATE  => mobilepos/v1/operation/listing/bydate
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id), key=start (value= Date start of operation), key=end (value= Date end of operation)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Request unknown!' data: null
+- code: 'failed' message: 'Required fields cannot be empty.' data: null
+- code: 'failed' message: 'Date not in valid format.' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "data": [
+        {
+            "date": "2020-08-18 09:28:50",
+            "ID": "2",
+            "operation_id": "1",
+            "order_id": "51",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "328",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        },
+        {
+            "date": "2020-08-18 09:29:20",
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "52",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "334",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        },
+        {
+            "date": "2020-08-18 09:31:53",
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "53",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "340",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        },
+        {
+            "date": "2020-08-18 09:31:56",
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "54",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "345",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        }
+    ]
+}
+```
+
+#### LIST OF OPERATIONS BY MONTH  => mobilepos/v1/operation/listing/bymonth
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+
+IF SUCCESS:
+```
+{
+    "status": "success",
+    "data": [
+        {
+            "ID": "2",
+            "operation_id": "1",
+            "order_id": "51",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "328",
+            "date": "2020-08-18 09:28:50"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "52",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "334",
+            "date": "2020-08-18 09:29:20"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "53",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "340",
+            "date": "2020-08-18 09:31:53"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "54",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "345",
+            "date": "2020-08-18 09:31:56"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "55",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "351",
+            "date": "2020-08-19 03:25:53"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "56",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "364",
+            "date": "2020-08-19 03:29:13"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "57",
+            "store_name": "Mig's Bites",
+            "product_name": "Chicken balat 2",
+            "product_price": "150",
+            "quantity": "367",
+            "date": "2020-08-19 03:29:38"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "58",
+            "store_name": "Mig's Bites",
+            "product_name": "wala pa",
+            "product_price": "Mig's Bites",
+            "quantity": "374",
+            "date": "2020-08-22 06:25:28"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "59",
+            "store_name": "Mig's Bites",
+            "product_name": "wala pa",
+            "product_price": "Mig's Bites",
+            "quantity": "379",
+            "date": "2020-08-22 06:25:34"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "60",
+            "store_name": "Mig's Bites",
+            "product_name": "wala pa",
+            "product_price": "Mig's Bites",
+            "quantity": "385",
+            "date": "2020-08-22 06:25:38"
+        },
+        {
+            "ID": "2",
+            "operation_id": "2",
+            "order_id": "61",
+            "store_name": "Mig's Bites",
+            "product_name": "wala pa",
+            "product_price": "Mig's Bites",
+            "quantity": "396",
+            "date": "2020-08-22 06:34:23"
+        }
+    ]
+}
+```
+
+#### LIST OF OPERATIONS BY MONTH  => mobilepos/v1/operation/listing/bymonth
+
+REQUEST:
+- Method: POST
+- Header: key=Content-Type, value=application/x-www-form-urlencoded
+- Params: key=snky (value=session key), key=wpid (value=wordpress id)
+
+RESPONSE:
+- code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null
+- code: 'unknown' message: 'Please contact your administrator. Verification issues!' data: null
+
+IF SUCCESS:
+```
+
+    "status": "success",
+    "data": [
+        {
+            "ID": "2",
+            "title": "Mig's Bites",
+            "short_info": "Mig's Bites",
+            "long_info": "Bites",
+            "logo": "sample logo",
+            "banner": "sample banner",
+            "street": "test street",
+            "brgy": "Putatan",
+            "city": "City of Muntinlupa",
+            "province": "NCR - 4th District",
+            "country": "Philippines",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        },
+        {
+            "ID": "2",
+            "title": "Mig's Bites",
+            "short_info": "Mig's Bites",
+            "long_info": "Bites",
+            "logo": "sample logo",
+            "banner": "sample banner",
+            "street": "test street",
+            "brgy": "Putatan",
+            "city": "City of Muntinlupa",
+            "province": "NCR - 4th District",
+            "country": "Philippines",
+            "date_open": "2020-08-27 08:08:53",
+            "date_close": "2020-08-27 22:08:53"
+        }
+    ]
+}
+```
