@@ -104,6 +104,5 @@
                 "status"  => "success",
                 "message" => "Order has been $status successfully."
                 );
-            }
 		}
 	}
