@@ -23,7 +23,6 @@
     
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-total-sales.php';
 
     // operation folder
     require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-bydate.php';
@@ -33,6 +32,7 @@
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales.php';
     
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
@@ -58,6 +58,11 @@
                 'callback' => array('MP_Process','listen'),
             ));
 
+            register_rest_route( 'mobilepos/v1/store/total', 'sales', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_Sales','listen'),
+            ));
+
         /*
          * ORDER RESTAPI
         */
@@ -65,11 +70,6 @@
             register_rest_route( 'mobilepos/v1/order', 'listing', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Order_Listing','listen'),
-            ));
-
-            register_rest_route( 'mobilepos/v1/order/total', 'sales', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Total_Sales','listen'),
             ));
 
         /*
