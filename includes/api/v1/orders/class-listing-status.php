@@ -75,7 +75,7 @@
                 $stage = $_POST['stage'];
 
             }
-            // Step 8: Check if required parameters are passed
+            // Step 8: Check if required parameters is passed and numeric
             if ( isset($_POST['stid']) ){
                 if ( empty($_POST['stid']) ) {
                     return array(
@@ -87,7 +87,7 @@
                 $user_id = $_POST['stid'];
             }
 
-            // Step 8: Check if order id is set or numeric
+            // Step 8: Check if required parameters is passed and numeric
             if ( isset($_POST['odid']) ){
                 if ( empty($_POST['odid']) ) {
                     return array(
@@ -98,12 +98,30 @@
                 $odid = $_POST['odid'];
             }
 
-            // Step 9: Start mysql transaction
+            // Step 9: Check if required parameters is passed and valid
+            if ( isset($_POST['date']) ){
+                if ( empty($_POST['date']) ) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "Required fileds cannot be empty.",
+                    );
+                }
+                $dt = TP_Globals::convert_date($_POST["wpid"],$_POST["date"]);
+                $valdt= TP_OrdersByDate::validateDate($dt);   
+                if ( !$valdt) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "Date is not in valid format!",
+                    );
+                }
+            }
+
+            // Step 10: Start mysql transaction
             $sql = "SELECT
                 mp_ordtem.ID AS item_id,
                 (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
                 (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
-                mp_ordtem.quantity AS qty,
+                mp_ordtem.quantity AS quantity,
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
                 (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,
                 mp_ord.date_created AS date_ordered 
@@ -121,21 +139,24 @@
             if($odid != NULL){ // If odid is not null, filter result using odid
                 $sql .= " AND mp_ord.ID = '$odid'";
             }
+            if($dt != NULL){ // If date is not null, filter result using date
+                $sql .= " AND DATE(mp_ord.date_created) = '$dt' ";
+            }
             
             $result = $wpdb->get_results($sql);
             
-            // Step 10: Check if no rows found
+            // Step 11: Check if no rows found
             if (!$result) {
                 return array(
-                        "status" => "success",
-                        "message" => "No order found.",
+                    "status" => "success",
+                    "message" => "No order found.",
                 );
             }
             
-            // Step 11: Return result
+            // Step 12: Return result
             return array(
-                    "status" => "success",
-                    "data" => $result
+                "status" => "success",
+                "data" => $result
             );
             
         }
