@@ -128,10 +128,6 @@
                 $opid = $_POST['opid'];
             }
 
-            // if store id => item_id, customer name, product, price, quantity, status, date_created, date_ordered
-            // if customer id => item_id, store name, product, price, quantity, status, date_created, date_ordered
-            // if operation id => item_id, store name, customer name, product, price, quantity, status, date_created, date_ordered, date_open, date_close  
-
             // Step 10: Start mysql transaction 
             $sql = "SELECT mp_ordtem.ID AS item_id, ";
             if (!($colname === "stid")) {
@@ -160,7 +156,7 @@
                 mp_ord.$colname = '$user_id' 
             ";
              
-            if($opid != NULL){ // If stage is not null, filter result using stage/status
+            if($opid != NULL){ // If operation id is not null, filter result using operation id
                 $sql .= " AND mp_ord.opid = '$opid' ";
             }
              
@@ -173,7 +169,7 @@
             if($dt != NULL){ // If date is not null, filter result using date
                 $sql .= " AND DATE(mp_ord.date_created) = '$dt' ";
             }
-            //return $sql;
+            
             $result = $wpdb->get_results($sql);
             
             // Step 11: Check if no rows found
