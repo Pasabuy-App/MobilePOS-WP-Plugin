@@ -22,8 +22,7 @@
     require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
     
     // order folder
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing-status.php';
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing-date.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
@@ -57,14 +56,9 @@
          * ORDER RESTAPI
         */
 
-            register_rest_route( 'mobilepos/v1/order', 'bystatus', array(
+            register_rest_route( 'mobilepos/v1/order', 'listing', array(
                 'methods' => 'POST',
-                'callback' => array('MP_OrdersByStatus','listen'),
-            ));
-
-            register_rest_route( 'mobilepos/v1/order', 'bydate', array(
-                'methods' => 'POST',
-                'callback' => array('MP_OrdersByDate','listen'),
+                'callback' => array('MP_Order_Listing','listen'),
             ));
         
         /*

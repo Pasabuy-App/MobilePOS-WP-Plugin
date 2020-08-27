@@ -37,5 +37,33 @@
             return true;
 
         }
+
+        public static function get_timezone($wpid){
+            global $wpdb;
+
+            $result = $wpdb->get_row("SELECT
+                (SELECT tzone_name FROM dv_geo_timezone WHERE country_code = 
+                (SELECT country_code FROM dv_geo_countries WHERE ID =  (SELECT child_val FROM dv_revisions WHERE child_key = 'country' AND ID = dv_address.country  ))) as time_zone
+            FROM
+                dv_address 
+            WHERE
+                wpid = $wpid");
+
+            if (! $result  ) {
+                return false;
+
+            }else{
+                return $result;
+
+            }
+        }
+
+        public static function convert_date($wpid, $date){
+            global $wpdb;
+            $user_timezone = MP_Globals::get_timezone($wpid);
+            date_default_timezone_set($user_timezone->time_zone);
+
+            return date('Y-m-d H:i:s', strtotime($date));
+        }
         
     }

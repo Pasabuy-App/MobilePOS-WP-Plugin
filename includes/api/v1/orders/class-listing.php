@@ -9,11 +9,11 @@
         * @package tindapress-wp-plugin
         * @version 0.1.0
 	*/
-    class MP_OrdersByStatus {
+    class MP_Order_Listing {
 
         public static function listen(){
             return rest_ensure_response( 
-                MP_OrdersByStatus:: list_open()
+                MP_Order_Listing:: list_open()
             );
         }
 
@@ -106,8 +106,8 @@
                         "message" => "Required fileds cannot be empty.",
                     );
                 }
-                $dt = TP_Globals::convert_date($_POST["wpid"],$_POST["date"]);
-                $valdt= TP_OrdersByDate::validateDate($dt);   
+                $dt = MP_Globals::convert_date($_POST["wpid"],$_POST["date"]);
+                $valdt= MP_Order_Listing::validateDate($dt);   
                 if ( !$valdt) {
                     return array(
                         "status" => "failed",
@@ -159,6 +159,14 @@
                 "data" => $result
             );
             
+        }
+        
+        //Function for checking if date is valid and invalid format(2020-01-01).
+        //Invalid dates such us 2020-02-31 will return false
+        public static function validateDate($date, $format = 'Y-m-d H:i:s')
+        {
+            $d = DateTime::createFromFormat($format, $date);
+            return $d && $d->format($format) == $date;
         }
 
     }
