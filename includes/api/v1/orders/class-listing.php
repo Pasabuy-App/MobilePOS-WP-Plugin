@@ -75,7 +75,8 @@
                 $stage = $_POST['stage'];
 
             }
-            // Step 8: Check if required parameters is passed and numeric
+            
+            // Step 6: Check if required parameters is passed and numeric
             if ( isset($_POST['stid']) ){
                 if ( empty($_POST['stid']) ) {
                     return array(
@@ -87,7 +88,7 @@
                 $user_id = $_POST['stid'];
             }
 
-            // Step 8: Check if required parameters is passed and numeric
+            // Step 7: Check if required parameters is passed and numeric
             if ( isset($_POST['odid']) ){
                 if ( empty($_POST['odid']) ) {
                     return array(
@@ -98,7 +99,7 @@
                 $odid = $_POST['odid'];
             }
 
-            // Step 9: Check if required parameters is passed and valid
+            // Step 8: Check if required parameters is passed and valid
             if ( isset($_POST['date']) ){
                 if ( empty($_POST['date']) ) {
                     return array(
@@ -115,23 +116,53 @@
                     );
                 }
             }
+            
+            // Step 9: Check if required parameters is passed and numeric
+            if ( isset($_POST['opid']) ){
+                if ( empty($_POST['opid']) ) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "Required fileds cannot be empty.",
+                    );
+                }
+                $opid = $_POST['opid'];
+            }
 
-            // Step 10: Start mysql transaction
-            $sql = "SELECT
-                mp_ordtem.ID AS item_id,
-                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
-                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
+            // if store id => item_id, customer name, product, price, quantity, status, date_created, date_ordered
+            // if customer id => item_id, store name, product, price, quantity, status, date_created, date_ordered
+            // if operation id => item_id, store name, customer name, product, price, quantity, status, date_created, date_ordered, date_open, date_close  
+
+            // Step 10: Start mysql transaction 
+            $sql = "SELECT mp_ordtem.ID AS item_id, ";
+            if (!($colname === "stid")) {
+                $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
+            }
+            if (!($colname === "wpid")) {
+                $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer, ";
+            }
+            $sql .="(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
+                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT price FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS price,
                 mp_ordtem.quantity AS quantity,
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
-                (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,
-                mp_ord.date_created AS date_ordered 
+                (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,";
+            if ( isset($_POST['opid']) ){
+                $sql .= "(SELECT date_open FROM mp_operations WHERE ID = mp_ord.opid)  AS date_open,
+                    (SELECT date_close FROM mp_operations WHERE ID = mp_ord.opid)  AS date_close, ";
+            }
+            $sql .= " mp_ord.date_created AS date_ordered 
             FROM
                 $table_ord_it  AS mp_ordtem
             INNER JOIN 
                 $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
+            INNER JOIN 
+                    mp_operations AS mp_ope ON mp_ope.ID = mp_ord.opid 
             WHERE 
                 mp_ord.$colname = '$user_id' 
             ";
+             
+            if($opid != NULL){ // If stage is not null, filter result using stage/status
+                $sql .= " AND mp_ord.opid = '$opid' ";
+            }
              
             if($stage != NULL){ // If stage is not null, filter result using stage/status
                 $sql .= " AND (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";
@@ -142,7 +173,7 @@
             if($dt != NULL){ // If date is not null, filter result using date
                 $sql .= " AND DATE(mp_ord.date_created) = '$dt' ";
             }
-            
+            //return $sql;
             $result = $wpdb->get_results($sql);
             
             // Step 11: Check if no rows found
