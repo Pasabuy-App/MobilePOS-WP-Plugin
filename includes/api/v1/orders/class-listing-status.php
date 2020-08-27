@@ -47,9 +47,9 @@
             }
             
             // Step 3: Check if required parameters are passed
-            if (isset($_POST['stage'])) {
+            if ( isset($_POST['stage']) ) {
                 
-                // Step 4: Check if parameters passed are empty
+            // Step 4: Check if parameters passed are empty
                 if (empty($_POST['stage'])) {
                     return array(
                         "status" => "failed",
@@ -57,9 +57,10 @@
                     );
                 }
 
-                // Step 5: Ensures that `stage` is correct
+            // Step 5: Ensures that `stage` is correct
                 if ( !($_POST['stage'] === 'pending') 
                     && !($_POST['stage'] === 'received') 
+                    && !($_POST['stage'] === 'accepted') 
                     && !($_POST['stage'] === 'completed') 
                     && !($_POST['stage'] === 'shipping') 
                     && !($_POST['stage'] === 'cancelled')) {
@@ -69,36 +70,70 @@
                     );
                 }
             }
+
+            // Step 6: Store post to variable
             $stage = $_POST['stage'];
-            
-            // Step 6: Start mysql transaction
+            $colname = "wpid";
+            $user_id = $_POST['wpid'];
+
+            // Step 7: Check if store id is set or numeric
+            if ( isset($_POST['stid']) ){
+                if ( !is_numeric($_POST['stid']) ){
+                    return array(
+                        "status" => "failed",
+                        "message" => "ID is not valid format.",
+                    );
+                }
+                $colname = "stid";
+                $user_id = $_POST['stid'];
+            }
+
+            // Step 8: Check if order id is set or numeric
+            if ( isset($_POST['odid']) ){
+                if ( !is_numeric($_POST['odid']) ){
+                    return array(
+                        "status" => "failed",
+                        "message" => "ID is not valid format.",
+                    );
+                }
+                $odid = $_POST['odid'];
+            }
+
+            // Step 9: Start mysql transaction
             $sql = "SELECT
                 mp_ordtem.ID,
-                (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
                 (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
-                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS orders,
+                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS order,
                 mp_ordtem.quantity AS qty,
+                (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
+                (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,
                 mp_ord.date_created AS date_ordered 
             FROM
                 $table_ord_it  AS mp_ordtem
             INNER JOIN 
-                $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid";
+                $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
+            WHERE 
+                mp_ord.$colname = '$user_id' 
+            ";
              
             if($stage != NULL){ // If stage is not null, filter result using stage/status
-                $sql .= " WHERE (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";
+                $sql .= " AND (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";
+            }
+            if($odid != NULL){ // If odid is not null, filter result using odid
+                $sql .= " AND mp_ord.ID = '$odid'";
             }
             
             $result = $wpdb->get_results($sql);
             
-            // Step 7: Check if no rows found
+            // Step 10: Check if no rows found
             if (!$result) {
                 return array(
                         "status" => "success",
-                        "message" => "No data found.",
+                        "message" => "No order found.",
                 );
             }
             
-            // Step 8: Return result
+            // Step 11: Return result
             return array(
                     "status" => "success",
                     "data" => $result
