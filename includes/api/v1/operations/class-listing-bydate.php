@@ -21,7 +21,6 @@
 
             global $wpdb;
             $table_revs = TP_REVISIONS_TABLE;
-            $table_categories = TP_CATEGORIES_TABLE;
             $table_product = TP_PRODUCT_TABLE;
             $table_store = TP_STORES_TABLE;                             
             $table_ord = MP_ORDERS_TABLE;
