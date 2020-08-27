@@ -42,7 +42,6 @@
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
-                
             }
 
             // Step 3: Convert timezone to user specific timezone

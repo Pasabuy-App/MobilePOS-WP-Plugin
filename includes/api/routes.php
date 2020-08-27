@@ -23,6 +23,7 @@
     
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-total-sales.php';
 
     // operation folder
     require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-bydate.php';
@@ -64,6 +65,11 @@
             register_rest_route( 'mobilepos/v1/order', 'listing', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Order_Listing','listen'),
+            ));
+
+            register_rest_route( 'mobilepos/v1/order/total', 'sales', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_Sales','listen'),
             ));
 
         /*
