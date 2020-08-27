@@ -46,11 +46,14 @@
                 );
             }
             
+            $colname = "wpid";
+            $user_id = $_POST['wpid'];
+            
             // Step 3: Check if required parameters are passed
             if ( isset($_POST['stage']) ) {
                 
             // Step 4: Check if parameters passed are empty
-                if (empty($_POST['stage'])) {
+                if ( empty($_POST['stage']) ) {
                     return array(
                         "status" => "failed",
                         "message" => "Required fileds cannot be empty.",
@@ -69,19 +72,15 @@
                         "message" => "Invalid stage.",
                     );
                 }
+                $stage = $_POST['stage'];
+
             }
-
-            // Step 6: Store post to variable
-            $stage = $_POST['stage'];
-            $colname = "wpid";
-            $user_id = $_POST['wpid'];
-
-            // Step 7: Check if store id is set or numeric
+            // Step 8: Check if required parameters are passed
             if ( isset($_POST['stid']) ){
-                if ( !is_numeric($_POST['stid']) ){
+                if ( empty($_POST['stid']) ) {
                     return array(
                         "status" => "failed",
-                        "message" => "ID is not valid format.",
+                        "message" => "Required fileds cannot be empty.",
                     );
                 }
                 $colname = "stid";
@@ -90,10 +89,10 @@
 
             // Step 8: Check if order id is set or numeric
             if ( isset($_POST['odid']) ){
-                if ( !is_numeric($_POST['odid']) ){
+                if ( empty($_POST['odid']) ) {
                     return array(
                         "status" => "failed",
-                        "message" => "ID is not valid format.",
+                        "message" => "Required fileds cannot be empty.",
                     );
                 }
                 $odid = $_POST['odid'];
@@ -101,9 +100,9 @@
 
             // Step 9: Start mysql transaction
             $sql = "SELECT
-                mp_ordtem.ID,
+                mp_ordtem.ID AS item_id,
                 (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
-                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS order,
+                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
                 mp_ordtem.quantity AS qty,
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
                 (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,
