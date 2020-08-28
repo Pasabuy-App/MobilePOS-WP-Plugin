@@ -6,7 +6,7 @@
 REQUEST:
 - Method: POST
 - Header: key=Content-Type, value=application/x-www-form-urlencoded
-- Params: key=snky (value=session key), key=wpid (value=wordpress id for user only), key=stid (value= store id for store only), key=stage (value= order status (pending, cancelled, received, completed, shipping, accepted - Optional ) ), key = odid (order id - Optional), key = opid (operation id - Optional), key = date (Date created of order) )
+- Params: key=snky (value=session key), key=wpid (value=wordpress id for user only), key=stid (value= store id for store only), key=stage (value= order status (pending, cancelled, received, completed, shipping, accepted - Optional ) ), key = odid (order id - Optional), key = opid (operation id - Optional for operation only), key = date (Date created of order) )
 
 RESPONSE:
 - code: 'unknown' message: 'Please contact your administrator. ".$plugin." plugin missing!' data: null

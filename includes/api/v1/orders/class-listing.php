@@ -97,7 +97,7 @@
                         "message" => "Required fileds cannot be empty.",
                     );
                 }
-                $odid = $_POST['odid'];
+                $odid = $_POST['odid']; // Validate order id
             }
 
             // Step 8: Check if required parameters is passed and valid
@@ -126,7 +126,9 @@
                         "message" => "Required fileds cannot be empty.",
                     );
                 }
-                $opid = $_POST['opid'];
+                $colname = "opid";
+                $user_id = $_POST['opid'];
+                //$opid = $_POST['opid']; // Validate operation id
             }
 
             // Step 10: Start mysql transaction 
@@ -135,6 +137,10 @@
                 $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
             }
             if (!($colname === "wpid")) {
+                $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer, ";
+            }
+            if (!($colname === "opid")) {
+                $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
                 $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer, ";
             }
             $sql .="(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
@@ -157,9 +163,9 @@
                 mp_ord.$colname = '$user_id' 
             ";
              
-            if($opid != NULL){ // If operation id is not null, filter result using operation id
-                $sql .= " AND mp_ord.opid = '$opid' ";
-            }
+            // if($opid != NULL){ // If operation id is not null, filter result using operation id
+            //     $sql .= " AND mp_ord.opid = '$opid' ";
+            // }
              
             if($stage != NULL){ // If stage is not null, filter result using stage/status
                 $sql .= " AND (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";

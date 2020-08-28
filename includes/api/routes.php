@@ -30,7 +30,6 @@
     require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-bymonth.php';
     
     // store folder
-    require plugin_dir_path(__FILE__) . '/v1/store/class-select.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales.php';
     
@@ -48,10 +47,6 @@
         /*
          * STORE RESTAPI
         */
-            register_rest_route( 'mobilepos/v1/store', 'select', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Select_Order','listen'),
-            ));
             
             register_rest_route( 'mobilepos/v1/store/order', 'process', array(
                 'methods' => 'POST',
