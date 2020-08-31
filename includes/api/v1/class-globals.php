@@ -11,18 +11,10 @@
     */
     
   	class MP_Globals {
+
         public static function date_stamp(){
             return date("Y-m-d h:i:s");
 		}
-		
-		// verify if datavice plugin is activated
-		/*public static function verify_plugins(){
-            if(!class_exists('DV_Verification') || !class_exists('TP_Globals') ){
-                return false;
-            }else{
-                return true;
-            }
-        }*/
 
         public static function verify_prerequisites(){
 
@@ -73,5 +65,4 @@
 
             return date('Y-m-d H:i:s', strtotime($date));
         }
-        
     }

@@ -26,6 +26,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
 			$sql = "CREATE TABLE `".$tbl_configs."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Config Description', ";
 				$sql .= "`config_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Config KEY', ";
 				$sql .= "`config_value` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Config VALUES', ";
@@ -38,6 +39,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_inventory'" ) != $tbl_inventory) {
 			$sql = "CREATE TABLE `".$tbl_inventory."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product ID.', ";
 				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store ID.',  ";
 				$sql .= "`wpid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User ID.', ";
@@ -53,6 +55,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_operations'" ) != $tbl_operations) {
 			$sql = "CREATE TABLE `".$tbl_operations."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`date_open` datetime(0) NULL DEFAULT NULL COMMENT 'Date and time of opening.', ";
 				$sql .= "`date_close` datetime(0) NULL DEFAULT NULL COMMENT 'Date and time of closing.', ";
 				$sql .= "`open_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who encoded this.', ";
@@ -67,6 +70,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_orders'" ) != $tbl_orders) {
 			$sql = "CREATE TABLE `".$tbl_orders."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store id which this order belongs to', ";
 				$sql .= "`opid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Operation id which this order belongs to',  ";
 				$sql .= "`wpid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id',  ";
@@ -82,6 +86,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_order_items'" ) != $tbl_order_items) {
 			$sql = "CREATE TABLE `".$tbl_order_items."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`odid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order id which this item belongs to', ";
 				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product id of this item',  ";
 				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Quantity revision id', ";
@@ -96,6 +101,7 @@
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_revisions'" ) != $tbl_revisions) {
 			$sql = "CREATE TABLE `".$tbl_revisions."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
 				$sql .= "`revs_type` enum('none','configs','orders','order_items') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";	
 				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
 				$sql .= "`child_key` varchar(20) NOT NULL DEFAULT 0 COMMENT 'Column name on the table',  ";
@@ -106,7 +112,6 @@
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
 		}
-
+		
 	} 
-	
     add_action( 'activated_plugin', 'mp_dbhook_activate' );

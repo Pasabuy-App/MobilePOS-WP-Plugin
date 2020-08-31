@@ -9,6 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
     */
+    
     class MP_Total_Sales {
         
         public static function listen(){
@@ -74,15 +75,15 @@
 
             // Step 6: Start mysql transaction
 			$result = $wpdb->get_row("SELECT COALESCE
-				( FORMAT( sum( ( SELECT tp_rev.child_val FROM $table_revs tp_rev WHERE ID = tp_prod.price ) ), 2 ), 0 ) AS total_sales 
-			FROM
-				$table_ord mp_ord
-			LEFT JOIN 
-                $table_ord_it mp_ord_itms ON mp_ord_itms.odid = mp_ord.ID
-			LEFT JOIN 
-                $table_product tp_prod ON tp_prod.ID = mp_ord_itms.pdid 
-			WHERE
-			    mp_ord.stid = $store_id");
+                    ( FORMAT( sum( ( SELECT tp_rev.child_val FROM $table_revs tp_rev WHERE ID = tp_prod.price ) ), 2 ), 0 ) AS total_sales 
+                FROM
+                    $table_ord mp_ord
+                LEFT JOIN 
+                    $table_ord_it mp_ord_itms ON mp_ord_itms.odid = mp_ord.ID
+                LEFT JOIN 
+                    $table_product tp_prod ON tp_prod.ID = mp_ord_itms.pdid 
+                WHERE
+                    mp_ord.stid = $store_id");
 
 			if (!$result) {
 				return array(
@@ -94,10 +95,8 @@
             
             // Step 7: Return result
             return array(
-					"status" => "success",
-					"data" => $result
-				);
-
-
+				"status" => "success",
+				"data" => $result
+			);
         }
     }

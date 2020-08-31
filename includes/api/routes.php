@@ -20,19 +20,28 @@
     require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-update.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-listing.php';
     
+    //Operations Classes
+    require plugin_dir_path(__FILE__) . '/v1/operations/class-list-open.php';
+    require plugin_dir_path(__FILE__) . '/v1/operations/class-list-month.php';
+    require plugin_dir_path(__FILE__) . '/v1/operations/class-list-orders.php';
+    require plugin_dir_path(__FILE__) . '/v1/operations/class-list-by-date.php';
+    
+    //Orders Classes
+    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales.php';
+    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales-date.php';
+    require plugin_dir_path(__FILE__) . '/v1/order/class-listing-date.php';
+
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
-
-    // operation folder
-    require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-bydate.php';
-    require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-openstores.php';
-    require plugin_dir_path(__FILE__) . '/v1/operations/class-listing-bymonth.php';
+    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales.php';
+    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales-date.php';
+    require plugin_dir_path(__FILE__) . '/v1/order/class-listing-date.php';
     
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
-    require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales.php';
-    
+
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
 	// Init check if USocketNet successfully request from wapi.
@@ -47,43 +56,33 @@
         /*
          * STORE RESTAPI
         */
+            register_rest_route( 'mobilepos/v1/store', 'select', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Select_Order','listen'),
+            ));
             
             register_rest_route( 'mobilepos/v1/store/order', 'process', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Process','listen'),
             ));
 
-            register_rest_route( 'mobilepos/v1/store/total', 'sales', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Total_Sales','listen'),
-            ));
-
         /*
          * ORDER RESTAPI
         */
-
-            register_rest_route( 'mobilepos/v1/order', 'listing', array(
+           
+            register_rest_route( 'mobilepos/v1/orders', 'listing', array(
                 'methods' => 'POST',
-                'callback' => array('MP_Order_Listing','listen'),
+                'callback' => array('TP_OrdersList','listen'),
             ));
 
-        /*
-         * OPERATION RESTAPI
-        */
-    
-            register_rest_route( 'mobilepos/v1/operation/listing', 'bydate', array(
+            register_rest_route( 'mobilepos/v1/store/order', 'cancel', array(
                 'methods' => 'POST',
-                'callback' => array('MP_Listing_Date','listen'),
+                'callback' => array('MP_Cancel_Order_Store','listen'),
             ));
-    
-            register_rest_route( 'mobilepos/v1/operation/listing', 'openstore', array(
+
+            register_rest_route( 'mobilepos/v1/order', 'bystatus', array(
                 'methods' => 'POST',
-                'callback' => array('MP_Listing_Open','listen'),
-            ));
-    
-            register_rest_route( 'mobilepos/v1/operation/listing', 'bymonth', array(
-                'methods' => 'POST',
-                'callback' => array('MP_Listing_Month','listen'),
+                'callback' => array('MP_OrdersByStatus','listen'),
             ));
         
         /*
@@ -108,8 +107,48 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Delete_Order','listen'),
             ));
+        
+        /*
+         * ORDER RESTAPI
+        */
+            register_rest_route( 'tindapress/v1/order/total', 'sales', array(
+                'methods' => 'POST',
+                'callback' => array('TP_Total_sales','listen'),
+            ));
 
+            register_rest_route( 'tindapress/v1/order/total', 'monthly', array(
+                'methods' => 'POST',
+                'callback' => array('TP_Total_sales_date','listen'),
+            ));
 
+            register_rest_route( 'tindapress/v1/order', 'date', array(
+                'methods' => 'POST',
+                'callback' => array('TP_OrdersByDate','listen'),
+            ));
+
+        /*
+        * OPERATIONS RESTAPI
+        */
+
+            register_rest_route( 'tindapress/v1/operations/list', 'open', array(
+                'methods' => 'POST',
+                'callback' => array('TP_List_Open','listen'),
+            ));
+
+            register_rest_route( 'tindapress/v1/operations/list', 'orders', array(
+                'methods' => 'POST',
+                'callback' => array('TP_List_Orders','listen'),
+            ));
+
+            register_rest_route( 'tindapress/v1/operations/list', 'month', array(
+                'methods' => 'POST',
+                'callback' => array('TP_List_Month','listen'),
+            ));
+
+            register_rest_route( 'tindapress/v1/operations/list', 'date', array(
+                'methods' => 'POST',
+                'callback' => array('TP_List_Date','listen'),
+            ));
     }
     add_action( 'rest_api_init', 'mobilepos_route' );
 

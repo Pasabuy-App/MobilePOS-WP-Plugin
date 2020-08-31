@@ -126,6 +126,7 @@
                         "message" => "Required fileds cannot be empty.",
                     );
                 }
+                
                 $colname = "opid";
                 $user_id = $_POST['opid'];
                 //$opid = $_POST['opid']; // Validate operation id
@@ -133,47 +134,58 @@
 
             // Step 10: Start mysql transaction 
             $sql = "SELECT mp_ordtem.ID AS item_id, ";
-            if (!($colname === "stid")) {
+            
+            if (!($colname === "stid")) 
+            {
                 $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
             }
-            if (!($colname === "wpid")) {
+
+            if (!($colname === "wpid")) 
+            {
                 $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer, ";
             }
-            if (!($colname === "opid")) {
+            
+            if (!($colname === "opid")) 
+            {
                 $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
                 $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer, ";
             }
+            
             $sql .="(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
                 (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT price FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS price,
                 mp_ordtem.quantity AS quantity,
                 (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
                 (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,";
-            if ( isset($_POST['opid']) ){
+            
+            if ( isset($_POST['opid']) )
+            {
                 $sql .= "(SELECT date_open FROM $table_ope WHERE ID = mp_ord.opid)  AS date_open,
                     (SELECT date_close FROM $table_ope WHERE ID = mp_ord.opid)  AS date_close, ";
             }
+            
             $sql .= " mp_ord.date_created AS date_ordered 
-            FROM
-                $table_ord_it  AS mp_ordtem
-            INNER JOIN 
-                $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
-            INNER JOIN 
-                    $table_ope AS mp_ope ON mp_ope.ID = mp_ord.opid 
-            WHERE 
-                mp_ord.$colname = '$user_id' 
+                FROM
+                    $table_ord_it  AS mp_ordtem
+                INNER JOIN 
+                    $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid 
+                INNER JOIN 
+                        $table_ope AS mp_ope ON mp_ope.ID = mp_ord.opid 
+                WHERE 
+                    mp_ord.$colname = '$user_id' 
             ";
              
-            // if($opid != NULL){ // If operation id is not null, filter result using operation id
-            //     $sql .= " AND mp_ord.opid = '$opid' ";
-            // }
-             
             if($stage != NULL){ // If stage is not null, filter result using stage/status
+
                 $sql .= " AND (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) = '$stage'";
             }
+
             if($odid != NULL){ // If odid is not null, filter result using odid
+
                 $sql .= " AND mp_ord.ID = '$odid'";
             }
+
             if($dt != NULL){ // If date is not null, filter result using date
+
                 $sql .= " AND DATE(mp_ord.date_created) = '$dt' ";
             }
             
@@ -192,7 +204,6 @@
                 "status" => "success",
                 "data" => $result
             );
-            
         }
         
         //Function for checking if date is valid and invalid format(2020-01-01).
@@ -202,5 +213,4 @@
             $d = DateTime::createFromFormat($format, $date);
             return $d && $d->format($format) == $date;
         }
-
     }

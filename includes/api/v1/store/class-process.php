@@ -164,6 +164,5 @@
                 "status"  => "success",
                 "message" => "Order has been $stage successfully."
             );
-
         }
     }

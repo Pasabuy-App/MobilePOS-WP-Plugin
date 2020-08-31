@@ -22,6 +22,7 @@
 
     #region WP Recommendation - Prevent direct initilization of the plugin.
     if ( !defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly
+
     if ( ! function_exists( 'is_plugin_active' ) ) 
     {
         require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
@@ -35,7 +36,7 @@
     include_once ( MP_PLUGIN_PATH . '/includes/core/config.php' );
     include_once ( MP_PLUGIN_PATH . '/includes/core/update.php' );
 
-     //Make sure to create required mysql tables.
+    //Make sure to create required mysql tables.
     include_once ( MP_PLUGIN_PATH . '/includes/core/dbhook.php' );
 
     //Includes assets if page is defined.
