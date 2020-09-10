@@ -4,7 +4,7 @@
 		exit;
 	}
 
-	/** 
+	/**
         * @package mobilepos-wp-plugin
 		* @version 0.1.0
 		* This is the primary gateway of all the rest api request.
@@ -13,32 +13,28 @@
 
 <?php
 
-    //Require the USocketNet class which have the core function of this plguin. 
+    //Require the USocketNet class which have the core function of this plguin.
 
     // customer folder
     require plugin_dir_path(__FILE__) . '/v1/customer/class-insert.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-cancel.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-update.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-delete.php';
-    require plugin_dir_path(__FILE__) . '/v1/customer/class-listing.php';
-    
+
+
     //Operations Classes
     require plugin_dir_path(__FILE__) . '/v1/operations/class-list-open.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-list-month.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-list-orders.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-list-by-date.php';
-    
+
     //Orders Classes
-    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales.php';
-    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales-date.php';
-    require plugin_dir_path(__FILE__) . '/v1/order/class-listing-date.php';
+    require plugin_dir_path(__FILE__) . '/v1/orders/class-total-sales-date.php';
+
 
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
-    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales.php';
-    require plugin_dir_path(__FILE__) . '/v1/order/class-total-sales-date.php';
-    require plugin_dir_path(__FILE__) . '/v1/order/class-listing-date.php';
-    
+
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
 
@@ -51,8 +47,8 @@
         register_rest_route( 'mobilepos/v1/user', 'auth', array(
             'methods' => 'POST',
             'callback' => array('MP_Authenticate','listen'),
-        ));       
-       
+        ));
+
         /*
          * STORE RESTAPI
         */
@@ -60,7 +56,7 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Select_Order','listen'),
             ));
-            
+
             register_rest_route( 'mobilepos/v1/store/order', 'process', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Process','listen'),
@@ -69,7 +65,7 @@
         /*
          * ORDER RESTAPI
         */
-           
+
             register_rest_route( 'mobilepos/v1/orders', 'listing', array(
                 'methods' => 'POST',
                 'callback' => array('TP_OrdersList','listen'),
@@ -84,7 +80,7 @@
                 'methods' => 'POST',
                 'callback' => array('MP_OrdersByStatus','listen'),
             ));
-        
+
         /*
          * CUSTOMER ORDER RESTAPI
         */
@@ -107,7 +103,7 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Delete_Order','listen'),
             ));
-        
+
         /*
          * ORDER RESTAPI
         */
