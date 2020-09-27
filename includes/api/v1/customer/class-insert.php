@@ -86,7 +86,7 @@
             $verify_store_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE id = (SELECT status FROM tp_stores WHERE ID = '{$user["stid"]}')");
             if (!$verify_store || !($verify_store_stat->status === '1')) {
                 return array(
-                    "status" => "success",
+                    "status" => "failed",
                     "message" => "This store does not exists.",
                 );
             }
@@ -94,9 +94,16 @@
             // Step 7: Check if the product is inside the store and the status is active or not
             $verify_prod = $wpdb->get_row("SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}'");
             $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}')");
-            if (!$verify_prod || !($verify_status->status === '1')) {
+            if (empty($verify_prod)) {
                 return array(
-                    "status" => "success",
+                    "status" => "failed",
+                    "message" => "This product does not exists.",
+                );
+            }
+
+            if (!($verify_status->status === '1')) {
+                return array(
+                    "status" => "failed",
                     "message" => "This product does not exists.",
                 );
             }

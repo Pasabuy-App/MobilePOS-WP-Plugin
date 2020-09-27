@@ -68,9 +68,9 @@
          * ORDER RESTAPI
         */
 
-            register_rest_route( 'mobilepos/v1/orders', 'listing', array(
+            register_rest_route( 'mobilepos/v1/orders', 'list', array(
                 'methods' => 'POST',
-                'callback' => array('TP_OrdersList','listen'),
+                'callback' => array('MP_Order_Listing','listen'),
             ));
 
             register_rest_route( 'mobilepos/v1/store/order', 'cancel', array(
