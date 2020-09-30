@@ -140,41 +140,35 @@
 
             if (!($colname === "stid"))
             {
-                $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store,
-                        (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.latitude = dv_revisions.ID WHERE dv_address.stid =  mp_ord.stid) as store_lat,
-                        (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.longitude = dv_revisions.ID WHERE dv_address.stid =  mp_ord.stid) as store_long,
-                        (SELECT
-                        CONCAT(( SELECT dv_rev.child_val FROM dv_revisions  dv_rev WHERE dv_rev.ID = `add`.street AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')   ), ', ' ,
-                        ( SELECT brgy_name FROM dv_geo_brgys WHERE ID = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.brgy  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address') ) ) , ', ',
-                        ( SELECT city_name FROM dv_geo_cities WHERE city_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.city  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
-                        ( SELECT prov_name FROM dv_geo_provinces WHERE prov_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.province AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
-                        ( SELECT country_name FROM dv_geo_countries WHERE id = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.country  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ' ) as store_address FROM dv_address `add` WHERE `add`.stid = mp_ord.stid) as store_address,";
+                $sql .= "(SELECT child_val FROM tp_revisions  WHERE id = ( SELECT title FROM tp_stores  WHERE id = mp_ord.stid )) AS store,
+                (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.latitude = dv_revisions.ID WHERE dv_address.stid =  mp_ord.stid) as store_lat,
+            (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.longitude = dv_revisions.ID WHERE dv_address.stid =  mp_ord.stid) as store_long,(SELECT
+            CONCAT(( SELECT dv_rev.child_val FROM dv_revisions  dv_rev WHERE dv_rev.ID = `add`.street AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')   ), ', ' ,
+        ( SELECT brgy_name FROM dv_geo_brgys WHERE ID = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.brgy  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address') ) ) , ', ',
+                                ( SELECT city_name FROM dv_geo_cities WHERE city_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.city  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
+                                ( SELECT prov_name FROM dv_geo_provinces WHERE prov_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.province AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
+                                ( SELECT country_name FROM dv_geo_countries WHERE id = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.country  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ' ) as store_address FROM dv_address `add` WHERE `add`.stid = mp_ord.stid) as store_address,";
             }
 
             if (!($colname === "wpid"))
             {
-                $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer,";
+                $sql .= " (SELECT display_name FROM  wp_users WHERE id = mp_ord.wpid ) AS customer,
+                (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.latitude = dv_revisions.ID WHERE dv_address.wpid =  mp_ord.wpid) as customer_lat,
+                (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.longitude = dv_revisions.ID WHERE dv_address.wpid =  mp_ord.wpid) as customer_long, ";
             }
 
             if (!($colname === "opid"))
             {
-                $sql .= "(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_store  WHERE id = mp_ord.stid )) AS store, ";
+                $sql .= "(SELECT child_val FROM tp_revisions  WHERE id = ( SELECT title FROM tp_stores  WHERE id = mp_ord.stid )) AS store, ";
                 $sql .= "(SELECT display_name FROM wp_users WHERE id = mp_ord.wpid ) AS customer,
-                        (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.latitude = dv_revisions.ID WHERE dv_address.wpid =  mp_ord.wpid) as customer_lat,
-                        (SELECT dv_revisions.child_val FROM dv_address INNER JOIN dv_revisions ON  dv_address.longitude = dv_revisions.ID WHERE dv_address.wpid =  mp_ord.wpid) as customer_long,
-                        (SELECT
-                        CONCAT(( SELECT dv_rev.child_val FROM dv_revisions  dv_rev WHERE dv_rev.ID = `add`.street AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')   ), ', ' ,
-                        ( SELECT brgy_name FROM dv_geo_brgys WHERE ID = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.brgy  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address') ) ) , ', ',
-                        ( SELECT city_name FROM dv_geo_cities WHERE city_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.city  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
-                        ( SELECT prov_name FROM dv_geo_provinces WHERE prov_code = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.province AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ',
-                        ( SELECT country_name FROM dv_geo_countries WHERE id = ( SELECT dv_rev.child_val FROM dv_revisions dv_rev WHERE dv_rev.id = `add`.country  AND dv_rev.date_created = (SELECT MAX(date_created)  FROM dv_revisions WHERE ID = dv_rev.ID AND revs_type ='address')  ) ), ', ' ) as store_address FROM dv_address `add` WHERE `add`.stid = mp_ord.wpid) as customer_address,";
+                        ";
             }
 
-            $sql .="(SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT title FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS product,
-                (SELECT child_val FROM $table_tp_revs  WHERE id = ( SELECT price FROM $table_prod  WHERE id = mp_ordtem.pdid )) AS price,
+            $sql .="(SELECT child_val FROM tp_revisions  WHERE id = ( SELECT title FROM tp_products  WHERE id = mp_ordtem.pdid )) AS product,
+                (SELECT child_val FROM tp_revisions  WHERE id = ( SELECT price FROM tp_products  WHERE id = mp_ordtem.pdid )) AS price,
                 mp_ordtem.quantity AS quantity,
-                (SELECT child_val FROM $table_mprevs WHERE ID = mp_ord.`status`) AS status,
-                (SELECT date_created FROM $table_mprevs WHERE ID = mp_ord.`status`)  AS date_created,";
+                (SELECT child_val FROM mp_revisions WHERE ID = mp_ord.`status`) AS status,
+                (SELECT date_created FROM mp_revisions WHERE ID = mp_ord.`status`)  AS date_created,";
 
             if ( isset($_POST['opid']) )
             {
@@ -184,11 +178,11 @@
 
             $sql .= " mp_ord.date_created AS date_ordered
                 FROM
-                    $table_ord_it  AS mp_ordtem
+                    mp_order_items  AS mp_ordtem
                 INNER JOIN
-                    $table_ord  AS mp_ord ON mp_ord.ID = mp_ordtem.odid
+                    mp_orders  AS mp_ord ON mp_ord.ID = mp_ordtem.odid
                 INNER JOIN
-                        $table_ope AS mp_ope ON mp_ope.ID = mp_ord.opid
+                        mp_operations AS mp_ope ON mp_ope.ID = mp_ord.opid
                 WHERE
                     mp_ord.$colname = '$user_id'
             ";
@@ -207,7 +201,7 @@
 
                 $sql .= " AND DATE(mp_ord.date_created) = '$dt' ";
             }
-
+            //return $sql;
             $result = $wpdb->get_results($sql);
 
             // Step 11: Check if no rows found
@@ -218,6 +212,7 @@
                 );
             }
 
+       
             // Step 12: Return result
             return array(
                 "status" => "success",
