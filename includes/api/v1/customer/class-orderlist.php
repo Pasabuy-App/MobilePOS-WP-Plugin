@@ -43,21 +43,21 @@
                 );
             }
 
-            // Step 3: Check if parameter is passed
-            if ( !isset($_POST['stid']) ) {
-                return array(
-					"status" => "unknown",
-					"message" => "Please contact your administrator. Request unknown!",
-                );
-            }
+            // // Step 3: Check if parameter is passed
+            // if ( !isset($_POST['stid']) ) {
+            //     return array(
+			// 		"status" => "unknown",
+			// 		"message" => "Please contact your administrator. Request unknown!",
+            //     );
+            // }
 
-            // Step 4: Check if parameter is empty
-            if ( empty($_POST['stid']) ) {
-                return array(
-                    "status" => "failed",
-                    "message" => "Required fileds cannot be empty.",
-                );
-            }
+            // // Step 4: Check if parameter is empty
+            // if ( empty($_POST['stid']) ) {
+            //     return array(
+            //         "status" => "failed",
+            //         "message" => "Required fileds cannot be empty.",
+            //     );
+            // }
 
                 // Step 5: Check post stage if valid
             if ( isset($_POST['stage']) ){
@@ -81,14 +81,32 @@
                 $stage = $_POST['stage'];
             }
 
-            $stid = $_POST['stid'];
+            $colname = "";
+            $uid = "0";
+
+            if (isset($_POST['stid'])){
+                if ( empty($_POST['stid']) ) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "Required fileds cannot be empty.",
+                    );
+                }
+                $uid = $_POST['stid'];
+                $colname = "stid";
+            }
+            else{
+                $uid = $_POST['wpid'];
+                $colname = "wpid";
+            }
+
 
             // Step 4: Start mysql transaction
             $sql = "SELECT
                 moi.ID,
                 mo.stid, (SELECT display_name FROM wp_users WHERE ID = mo.wpid) AS customer, mo.ID AS odid,
                 (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) AS qty, 
-                (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS price,";
+                (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS price,
+                (SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = moi.pdid)) AS product_name,";
             
             if ( isset($_POST['odid']) ){
                 if ( empty($_POST['odid']) ){
@@ -99,12 +117,17 @@
                 }
                 $odid = $_POST['odid'];
                 $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
-                    (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS totalprice,
-                    (SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = moi.pdid)) AS product_name,  ";
+                    (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS totalprice,  ";
             }
-            else{
+            if ($colname == "stid"){
                 $sql .= "SUM((SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
                     (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid ))) AS totalprice,  ";
+            }
+            if ($colname == "wpid"){
+                $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
+                (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS totalprice,
+                (SELECT child_val FROM tp_revisions WHERE ID =(SELECT title FROM tp_stores WHERE ID = mo.stid)) AS store_name,
+                (SELECT child_val FROM tp_revisions WHERE ID =(SELECT logo FROM tp_stores WHERE ID = mo.stid)) AS store_logo, ";
             }
 
             $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = mo.`status`) AS stage,
@@ -113,7 +136,7 @@
             FROM
                 mp_order_items AS moi
                 INNER JOIN mp_orders AS mo ON mo.ID = moi.odid 
-                WHERE mo.stid = '$stid' ";
+                WHERE mo.$colname = '$uid' ";
             
             if (isset($_POST['stage']) ){
                 $sql .= " AND (SELECT child_val FROM mp_revisions WHERE ID = mo.`status`) = '$stage' ";
