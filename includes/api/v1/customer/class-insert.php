@@ -40,12 +40,12 @@
             }
 
             // Step 2: Validate user
-            // if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
+            if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
             // Step 3: Check if required parameters are passed
             if (!isset($_POST["qty"])
