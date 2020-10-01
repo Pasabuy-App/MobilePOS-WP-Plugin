@@ -40,17 +40,18 @@
             }
 
             // Step 2: Validate user
-            if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+            // if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             // Step 3: Check if required parameters are passed
             if (!isset($_POST["qty"])
                 || !isset($_POST["pdid"])
                 || !isset($_POST["stid"])
+                || !isset($_POST["method"])
                 || !isset($_POST["opid"])  ) {
 				return array(
 					"status" => "unknown",
@@ -62,6 +63,7 @@
             if (empty($_POST["qty"])
                 || empty($_POST["pdid"])
                 || empty($_POST["stid"])
+                || empty($_POST["method"])
                 || empty($_POST["opid"])  ) {
                 return array(
                     "status" => "failed",
@@ -122,12 +124,19 @@
             // Step 8: Start mysql transaction
             $wpdb->query("START TRANSACTION");
 
-                // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
-                $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '$date') ");
-                $order_id = $wpdb->insert_id;
+                // Check to mo_orders if the stid, opid, wpid and date is same, if same then insert into mp_order_items, if not, add another row in mp_orders
+                $check_order =$wpdb->get_row("SELECT * FROM $table_ord WHERE stid = '{$user["stid"]}' AND opid = '{$user["opid"]}' AND wpid = '{$user["uid"]}' AND date_created = '$date' ");
+                if($check_order){ // pag may laman get order id
+                    $order_id = $check_order->ID;
+                }
+                else{ // pag wala insert into mp_orders
+                    // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
+                    $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '0', '$date') ");
+                    $order_id = $wpdb->insert_id;
+                }
 
                 // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
-                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
+                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') "); 
                 $order_items_id = $wpdb->insert_id;
 
                 $id = array();
@@ -146,8 +155,11 @@
                 $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
                 $order_status_id = $wpdb->insert_id;
 
+                $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'method', '{$user["method"]}', '{$user["uid"]}', '$date') ");
+                $order_method_id = $wpdb->insert_id;
+
                 // Update status of order and quantity
-                $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id WHERE ID IN ($order_id) ");
+                $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id, method = $order_method_id WHERE ID IN ($order_id) ");
                 $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
 
 
@@ -175,6 +187,7 @@
 
             $cur_user['pid'] = $_POST['pdid'];
             $cur_user['qty']  = $_POST['qty'];
+			$cur_user['method']  = $_POST['method'];
 			$cur_user['uid']  = $_POST['wpid'];
 			$cur_user['stid'] = $_POST['stid'];
 			$cur_user['opid'] = $_POST['opid'];

@@ -216,10 +216,10 @@
 
             // Step 11: Check if no rows found
             if (!$result) {
-                return array(
-                    "status" => "success",
-                    "message" => "No order found.",
-                );
+                // return array(
+                //     "status" => "failed",
+                //     "message" => "No order found.",
+                // );
             }
 
        

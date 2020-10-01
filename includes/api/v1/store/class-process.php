@@ -62,7 +62,7 @@
                 || empty($_POST['stage'])) {
                 return array(
                     "status" => "failed",
-                    "message" => "Required fields cannot be empty.",
+                    "message" => "Required fields cannot be empty.".$_POST['odid'].$_POST['stid'].$_POST['stage'],
                 );
             }
 

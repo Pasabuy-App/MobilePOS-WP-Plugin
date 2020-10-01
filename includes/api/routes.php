@@ -36,6 +36,7 @@
 
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
+    require plugin_dir_path(__FILE__) . '/v1/customer/class-orderlist.php';
 
     // store folder
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
@@ -86,6 +87,11 @@
         /*
          * CUSTOMER ORDER RESTAPI
         */
+            register_rest_route( 'mobilepos/v1/customer/order', 'list', array(
+                'methods' => 'POST',
+                'callback' => array('MP_OrderList','listen'),
+            ));
+
             register_rest_route( 'mobilepos/v1/customer/order', 'insert', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Insert_Order','listen'),

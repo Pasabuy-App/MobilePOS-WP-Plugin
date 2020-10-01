@@ -24,7 +24,7 @@
 
 	//Orders config
 	define('MP_ORDERS_TABLE', MP_PREFIX.'orders');
-	define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, created_by, status, date_created)");
+	define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, created_by, status, method, date_created)");
 
 	//Order Items config
 	define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
