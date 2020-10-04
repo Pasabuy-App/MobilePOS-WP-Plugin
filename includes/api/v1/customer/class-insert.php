@@ -52,6 +52,7 @@
                 || !isset($_POST["pdid"])
                 || !isset($_POST["stid"])
                 || !isset($_POST["method"])
+                || !isset($_POST["addid"])
                 || !isset($_POST["opid"])  ) {
 				return array(
 					"status" => "unknown",
@@ -63,6 +64,7 @@
             if (empty($_POST["qty"])
                 || empty($_POST["pdid"])
                 || empty($_POST["stid"])
+                || empty($_POST["addid"])
                 || empty($_POST["method"])
                 || empty($_POST["opid"])  ) {
                 return array(
@@ -81,6 +83,15 @@
 
             $date = MP_Globals:: date_stamp();
             $user = MP_Insert_Order:: catch_post();
+
+            $check_address = $wpdb->get_row("SELECT * FROM dv_address WHERE ID = '{$user["address_id"]}'");
+
+            if (!$check_address) {
+                return array(
+					"status" => "failed",
+					"message" => "This Address does not exits.",
+                );
+            }
 
             // Step 6: Check if store is exist/active and
                 // TODO : operation is exists/active
@@ -136,7 +147,7 @@
                 }
 
                 // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
-                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') "); 
+                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
                 $order_items_id = $wpdb->insert_id;
 
                 $id = array();
@@ -155,6 +166,9 @@
                 $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'status', 'pending', '{$user["uid"]}', '$date') ");
                 $order_status_id = $wpdb->insert_id;
 
+                $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'address', '{$user["address_id"]}', '{$user["uid"]}', '$date') ");
+                $order_address = $wpdb->insert_id;
+
                 $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'method', '{$user["method"]}', '{$user["uid"]}', '$date') ");
                 $order_method_id = $wpdb->insert_id;
 
@@ -162,6 +176,14 @@
                 $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id, method = $order_method_id WHERE ID IN ($order_id) ");
                 $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
 
+                $update_order_key = MP_Globals::update_hash_id_hash($order_id, $table_ord, "hash_id");
+
+                if(!$update_order_key){
+                    return array(
+                        "status" => "failed",
+                        "message" => "An error occured while submitting data to the server."
+                    );
+                }
 
             // Step 9: Check if any queries above failed
             if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1 || $update_ordit < 1 ) {
@@ -191,6 +213,7 @@
 			$cur_user['uid']  = $_POST['wpid'];
 			$cur_user['stid'] = $_POST['stid'];
 			$cur_user['opid'] = $_POST['opid'];
+			$cur_user['address_id'] = $_POST['addid'];
 			$cur_user['type'] = 'order_items';
 			$cur_user['status'] = '1';
 

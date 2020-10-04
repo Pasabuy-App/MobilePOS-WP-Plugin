@@ -36,12 +36,12 @@
             }
 
             // Step 2: Validate user
-            if (DV_Verification::is_verified() == false) {
+           /*  if (DV_Verification::is_verified() == false) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
-            }
+            } */
 
             // // Step 3: Check if parameter is passed
             // if ( !isset($_POST['stid']) ) {
@@ -104,10 +104,10 @@
             $sql = "SELECT
                 moi.ID,
                 mo.stid, (SELECT display_name FROM wp_users WHERE ID = mo.wpid) AS customer, mo.ID AS odid,
-                (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) AS qty, 
+                (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) AS qty,
                 (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS price,
                 (SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = moi.pdid)) AS product_name,";
-            
+
             if ( isset($_POST['odid']) ){
                 if ( empty($_POST['odid']) ){
                     return array(
@@ -116,15 +116,15 @@
                     );
                 }
                 $odid = $_POST['odid'];
-                $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
+                $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) *
                     (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS totalprice,  ";
             }
             if ($colname == "stid"){
-                $sql .= "SUM((SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
+                $sql .= "SUM((SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) *
                     (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid ))) AS totalprice,  ";
             }
             if ($colname == "wpid"){
-                $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) * 
+                $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity) *
                 (SELECT child_val FROM tp_revisions WHERE ID = (SELECT price FROM tp_products WHERE ID = moi.pdid )) AS totalprice,
                 (SELECT child_val FROM tp_revisions WHERE ID =(SELECT title FROM tp_stores WHERE ID = mo.stid)) AS store_name,
                 (SELECT child_val FROM tp_revisions WHERE ID =(SELECT logo FROM tp_stores WHERE ID = mo.stid)) AS store_logo, ";
@@ -135,9 +135,9 @@
                 mo.date_created
             FROM
                 mp_order_items AS moi
-                INNER JOIN mp_orders AS mo ON mo.ID = moi.odid 
+                INNER JOIN mp_orders AS mo ON mo.ID = moi.odid
                 WHERE mo.$colname = '$uid' ";
-            
+
             if (isset($_POST['stage']) ){
                 $sql .= " AND (SELECT child_val FROM mp_revisions WHERE ID = mo.`status`) = '$stage' ";
             }
@@ -158,7 +158,7 @@
                 //     "message" => "No order found.",
                 // );
             }
-       
+
             // Step 12: Return result
             return array(
                 "status" => "success",
