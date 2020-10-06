@@ -144,6 +144,14 @@
                     // Insert into table orders (store id, operation id, customer id, user id = 0, status = 0 and date)
                     $wpdb->query("INSERT INTO $table_ord $fields_ord VALUES ('{$user["stid"]}', '{$user["opid"]}', '{$user["uid"]}', '0', '0', '0', '$date') ");
                     $order_id = $wpdb->insert_id;
+                    $update_order_key = MP_Globals::update_hash_id_hash($order_id, $table_ord, "hash_id");
+
+                    if(!$update_order_key){
+                        return array(
+                            "status" => "failed",
+                            "message" => "An error occured while submitting data to the server."
+                        );
+                    }
                 }
 
                 // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
@@ -176,15 +184,8 @@
                 $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id, method = $order_method_id WHERE ID IN ($order_id) ");
                 $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
 
-                $update_order_key = MP_Globals::update_hash_id_hash($order_id, $table_ord, "hash_id");
-
-                if(!$update_order_key){
-                    return array(
-                        "status" => "failed",
-                        "message" => "An error occured while submitting data to the server."
-                    );
-                }
-
+                
+                
             // Step 9: Check if any queries above failed
             if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1 || $update_ordit < 1 ) {
                 $wpdb->query("ROLLBACK");
