@@ -40,13 +40,13 @@
             }
 
             // Step 2: Validate user
-            if (DV_Verification::is_verified() == false) {
+          /*   if (DV_Verification::is_verified() == false) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
             }
-
+ */
             // Step 3: Check if required parameters are passed
             if (!isset($_POST["qty"])
                 || !isset($_POST["pdid"])
@@ -84,7 +84,7 @@
             $date = MP_Globals:: date_stamp();
             $user = MP_Insert_Order:: catch_post();
 
-            $check_address = $wpdb->get_row("SELECT * FROM dv_address WHERE ID = '{$user["address_id"]}'");
+            $check_address = $wpdb->get_row("SELECT * FROM dv_address WHERE ID = '{$user["address_id"]}' AND wpid = '{$user["uid"]}'");
 
             if (!$check_address) {
                 return array(

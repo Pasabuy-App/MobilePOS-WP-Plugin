@@ -30,15 +30,14 @@
     require plugin_dir_path(__FILE__) . '/v1/operations/class-insert.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-update.php';
 
-    //Orders Classes
-    require plugin_dir_path(__FILE__) . '/v1/orders/class-total-sales-date.php';
-
-
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
     require plugin_dir_path(__FILE__) . '/v1/customer/class-orderlist.php';
 
     // store folder
+    require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales-date.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-total-order.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
@@ -64,6 +63,25 @@
                 'methods' => 'POST',
                 'callback' => array('MP_Process','listen'),
             ));
+
+            register_rest_route( 'mobilepos/v1/store/order', 'total', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_Order','listen'),
+            ));
+
+            register_rest_route( 'mobilepos/v1/store/total/sales', 'date', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_sales_date','listen'),
+            ));
+
+
+            register_rest_route( 'mobilepos/v1/store/total', 'sales', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_Sales','listen'),
+            ));
+
+
+
 
         /*
          * ORDER RESTAPI
@@ -115,16 +133,6 @@
         /*
          * ORDER RESTAPI
         */
-            register_rest_route( 'tindapress/v1/order/total', 'sales', array(
-                'methods' => 'POST',
-                'callback' => array('TP_Total_sales','listen'),
-            ));
-
-            register_rest_route( 'tindapress/v1/order/total', 'monthly', array(
-                'methods' => 'POST',
-                'callback' => array('TP_Total_sales_date','listen'),
-            ));
-
             register_rest_route( 'tindapress/v1/order', 'date', array(
                 'methods' => 'POST',
                 'callback' => array('TP_OrdersByDate','listen'),

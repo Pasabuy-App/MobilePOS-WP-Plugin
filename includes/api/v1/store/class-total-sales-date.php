@@ -64,7 +64,7 @@
                 );
 			}
 
-			$date = TP_Globals::get_user_date($_POST['wpid']);
+			$date = date("Y-m-d h:i:s");
 			$expected_date  = date('Y-m-d H:i:s', strtotime($date. ' - 1 month'));
 
 			$order_items_table = MP_ORDER_ITEMS_TABLE;
@@ -73,14 +73,15 @@
 			$tp_revs_table = TP_REVISIONS_TABLE;
 
 			$store_id = $_POST["stid"];
-			$result = $wpdb->get_row("SELECT COALESCE
-					( FORMAT( sum( ( SELECT tp_rev.child_val FROM $tp_revs_table tp_rev WHERE ID = tp_prod.price ) ), 2 ), 0 ) AS total_sales
-				FROM
-					$order_items mp_ord
-					LEFT JOIN $order_items_table mp_ord_itms ON mp_ord_itms.odid = mp_ord.ID
-					LEFT JOIN $product_table tp_prod ON tp_prod.ID = mp_ord_itms.pdid
-				WHERE
-					mp_ord.stid = 2  AND MONTH(mp_ord.date_created)  BETWEEN MONTH('$expected_date')  AND  MONTH('$date')
+			$result = $wpdb->get_row("SELECT
+				COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale	,
+
+				AVG((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid )) as average_bill,
+				COUNT(mo.ID) as total_order
+			FROM
+				mp_orders mo
+			LEFT JOIN mp_order_items moi on moi.odid = mo.ID
+			WHERE  MONTH(mo.date_created)  BETWEEN MONTH('2020-10-04 12:17:22') AND MONTH('$date')
 			");
 
 			if (!$result) {

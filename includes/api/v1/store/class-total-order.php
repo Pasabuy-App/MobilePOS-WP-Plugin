@@ -10,7 +10,7 @@
         * @version 0.1.0
     */
 
-    class MP_Total_Sales {
+    class MP_Total_Order {
 
         public static function listen(){
             return rest_ensure_response(
@@ -67,7 +67,7 @@
              if ( !$get_store ) {
                 return rest_ensure_response(
                     array(
-                        "status" => "success",
+                        "status" => "failed",
                         "message" => "This store does not exists.",
                     )
                 );
@@ -75,22 +75,11 @@
 
             // Step 6: Start mysql transaction
 			$result = $wpdb->get_row("SELECT
-                COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale,
-
-                AVG((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid )) as average_bill,
                 COUNT(mo.ID) as total_order
             FROM
                 mp_orders mo
             LEFT JOIN mp_order_items moi on moi.odid = mo.ID
             WHERE (SELECT child_val FROM mp_revisions WHERE ID = mo.`status` ) = 'completed' AND  mo.stid  = '$store_id'");
-
-			if (!$result) {
-				return array(
-					"status" => "success",
-					"message" => "No results found.",
-				);
-
-            }
 
             // Step 7: Return result
             return array(
