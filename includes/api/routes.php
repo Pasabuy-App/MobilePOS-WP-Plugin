@@ -39,6 +39,7 @@
     require plugin_dir_path(__FILE__) . '/v1/store/class-total-sales.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-total-order.php';
     require plugin_dir_path(__FILE__) . '/v1/store/class-process.php';
+    require plugin_dir_path(__FILE__) . '/v1/store/class-total-piechart.php';
 
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
@@ -80,8 +81,10 @@
                 'callback' => array('MP_Total_Sales','listen'),
             ));
 
-
-
+            register_rest_route( 'mobilepos/v1/store', 'chart', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Total_Piechart','listen'),
+            ));
 
         /*
          * ORDER RESTAPI
