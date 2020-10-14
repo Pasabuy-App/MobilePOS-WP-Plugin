@@ -41,6 +41,7 @@
                 $sql = "SELECT
                 op.ID,
                                     op.hash_id,
+                                    op.stid,
                                     IF(op.date_close is null, '', op.date_close) as date_close,
                                     IF(op.date_open is null, '', op.date_open) as date_open,
                                     IF((SELECT child_val FROM mp_revisions WHERE ID = op.open_by AND child_key = 'open_by') is null , '',
@@ -48,14 +49,17 @@
                                     IF((SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')is null, '',
                                     (SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')) as close_by,
                                     op.stid,
-                COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale,
-                op.date_open as date
+                                    null as total_sale,
+                                    op.date_open as `date`
+
                             FROM
                                 mp_operations op
                                         LEFT JOIN mp_orders m ON m.opid = op.ID
                             LEFT JOIN mp_order_items moi on moi.odid = m.ID
-                            WHERE  (SELECT child_val FROM mp_revisions WHERE ID = m.`status` ) = 'completed'
+
                         ";
+
+
 
                 if (isset($_POST['stid'])) {
                     if (!empty($_POST['stid'])) {
@@ -72,6 +76,17 @@
                 }
                 //return $sql;
                 $data = $wpdb->get_results($sql);
+
+                foreach ($data as $key => $value) {
+                    $smp = $wpdb->get_row("SELECT
+                    COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale
+
+                    FROM
+                    mp_orders mo
+                    LEFT JOIN mp_order_items moi on moi.odid = mo.ID
+                    WHERE (SELECT child_val FROM mp_revisions WHERE ID = mo.`status` ) = 'completed' AND  mo.stid  = '$value->stid'");
+                    $value->total_sale = $smp->total_sale;
+                }
 
                 return array(
                     "status" => "success",
