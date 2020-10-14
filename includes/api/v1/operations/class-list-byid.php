@@ -39,21 +39,28 @@
                 }
 
                 $sql = "SELECT
-                    o.ID,
-                    o.hash_id,
-                    IF(o.date_close is null, '', o.date_close) as date_close,
-                    IF(o.date_open is null, '', o.date_open) as date_open,
-                    IF((SELECT child_val FROM mp_revisions WHERE ID = o.open_by AND child_key = 'open_by') is null , '',
-                    (SELECT child_val FROM mp_revisions WHERE ID = o.open_by AND child_key = 'open_by') ) as open_by,
-                    IF((SELECT child_val FROM mp_revisions WHERE ID = o.close_by AND child_key = 'close_by')is null, '',
-                    (SELECT child_val FROM mp_revisions WHERE ID = o.close_by AND child_key = 'close_by')) as close_by,
-                    o.stid
-                FROM mp_operations o ";
+                op.ID,
+                                    op.hash_id,
+                                    IF(op.date_close is null, '', op.date_close) as date_close,
+                                    IF(op.date_open is null, '', op.date_open) as date_open,
+                                    IF((SELECT child_val FROM mp_revisions WHERE ID = op.open_by AND child_key = 'open_by') is null , '',
+                                    (SELECT child_val FROM mp_revisions WHERE ID = op.open_by AND child_key = 'open_by') ) as open_by,
+                                    IF((SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')is null, '',
+                                    (SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')) as close_by,
+                                    op.stid,
+                COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale,
+                op.date_open as date
+                as total_order
+                            FROM
+                                mp_operations op
+                                        LEFT JOIN mp_orders m ON m.opid = op.ID
+                            LEFT JOIN mp_order_items moi on moi.odid = m.ID
+                        ";
 
                 if (isset($_POST['stid'])) {
                     if (!empty($_POST['stid'])) {
                         $stid = $_POST['stid'];
-                        $sql .= " WHERE o.stid = $stid ";
+                        $sql .= " WHERE op.stid = $stid ";
                     }
                 }
 
@@ -61,9 +68,9 @@
                     if (!empty($_POST['opid'])) {
                         $opid = $_POST['opid'];
                         if (isset($_POST['stid']) && $_POST['stid'] != null) {
-                            $sql .= " AND o.ID = $opid ";
+                            $sql .= " AND op.ID = $opid ";
                         }else{
-                            $sql .= " WHERE o.ID = $opid ";
+                            $sql .= " WHERE op.ID = $opid ";
                         }
                     }
                 }
