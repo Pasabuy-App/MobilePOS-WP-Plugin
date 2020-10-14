@@ -13,11 +13,12 @@
 
         public static function listen(){
             return rest_ensure_response(
-                MP_Insert_Order:: list_open()
+                self:: list_open()
             );
         }
 
         public static function list_open(){
+
 
             global $wpdb;
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;
@@ -40,49 +41,16 @@
             }
 
             // Step 2: Validate user
-          /*   if (DV_Verification::is_verified() == false) {
+            if (DV_Verification::is_verified() == false) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
             }
- */
-            // Step 3: Check if required parameters are passed
-            if (!isset($_POST["qty"])
-                || !isset($_POST["pdid"])
-                || !isset($_POST["stid"])
-                || !isset($_POST["method"])
-                || !isset($_POST["addid"])
-                || !isset($_POST["opid"])  ) {
-				return array(
-					"status" => "unknown",
-					"message" => "Please contact your administrator. Request unknown!",
-                );
-            }
 
-            // Step 4: Check if parameters passed are empty
-            if (empty($_POST["qty"])
-                || empty($_POST["pdid"])
-                || empty($_POST["stid"])
-                || empty($_POST["addid"])
-                || empty($_POST["method"])
-                || empty($_POST["opid"])  ) {
-                return array(
-                    "status" => "failed",
-                    "message" => "Required fields cannot be empty.",
-                );
-            }
-
-            // Step 5: Check if parameters passed is numeric
-            if (!is_numeric($_POST["qty"])  ) {
-				return array(
-					"status" => "failed",
-					"message" => "Required ID is not in valid format.",
-                );
-            }
+            $user = self:: catch_post();
 
             $date = MP_Globals:: date_stamp();
-            $user = MP_Insert_Order:: catch_post();
 
             $check_address = $wpdb->get_row("SELECT * FROM dv_address WHERE ID = '{$user["address_id"]}' AND wpid = '{$user["uid"]}'");
 
@@ -94,7 +62,7 @@
             }
 
             // Step 6: Check if store is exist/active and
-                // TODO : operation is exists/active
+            // TODO : operation is exists/active
             $verify_store = $wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '{$user["stid"]}' ");
             $verify_store_stat = $wpdb->get_row("SELECT child_val AS status FROM tp_revisions WHERE id = (SELECT status FROM tp_stores WHERE ID = '{$user["stid"]}')");
             if (!$verify_store || !($verify_store_stat->status === '1')) {
@@ -104,31 +72,25 @@
                 );
             }
 
-            // Step 7: Check if the product is inside the store and the status is active or not
-            $verify_prod = $wpdb->get_row("SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}'");
-            $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$user["pid"]}' AND stid = '{$user["stid"]}')");
-            if (empty($verify_prod)) {
-                return array(
-                    "status" => "failed",
-                    "message" => "This product does not exists.",
-                );
+            foreach ($user['items'] as $key => $value) {
+
+                // Step 7: Check if the product is inside the store and the status is active or not
+                $verify_prod = $wpdb->get_row("SELECT `status` FROM $table_prod WHERE ID = '{$value["pdid"]}' AND stid = '{$user["stid"]}'");
+                $verify_status = $wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_prod WHERE ID = '{$value["pdid"]}' AND stid = '{$user["stid"]}')");
+                if (empty($verify_prod)) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This product does not exists.",
+                    );
+                }
+
+                if (!($verify_status->status === '1')) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This product does not exists.",
+                    );
+                }
             }
-
-            if (!($verify_status->status === '1')) {
-                return array(
-                    "status" => "failed",
-                    "message" => "This product does not exists.",
-                );
-            }
-
-            $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$user["pid"]}' "); // get product name and price
-
-            $child_key = array( //stored in array
-                'title'     =>$get_data->name_id,
-                'price'     =>$get_data ->price_id,
-                'quantity'  =>$user["qty"],
-                'status'    =>$user["status"]
-            );
 
             isset($_POST['msg']) ? $remarks = trim($_POST['msg']) : $remarks = NULL  ; // set message is null
 
@@ -154,17 +116,33 @@
                     }
                 }
 
-                // Insert into table order items (order id, customer id who create = 0, status = 0 and date)
-                $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$user["pid"]}', '0', '0','$date') ");
-                $order_items_id = $wpdb->insert_id;
-
                 $id = array();
+                $child_key = array();
 
-                // Loop data array from child key with child value and insert to table revisions (revision type, last id of insert of order items, key, value, cusotmer id and date)
-                foreach ( $child_key as $key => $child_val) {
-                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', '$key', '$child_val', '{$user["uid"]}', '$date') ");
-                    $id[] = $wpdb->insert_id; // Insert last id to array
+                foreach ($user['items'] as $key => $value) {
+
+                    $get_data =$wpdb->get_row("SELECT title AS name_id, price AS price_id FROM $table_prod WHERE ID = '{$value['pdid']}' ");
+
+                    $wpdb->query("INSERT INTO $table_ord_it $fields_ord_it VALUES ('$order_id', '{$value['pdid']}', '0', '0','$date') ");
+                    $order_items_id  = $wpdb->insert_id;
+
+                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', 'title', '$get_data->name_id', '{$user["uid"]}', '$date') ");
+                    $title = $wpdb->insert_id; // Insert last id to array
+
+                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', 'price', '$get_data->price_id', '{$user["uid"]}', '$date') ");
+                    $price = $wpdb->insert_id; // Insert last id to array
+
+                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', 'quantity', '{$value['quantity']}', '{$user["uid"]}', '$date') ");
+                    $quantity = $wpdb->insert_id; // Insert last id to array
+
+                    $insert_result = $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('{$user["type"]}', '$order_items_id', 'status', '{$user['status']}', '{$user["uid"]}', '$date') ");
+                    $status = $wpdb->insert_id; // Insert last id to array
+
+
+                    $update_order = $wpdb->query("UPDATE $table_ord_it SET quantity = '$quantity', `status` = '$status' WHERE ID = $order_items_id ");
+
                 }
+
 
                 if ( !empty($remarks) ) { // if remarks is not empty, insert to mp revisions
                     $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'remarks', '$remarks', '{$user["uid"]}', '$date' ) ");
@@ -182,12 +160,9 @@
 
                 // Update status of order and quantity
                 $update_ord = $wpdb->query("UPDATE $table_ord SET `status` = $order_status_id, method = $order_method_id WHERE ID IN ($order_id) ");
-                $update_ordit = $wpdb->query("UPDATE $table_ord_it SET `quantity` = '$id[2]', `status` = '$id[3]' WHERE ID IN ($order_items_id) ");
 
-                
-                
             // Step 9: Check if any queries above failed
-            if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1 || $update_ordit < 1 ) {
+            if ( $order_id < 1 ||$order_items_id < 1 || $insert_result < 1 || $order_status_id < 1|| $update_ord < 1) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status" => "failed",
@@ -206,15 +181,17 @@
         // Catch Post
         public static function catch_post()
         {
-			$cur_user = array();
+            $cur_user = array();
+            $data = $_POST['data'];
 
-            $cur_user['pid'] = $_POST['pdid'];
-            $cur_user['qty']  = $_POST['qty'];
-			$cur_user['method']  = $_POST['method'];
+            $cur_user['items']  = $data['items'];
+
+
+            $cur_user['method']  = $data['method'];
 			$cur_user['uid']  = $_POST['wpid'];
-			$cur_user['stid'] = $_POST['stid'];
-			$cur_user['opid'] = $_POST['opid'];
-			$cur_user['address_id'] = $_POST['addid'];
+			$cur_user['stid'] = $data['stid'];
+			$cur_user['opid'] = $data['opid'];
+			$cur_user['address_id'] = $data['addid'];
 			$cur_user['type'] = 'order_items';
 			$cur_user['status'] = '1';
 
