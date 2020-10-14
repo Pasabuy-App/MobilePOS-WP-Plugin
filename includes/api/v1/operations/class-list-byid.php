@@ -55,6 +55,7 @@
                                 mp_operations op
                                         LEFT JOIN mp_orders m ON m.opid = op.ID
                             LEFT JOIN mp_order_items moi on moi.odid = m.ID
+                            WHERE  (SELECT child_val FROM mp_revisions WHERE ID = m.`status` ) = 'completed'
                         ";
 
                 if (isset($_POST['stid'])) {
