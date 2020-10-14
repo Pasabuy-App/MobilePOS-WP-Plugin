@@ -50,7 +50,6 @@
                                     op.stid,
                 COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale,
                 op.date_open as date
-                as total_order
                             FROM
                                 mp_operations op
                                         LEFT JOIN mp_orders m ON m.opid = op.ID
@@ -61,21 +60,17 @@
                 if (isset($_POST['stid'])) {
                     if (!empty($_POST['stid'])) {
                         $stid = $_POST['stid'];
-                        $sql .= " WHERE op.stid = $stid ";
+                        $sql .= " AND op.stid = $stid ";
                     }
                 }
 
                 if(isset($_POST['opid'])){
                     if (!empty($_POST['opid'])) {
                         $opid = $_POST['opid'];
-                        if (isset($_POST['stid']) && $_POST['stid'] != null) {
-                            $sql .= " AND op.ID = $opid ";
-                        }else{
-                            $sql .= " WHERE op.ID = $opid ";
-                        }
+                        $sql .= " AND op.ID = $opid ";
                     }
                 }
-
+                //return $sql;
                 $data = $wpdb->get_results($sql);
 
                 return array(

@@ -18,7 +18,9 @@
         }
 
         public static function list_open(){
-
+            $das = json_encode($_POST['data']);
+            $dass = json_decode($_POST['data']);
+            return $dass ;
 
             global $wpdb;
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;
