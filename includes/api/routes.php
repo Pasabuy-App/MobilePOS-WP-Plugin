@@ -29,6 +29,7 @@
     require plugin_dir_path(__FILE__) . '/v1/operations/class-list-by-date.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-insert.php';
     require plugin_dir_path(__FILE__) . '/v1/operations/class-update.php';
+    require plugin_dir_path(__FILE__) . '/v1/operations/class-list-byid.php';
 
     // order folder
     require plugin_dir_path(__FILE__) . '/v1/orders/class-listing.php';
@@ -144,6 +145,11 @@
         /*
         * OPERATIONS RESTAPI
         */
+
+            register_rest_route( 'tindapress/v1/operations/list', 'byid', array(
+                'methods' => 'POST',
+                'callback' => array('MP_List_By_Id_Operations','listen'),
+            ));
 
             register_rest_route( 'tindapress/v1/operations', 'update', array(
                 'methods' => 'POST',
