@@ -41,10 +41,12 @@
                 $sql = "SELECT
                     o.ID,
                     o.hash_id,
-                    o.date_open,
-                    o.date_close,
-                    (SELECT child_val FROM mp_revisions WHERE ID = o.open_by AND child_key = 'open_by') as open_by,
-                    (SELECT child_val FROM mp_revisions WHERE ID = o.close_by AND child_key = 'close_by') as close_by,
+                    IF(o.date_close is null, '', o.date_close) as date_close,
+                    IF(o.date_open is null, '', o.date_open) as date_open,
+                    IF((SELECT child_val FROM mp_revisions WHERE ID = o.open_by AND child_key = 'open_by') is null , '',
+                    (SELECT child_val FROM mp_revisions WHERE ID = o.open_by AND child_key = 'open_by') ) as open_by,
+                    IF((SELECT child_val FROM mp_revisions WHERE ID = o.close_by AND child_key = 'close_by')is null, '',
+                    (SELECT child_val FROM mp_revisions WHERE ID = o.close_by AND child_key = 'close_by')) as close_by,
                     o.stid
                 FROM mp_operations o ";
 
