@@ -58,11 +58,15 @@
                 if(isset($_POST['opid'])){
                     if (!empty($_POST['opid'])) {
                         $opid = $_POST['opid'];
-                        $sql .= " WHERE o.ID = $opid ";
+                        if (isset($_POST['stid']) && $_POST['stid'] != null) {
+                            $sql .= " AND o.ID = $opid ";
+                        }else{
+                            $sql .= " WHERE o.ID = $opid ";
+                        }
                     }
                 }
 
-                $data = $wpdb->get_results();
+                $data = $wpdb->get_results($sql);
 
                 return array(
                     "status" => "success",
