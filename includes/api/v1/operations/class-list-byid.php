@@ -54,6 +54,14 @@
                         $sql .= " WHERE o.stid = $stid ";
                     }
                 }
+
+                if(isset($_POST['opid'])){
+                    if (!empty($_POST['opid'])) {
+                        $opid = $_POST['opid'];
+                        $sql .= " WHERE o.ID = $opid ";
+                    }
+                }
+
                 $data = $wpdb->get_results();
 
                 return array(

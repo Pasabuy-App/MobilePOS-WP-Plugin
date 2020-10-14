@@ -137,7 +137,7 @@
         /*
          * ORDER RESTAPI
         */
-            register_rest_route( 'tindapress/v1/order', 'date', array(
+            register_rest_route( 'mobilepos/v1/order', 'date', array(
                 'methods' => 'POST',
                 'callback' => array('TP_OrdersByDate','listen'),
             ));
@@ -146,37 +146,37 @@
         * OPERATIONS RESTAPI
         */
 
-            register_rest_route( 'tindapress/v1/operations/list', 'byid', array(
+            register_rest_route( 'mobilepos/v1/operations/list', 'byid', array(
                 'methods' => 'POST',
                 'callback' => array('MP_List_By_Id_Operations','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations', 'update', array(
+            register_rest_route( 'mobilepos/v1/operations', 'update', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Update_Operations','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations', 'insert', array(
+            register_rest_route( 'mobilepos/v1/operations', 'insert', array(
                 'methods' => 'POST',
                 'callback' => array('MP_Insert_Operations','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations/list', 'open', array(
+            register_rest_route( 'mobilepos/v1/operations/list', 'open', array(
                 'methods' => 'POST',
                 'callback' => array('TP_List_Open','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations/list', 'orders', array(
+            register_rest_route( 'mobilepos/v1/operations/list', 'orders', array(
                 'methods' => 'POST',
                 'callback' => array('TP_List_Orders','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations/list', 'month', array(
+            register_rest_route( 'mobilepos/v1/operations/list', 'month', array(
                 'methods' => 'POST',
                 'callback' => array('TP_List_Month','listen'),
             ));
 
-            register_rest_route( 'tindapress/v1/operations/list', 'date', array(
+            register_rest_route( 'mobilepos/v1/operations/list', 'date', array(
                 'methods' => 'POST',
                 'callback' => array('TP_List_Date','listen'),
             ));
