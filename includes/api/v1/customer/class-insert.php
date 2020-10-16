@@ -70,6 +70,15 @@
 
             $user = self:: catch_post();
 
+            $notify_store = call_usn_notify();
+
+            if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
+                return array(
+                    "status" => $notify_store['status'],
+                    "message" => $notify_store['message']
+                );
+            }
+
             $date = MP_Globals:: date_stamp();
 
             $check_address = $wpdb->get_row("SELECT * FROM dv_address WHERE ID = '{$user["address_id"]}' AND wpid = '{$user["uid"]}'");
@@ -190,15 +199,7 @@
                 );
             }
 
-            $notify_store = call_usn_notify();
 
-            if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
-                $wpdb->query("ROLLBACK");
-                return array(
-                    "status" => $notify_store['status'],
-                    "message" => $notify_store['message']
-                );
-            }else{
                 // Step 10: Commit if no errors found
                 $message_user = call_usn_message($wpid, 'Your order has been received.', 'store-accepted');
                 if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
@@ -214,7 +215,7 @@
                         "data" => $user["stid"]
                     );
                 }
-            }
+
         }
 
         public static function call_usn_notify(){

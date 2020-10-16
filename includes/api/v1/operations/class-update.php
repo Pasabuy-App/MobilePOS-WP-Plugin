@@ -148,7 +148,6 @@
                         }
                     }
 
-
                     if ($status == false || $type == false ) {
                         $wpdb->query("ROLLBACK");
                         return array(
