@@ -64,14 +64,18 @@
                 if (isset($_POST['stid'])) {
                     if (!empty($_POST['stid'])) {
                         $stid = $_POST['stid'];
-                        $sql .= " AND op.stid = $stid ";
+                        $sql .= " WHERE op.stid = $stid ";
                     }
                 }
 
                 if(isset($_POST['opid'])){
                     if (!empty($_POST['opid'])) {
                         $opid = $_POST['opid'];
-                        $sql .= " AND op.ID = $opid ";
+                        if (isset($_POST['stid'])) {
+                            if (!empty($_POST['stid'])) {
+                                $sql .= " AND op.ID = $opid ";
+                            }
+                        }
                     }
                 }
                 //return $sql;
@@ -79,12 +83,13 @@
 
                 foreach ($data as $key => $value) {
                     $smp = $wpdb->get_row("SELECT
-                    COALESCE(SUM((SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid ))) as total_sale
-
+                    COALESCE(SUM(
+										(SELECT (SELECT child_val FROM tp_revisions WHERE ID = p.price AND revs_type = 'products' AND child_key = 'price') FROM tp_products p WHERE ID = moi.pdid )
+										) * (SELECT child_val FROM mp_revisions WHERE ID = moi.quantity ) ) as total_sale
                     FROM
                     mp_orders mo
                     LEFT JOIN mp_order_items moi on moi.odid = mo.ID
-                    WHERE (SELECT child_val FROM mp_revisions WHERE ID = mo.`status` ) = 'completed' AND  mo.stid  = '$value->stid'");
+                    WHERE (SELECT child_val FROM mp_revisions WHERE ID = mo.`status` ) = 'completed' AND  mo.stid  = '$value->stid' AND mo.opid = '$value->ID'");
                     $value->total_sale = $smp->total_sale;
                 }
 
