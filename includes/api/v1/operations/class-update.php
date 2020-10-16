@@ -114,7 +114,7 @@
                     $store_ope = $wpdb->get_row("SELECT ID FROM $table_operations WHERE stid = '{$user["store_id"]}' ");
 
                     if (empty($store_ope)) {
-
+                        
                         if ($user['type'] == "open") {
                             $insert_ope = $wpdb->query("INSERT INTO $table_operations ( date_open,  stid )
                             VALUES (  '$date',  '{$user["store_id"]}' )");
@@ -126,8 +126,9 @@
                             $update_parent = $wpdb->query("UPDATE $table_operations SET open_by = '$open_id' WHERE ID = '$ope_id' ");
                             $hash_id = MP_Globals::update_hash_id_hash($ope_id, $table_operations, 'hash_id');
                         }
-
-                    }else{
+                        
+                    }
+                    else{
 
                         switch ($user['type']) {
                             case 'open':
@@ -147,21 +148,32 @@
                                 break;
                         }
                     }
+                    
+                    if (empty($store_ope)) {
+                        if ($insert_ope == false || $type == $insert_open_by || $type == $update_parent ) {
+                            $wpdb->query("ROLLBACK");
+                            return array(
+                                "status" => "failed",
+                                "message" => "An error occured while submitting data to server."
+                            );
+                        }
+                    }
+                    else{
+                        if ($status == false || $type == false ) {
+                            $wpdb->query("ROLLBACK");
+                            return array(
+                                "status" => "failed",
+                                "message" => "An error occured while submitting data to server."
+                            );
+                        }
+                    }
 
-
-                    if ($status == false || $type == false ) {
-                        $wpdb->query("ROLLBACK");
-                        return array(
-                            "status" => "failed",
-                            "message" => "An error occured while submitting data to server."
-                        );
-                    }else{
                         $wpdb->query("COMMIT");
                         return array(
                             "status" => "success",
                             "message" => "Data has been added successfully."
                         );
-                    }
+                        
             }
         /*  End */
 
