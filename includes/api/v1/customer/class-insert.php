@@ -17,10 +17,28 @@
             );
         }
 
+        // Catch Post
+        public static function catch_post()
+        {
+            $cur_user = array();
+            $data = $_POST['data'];
+
+            $cur_user['items']  = $data['items'];
+
+
+            $cur_user['method']  = $data['method'];
+			$cur_user['uid']  = $_POST['wpid'];
+			$cur_user['stid'] = $data['stid'];
+			$cur_user['opid'] = $data['opid'];
+			$cur_user['address_id'] = $data['addid'];
+			$cur_user['type'] = 'order_items';
+			$cur_user['status'] = '1';
+
+            return  $cur_user;
+        }
+
+
         public static function list_open(){
-            $das = json_encode($_POST['data']);
-            $dass = json_decode($_POST['data']);
-            return $dass ;
 
             global $wpdb;
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;
@@ -172,31 +190,81 @@
                 );
             }
 
-            // Step 10: Commit if no errors found
-            $wpdb->query("COMMIT");
-            return array(
-                "status" => "success",
-                "message" => "Order added successfully."
-            );
+            $notify_store = call_usn_notify();
+
+            if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
+                $wpdb->query("ROLLBACK");
+                return array(
+                    "status" => $notify_store['status'],
+                    "message" => $notify_store['message']
+                );
+            }else{
+                // Step 10: Commit if no errors found
+                $message_user = call_usn_message($wpid, 'Your order has been received.', 'store-accepted');
+                if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
+                    $wpdb->query("ROLLBACK");
+                    return array(
+                        "status" => $notify_store['status'],
+                        "message" => $notify_store['message']
+                    );
+                }else{
+                    $wpdb->query("COMMIT");
+                    return array(
+                        "status" => "success",
+                        "data" => $user["stid"]
+                    );
+                }
+            }
         }
 
-        // Catch Post
-        public static function catch_post()
-        {
-            $cur_user = array();
-            $data = $_POST['data'];
+        public static function call_usn_notify(){
+            $http = file_get_contents("http://usn.pasabuy.app:5050/notify");
 
-            $cur_user['items']  = $data['items'];
+            switch ($http) {
+                case "success":
+                    return array(
+                        "status" => "success",
+                        "message" => "Data has ben sent."
+                    );
+                    break;
+                case "failed":
+                    return array(
+                        "status" => "505",
+                        "message" => "Please contact your administrator. Error 505!"
+                    );
+                    break;
+                case "unknown":
+                    return array(
+                        "status" => "404",
+                        "message" => "Please contact your administrator. Not found"
+                    );
+                    break;
+            }
+        }
 
+        public static function call_usn_message($wpid, $message, $event){
 
-            $cur_user['method']  = $data['method'];
-			$cur_user['uid']  = $_POST['wpid'];
-			$cur_user['stid'] = $data['stid'];
-			$cur_user['opid'] = $data['opid'];
-			$cur_user['address_id'] = $data['addid'];
-			$cur_user['type'] = 'order_items';
-			$cur_user['status'] = '1';
+            $http = file_get_contents("http://usn.pasabuy.app:5050/notify?wpid={$wpid}&event={$event}&msg={$message}");
 
-            return  $cur_user;
+            switch ($http) {
+                case "success":
+                    return array(
+                        "status" => "success",
+                        "message" => "Data has ben sent."
+                    );
+                    break;
+                case "failed":
+                    return array(
+                        "status" => "505",
+                        "message" => "Please contact your administrator. Error 505!"
+                    );
+                    break;
+                case "unknown":
+                    return array(
+                        "status" => "404",
+                        "message" => "Please contact your administrator. Not found"
+                    );
+                    break;
+            }
         }
     }

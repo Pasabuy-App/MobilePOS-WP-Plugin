@@ -113,21 +113,41 @@
 
                     $store_ope = $wpdb->get_row("SELECT ID FROM $table_operations WHERE stid = '{$user["store_id"]}' ");
 
-                    switch ($user['type']) {
-                        case 'open':
-                            $status = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$store_ope->ID', 'open_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
-                            $status_id = $wpdb->insert_id;
+                    if (empty($store_ope)) {
 
-                            $type = $wpdb->query("UPDATE $table_operations SET date_open = '$date', open_by = '$status_id' WHERE stid = '{$user["store_id"]}' ");
-                            break;
+                        if ($user['type'] == "open") {
+                            $insert_ope = $wpdb->query("INSERT INTO $table_operations ( date_open,  stid )
+                            VALUES (  '$date',  '{$user["store_id"]}' )");
+                            $ope_id = $wpdb->insert_id;
 
-                        case 'close':
-                            $status = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$store_ope->ID', 'close_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
-                            $status_id = $wpdb->insert_id;
+                            $insert_open_by = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$ope_id', 'open_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
+                            $open_id = $wpdb->insert_id;
 
-                            $type = $wpdb->query("UPDATE $table_operations SET date_close = '$date', close_by = '$status_id' WHERE stid = '{$user["store_id"]}' ");
-                            break;
+                            $update_parent = $wpdb->query("UPDATE $table_operations SET open_by = '$open_id' WHERE ID = '$ope_id' ");
+                            $hash_id = MP_Globals::update_hash_id_hash($ope_id, $table_operations, 'hash_id');
+                        }
+
+                    }else{
+
+                        switch ($user['type']) {
+                            case 'open':
+                                $status = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$store_ope->ID', 'open_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
+                                $status_id = $wpdb->insert_id;
+
+                                $type = $wpdb->query("UPDATE $table_operations SET date_open = '$date', open_by = '$status_id' WHERE stid = '{$user["store_id"]}' ");
+                                $hash_id = MP_Globals::update_hash_id_hash($status_id, $table_operations, 'hash_id');
+                                break;
+
+                            case 'close':
+                                $status = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$store_ope->ID', 'close_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
+                                $status_id = $wpdb->insert_id;
+                                $type = $wpdb->query("UPDATE $table_operations SET date_close = '$date', close_by = '$status_id' WHERE stid = '{$user["store_id"]}' ");
+                                $hash_id = MP_Globals::update_hash_id_hash($status_id, $table_operations, 'hash_id');
+
+                                break;
+                        }
                     }
+
 
                     if ($status == false || $type == false ) {
                         $wpdb->query("ROLLBACK");

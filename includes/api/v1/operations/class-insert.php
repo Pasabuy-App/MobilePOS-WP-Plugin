@@ -24,7 +24,6 @@
             $curl_user['store_id'] = $_POST['stid'];
             $curl_user['user_id'] = $_POST['wpid'];
 
-
             return $curl_user;
         }
 
@@ -105,7 +104,6 @@
 
                 //  End Get store and status
 
-
                 $wpdb->query("  START TRANSACTION");
 
                     $insert_ope = $wpdb->query("INSERT INTO $table_operations ( date_open,  stid )
@@ -124,6 +122,7 @@
                         return array(
                             "status" => "failed",
                             "message" => "An erro occured while submitting data to server.",
+
                         );
                     }else{
                         $wpdb->query("COMMIT");
