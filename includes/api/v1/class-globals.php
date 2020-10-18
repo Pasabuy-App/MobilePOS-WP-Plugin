@@ -87,5 +87,54 @@
         }
 
 
+        public static function call_usn_notify(){
+            $http = file_get_contents("http://usn.pasabuy.app:5050/notify");
 
+            switch ($http) {
+                case "success":
+                    return array(
+                        "status" => "success",
+                        "message" => "Data has ben sent."
+                    );
+                    break;
+                case "failed":
+                    return array(
+                        "status" => "505",
+                        "message" => "Please contact your administrator. Error 505!"
+                    );
+                    break;
+                case "unknown":
+                    return array(
+                        "status" => "404",
+                        "message" => "Please contact your administrator. Not found"
+                    );
+                    break;
+            }
+        }
+
+        public static function call_usn_message($wpid, $message, $event){
+
+            $http = file_get_contents("http://usn.pasabuy.app:5050/notify?wpid={$wpid}&event={$event}&msg={$message}");
+
+            switch ($http) {
+                case "success":
+                    return array(
+                        "status" => "success",
+                        "message" => "Data has ben sent."
+                    );
+                    break;
+                case "failed":
+                    return array(
+                        "status" => "505",
+                        "message" => "Please contact your administrator. Error 505!"
+                    );
+                    break;
+                case "unknown":
+                    return array(
+                        "status" => "404",
+                        "message" => "Please contact your administrator. Not found"
+                    );
+                    break;
+            }
+        }
     }

@@ -63,16 +63,15 @@
 
             // Step 2: Validate user
             // if (DV_Verification::is_verified() == false) {
-                //     return array(
-                    //         "status" => "unknown",
-                    //         "message" => "Please contact your administrator. Verification issues!",
-                    //     );
+            //     return array(
+                //     "status" => "unknown",
+                //     "message" => "Please contact your administrator. Verification issues!",
+                // );
             // }
 
             $user = self:: catch_post();
 
-
-            // return $notify_store = self::call_usn_notify();
+            // return $notify_store = MP_Globals::call_usn_notify();
 
             // if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
             //     return array(
@@ -239,7 +238,7 @@
             }
 
             // Step 10: Commit if no errors found
-            // $message_user = self::call_usn_message($wpid, 'Your order has been received.', 'store-accepted');
+            // $message_user = MP_Globals::call_usn_message($wpid, 'Your order has been received.', 'store-accepted');
             // if ($notify_store['status'] == "505" || $notify_store['status'] == "404"  ) {
             //     $wpdb->query("ROLLBACK");
             //     return array(
@@ -255,54 +254,5 @@
             // }
         }
 
-        public static function call_usn_notify(){
-            $http = file_get_contents("http://usn.pasabuy.app:5050/notify");
 
-            switch ($http) {
-                case "success":
-                    return array(
-                        "status" => "success",
-                        "message" => "Data has ben sent."
-                    );
-                    break;
-                case "failed":
-                    return array(
-                        "status" => "505",
-                        "message" => "Please contact your administrator. Error 505!"
-                    );
-                    break;
-                case "unknown":
-                    return array(
-                        "status" => "404",
-                        "message" => "Please contact your administrator. Not found"
-                    );
-                    break;
-            }
-        }
-
-        public static function call_usn_message($wpid, $message, $event){
-
-            $http = file_get_contents("http://usn.pasabuy.app:5050/notify?wpid={$wpid}&event={$event}&msg={$message}");
-
-            switch ($http) {
-                case "success":
-                    return array(
-                        "status" => "success",
-                        "message" => "Data has ben sent."
-                    );
-                    break;
-                case "failed":
-                    return array(
-                        "status" => "505",
-                        "message" => "Please contact your administrator. Error 505!"
-                    );
-                    break;
-                case "unknown":
-                    return array(
-                        "status" => "404",
-                        "message" => "Please contact your administrator. Not found"
-                    );
-                    break;
-            }
-        }
     }
