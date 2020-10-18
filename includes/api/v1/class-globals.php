@@ -12,6 +12,69 @@
 
   	class MP_Globals {
 
+        public static function custom_update($parent_id, $wpid, $rev_type, $parent_table, $revisions_table, $data, $where){
+
+            global $wpdb;
+
+            $date = DV_Globals:: date_stamp();
+
+            if ( ! is_array( $data ) || ! is_array( $where ) ) {
+                return false;
+            }
+
+            //Initialize empty array
+            $fields     = array();
+            $insert_fields = array();
+            $insert_values = array();
+            $conditions = array();
+            $values     = array();
+
+            //Remove null data
+            foreach ( $data as $field => $value ) {
+                if ( is_null( $value ) ) {
+                    unset($data[$field]);
+                    continue;
+                }
+            }
+
+            $wpdb->query("START TRANSACTION");
+
+            //Insert into revisions table
+            foreach ($data as $key => $value) {
+                $insert_result = $wpdb->query("INSERT INTO $revisions_table (`revs_type`, `parent_id`, `child_key`, `child_val`, `created_by`, `date_created`) VALUES ('$rev_type', '$parent_id', '$key', '$value', '$wpid', '$date')");
+                if ($insert_result < 1) {
+                    $wpdb->query("ROLLBACK");
+                    return false;
+                }
+                $insert_values[$key] = $wpdb->insert_id;
+            }
+
+            //Get all `where` conditions
+            foreach ( $where as $field => $value ) {
+                if ( is_null( $value ) ) {
+                    $conditions[] = "`$field` IS NULL";
+                    continue;
+                }
+
+                $conditions[] = "`$field` = " . $value;
+            }
+
+            //Make fields a comma seperated values
+            $conditions = implode( ' AND ', $conditions );
+
+            foreach ($insert_values as $key => $value) {
+                $result = $wpdb->query("UPDATE $parent_table SET $key = $value WHERE ID = $parent_id");
+                if ($result < 1) {
+                    $wpdb->query("ROLLBACK");
+                    return false;
+                }
+            }
+
+            $wpdb->query("COMMIT");
+            return true;
+
+        }
+
         public static function date_stamp(){
             return date("Y-m-d h:i:s");
 		}
@@ -70,13 +133,14 @@
 			global $wpdb;
 
 			$results = $wpdb->query("UPDATE  $table_name SET $column_name = concat(
-							substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($primary_key)*4294967296))*36+1, 1),
-							substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-							substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-							substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
-							substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed)*36+1, 1)
-						)
-						WHERE ID = $primary_key;");
+                    substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($primary_key)*4294967296))*36+1, 1),
+                    substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
+                    substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
+                    substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),
+                    substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed)*36+1, 1)
+                )
+                WHERE ID = $primary_key;");
+
 			if ($results == false ) {
 				return false;
 			}else{

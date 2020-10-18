@@ -11,7 +11,7 @@
 	*/
 
 	//Defining Global Variables
-	define('MP_PREFIX', 'mp_'); 
+	define('MP_PREFIX', 'mp_');
 
 	//Configs config
 	define('MP_CONFIGS_TABLE', MP_PREFIX.'configs');
@@ -28,6 +28,7 @@
 
 	//Order Items config
 	define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
+	define('MP_ORDER_ITEM_VARS_TABLE', MP_PREFIX.'order_item_variant');
 	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, quantity, status, date_created)");
 
 	//Revisions config

@@ -20,6 +20,7 @@
 		$tbl_operations = MP_OPERATIONS_TABLE;
 		$tbl_orders = MP_ORDERS_TABLE;
 		$tbl_order_items = MP_ORDER_ITEMS_TABLE;
+		$tbl_order_items_vars = MP_ORDER_ITEM_VARS_TABLE;
 		$tbl_revisions = MP_REVISIONS_TABLE;
 
 		//Database table creation for config
@@ -94,6 +95,19 @@
 				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Quantity revision id', ";
 				$sql .= "`status` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Status revision id 1 or 0',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this order was created.', ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+		}
+
+		//Database table creation for order items
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_order_items_vars'" ) != $tbl_order_items_vars) {
+			$sql = "CREATE TABLE `".$tbl_order_items_vars."` (";
+				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= "`hash_id` varchar(255) NOT NULL, ";
+				$sql .= "`varid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Variant ID', ";
+				$sql .= "`item_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order item id',  ";
+				$sql .= "`date_created` datetime(0) NULL DEFAULT current_timestamp() COMMENT 'The date this order was created.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);

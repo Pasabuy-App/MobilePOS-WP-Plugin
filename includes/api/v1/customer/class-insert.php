@@ -22,9 +22,7 @@
         {
             $cur_user = array();
             $data = $_POST['data'];
-
             $cur_user['items']  = $data['items'];
-
             $cur_user['method']  = $_POST['method'];
 			$cur_user['uid']  = $_POST['wpid'];
 			$cur_user['stid'] = $_POST['stid'];
@@ -38,7 +36,6 @@
 
 
         public static function list_open(){
-
             global $wpdb;
 
             $fields_ord_it = MP_ORDER_ITEMS_TABLE_FIELD;
@@ -208,8 +205,21 @@
                     $status = $wpdb->insert_id; // Insert last id to array
 
                     $update_order = $wpdb->query("UPDATE $table_ord_it SET quantity = '$quantity', `status` = '$status' WHERE ID = $order_items_id ");
+                    if(isset($value['variants'])){
+                        foreach ($value['variants'] as $key => $value) {
+                            $insert_variants = $wpdb->query("INSERT INTO mp_order_item_variant (vrid, item_id) VALUES ('$value', '$order_items_id') ");
 
+                            if ($insert_variants < 1) {
+                                $wpdb->query("ROLLBACK");
+                                return array(
+                                    "status" => "failed",
+                                    "message" => "An error occured while submitting data to the server."
+                                );
+                            }
+                        }
+                    }
                 }
+
 
                 if ( !empty($remarks) ) { // if remarks is not empty, insert to mp revisions
                     $wpdb->query("INSERT INTO $table_mp_revs $fields_mp_revs VALUES ('orders', '$order_id', 'remarks', '$remarks', '{$user["uid"]}', '$date' ) ");
@@ -253,6 +263,4 @@
                 );
             // }
         }
-
-
     }

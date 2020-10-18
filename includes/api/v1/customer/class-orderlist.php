@@ -99,7 +99,6 @@
                 $colname = "wpid";
             }
 
-
             // Step 4: Start mysql transaction
             $sql = "SELECT
                 moi.ID,
@@ -132,11 +131,11 @@
 
             $sql .= " (SELECT child_val FROM mp_revisions WHERE ID = mo.`status`) AS stage,
                     (SELECT child_val FROM mp_revisions WHERE ID = mo.`method`) AS method,
-                mo.date_created
-            FROM
-                mp_order_items AS moi
-                INNER JOIN mp_orders AS mo ON mo.ID = moi.odid
-                WHERE mo.$colname = '$uid' ";
+                    mo.date_created
+                FROM
+                    mp_order_items AS moi
+                    INNER JOIN mp_orders AS mo ON mo.ID = moi.odid
+                    WHERE mo.$colname = '$uid' ";
 
             if (isset($_POST['stage']) ){
                 $sql .= " AND (SELECT child_val FROM mp_revisions WHERE ID = mo.`status`) = '$stage' ";
@@ -148,6 +147,7 @@
             else{
                 $sql .= " GROUP BY moi.odid DESC ";
             }
+
             //return $sql;
             $result = $wpdb->get_results($sql);
 
