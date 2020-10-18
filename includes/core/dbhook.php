@@ -61,6 +61,7 @@
 				$sql .= "`open_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who encoded this.', ";
 				$sql .= "`close_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who encoded this',  ";
 				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store id which this operation belongs to.',  ";
+				$sql .= "`sched_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Schedule id from tp_schedule.',  ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);

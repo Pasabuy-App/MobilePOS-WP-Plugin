@@ -1,19 +1,19 @@
 <?php
 	// Exit if accessed directly
-	if ( ! defined( 'ABSPATH' ) ) 
+	if ( ! defined( 'ABSPATH' ) )
 	{
 		exit;
 	}
 
-	/** 
+	/**
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
 	class MP_Process {
 
         public static function listen(){
-            return rest_ensure_response( 
-                MP_Process:: list_open()
+            return rest_ensure_response(
+                self:: list_open()
             );
         }
 
@@ -24,9 +24,9 @@
             // Get Order ID and status order (received/rejected)
             $table_store = TP_STORES_TABLE;
             $table_tp_revs = TP_REVISIONS_TABLE;
-            $table_ord = MP_ORDERS_TABLE;                                     
+            $table_ord = MP_ORDERS_TABLE;
             $table_mp_revs = MP_REVISIONS_TABLE;
-            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD; 
+            $fields_mp_revs = MP_REVISIONS_TABLE_FIELD;
 
             //Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals::verify_prerequisites();
@@ -47,7 +47,7 @@
 
             // TODO : Check permission if can process an order (receive, cancel, shipping)
             // Step 3: Check if required parameters are passed
-            if (!isset($_POST['odid']) 
+            if (!isset($_POST['odid'])
                 || !isset($_POST['stage'])
                 || !isset($_POST['stid'])) {
                 return array(
@@ -57,7 +57,7 @@
             }
 
             // Step 4: Check if parameters passed are empty
-            if (empty($_POST['odid']) 
+            if (empty($_POST['odid'])
                 || empty($_POST['stid'])
                 || empty($_POST['stage'])) {
                 return array(
@@ -67,7 +67,7 @@
             }
 
             // Step 5: Check if stage input is not received or cancelled
-            if ($_POST['stage'] === 'pending' 
+            if ($_POST['stage'] === 'pending'
                 || $_POST['stage'] === 'completed') {
                 return array(
                     "status" => "failed",
@@ -76,21 +76,21 @@
             }
 
             // Step 6: Check if stage input is received or cancelled
-            if ( !($_POST['stage'] === 'received')  
-                && !($_POST['stage'] === 'cancelled')  
+            if ( !($_POST['stage'] === 'received')
+                && !($_POST['stage'] === 'cancelled')
                 && !($_POST['stage'] === 'shipping') ) {
                 return array(
                     "status" => "failed",
                     "message" => "Invalid stage.",
                 );
             }
-            
-            $date = MP_Globals:: date_stamp(); 
+
+            $date = MP_Globals:: date_stamp();
             $wpid = $_POST['wpid'];
             $stid = $_POST['stid'];
             $odid = $_POST['odid'];
             $stage = $_POST['stage'];
-            
+
             // Step 7: Validate store and store staus if active
             $verify_store =$wpdb->get_row("SELECT ID FROM $table_store WHERE ID = '$stid' "); // Check if store is exist or not
             $verify_store_stat =$wpdb->get_row("SELECT child_val AS status FROM $table_tp_revs WHERE ID = (SELECT status FROM $table_store WHERE ID = '$stid') "); // If exist, check status
@@ -100,7 +100,7 @@
                     "message" => "No data found.",
                 );
             }
-    
+
             // Step 8: Validate order using order id and store id in mp orders table
             $verify_order =$wpdb->get_row("SELECT ID FROM $table_ord WHERE ID = '$odid' AND stid = '$stid' ");
             if (!$verify_order) {
@@ -127,7 +127,7 @@
                     );
                 }
             }
-                
+
             if ($stage === 'shipping'){ // Check if order status is received
                 if (!($verify_stage->status === 'received')) {
                     return array(
@@ -136,7 +136,7 @@
                     );
                 }
             }
-            
+
             // Step 10: Start mysql transaction
             $wpdb->query("START TRANSACTION");
                 // Insert into table revision (type = orders, order id, key = status, value = status value, customer id and date)

@@ -127,7 +127,8 @@
                             $hash_id = MP_Globals::update_hash_id_hash($ope_id, $table_operations, 'hash_id');
                         }
 
-                    }else{
+                    }
+                    else{
 
                         switch ($user['type']) {
                             case 'open':
@@ -141,6 +142,7 @@
                             case 'close':
                                 $status = $wpdb->query("INSERT INTO $table_rev (revs_type, parent_id, child_key, child_val, created_by, date_created) VALUES ('operations', '$store_ope->ID', 'close_by', '{$user["user_id"]}', '{$user["user_id"]}', '$date') ");
                                 $status_id = $wpdb->insert_id;
+                                
                                 $type = $wpdb->query("UPDATE $table_operations SET date_close = '$date', close_by = '$status_id' WHERE stid = '{$user["store_id"]}' ");
                                 $hash_id = MP_Globals::update_hash_id_hash($status_id, $table_operations, 'hash_id');
 
@@ -148,19 +150,31 @@
                         }
                     }
 
-                    if ($status == false || $type == false ) {
-                        $wpdb->query("ROLLBACK");
-                        return array(
-                            "status" => "failed",
-                            "message" => "An error occured while submitting data to server."
-                        );
-                    }else{
+                    if (empty($store_ope)) {
+                        if ($insert_ope == false || $type == $insert_open_by || $type == $update_parent ) {
+                            $wpdb->query("ROLLBACK");
+                            return array(
+                                "status" => "failed",
+                                "message" => "An error occured while submitting data to server."
+                            );
+                        }
+                    }
+                    else{
+                        if ($status == false || $type == false ) {
+                            $wpdb->query("ROLLBACK");
+                            return array(
+                                "status" => "failed",
+                                "message" => "An error occured while submitting data to server."
+                            );
+                        }
+                    }
+
                         $wpdb->query("COMMIT");
                         return array(
                             "status" => "success",
                             "message" => "Data has been added successfully."
                         );
-                    }
+
             }
         /*  End */
 
