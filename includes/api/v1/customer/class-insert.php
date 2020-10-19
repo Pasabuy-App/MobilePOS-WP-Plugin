@@ -208,6 +208,8 @@
                     if(isset($value['variants'])){
                         foreach ($value['variants'] as $key => $value) {
                             $insert_variants = $wpdb->query("INSERT INTO mp_order_item_variant (vrid, item_id) VALUES ('$value', '$order_items_id') ");
+                            $insert_variants_id = $wpdb->insert_id;
+                            $insert_variants_hash = MP_Globals::update_hash_id_hash($insert_variants_id, 'mp_order_item_variant', "hash_id");
 
                             if ($insert_variants < 1) {
                                 $wpdb->query("ROLLBACK");

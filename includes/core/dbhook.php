@@ -105,7 +105,7 @@
 			$sql = "CREATE TABLE `".$tbl_order_items_vars."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`varid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Variant ID', ";
+				$sql .= "`vrid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Variant ID', ";
 				$sql .= "`item_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order item id',  ";
 				$sql .= "`date_created` datetime(0) NULL DEFAULT current_timestamp() COMMENT 'The date this order was created.', ";
 				$sql .= "PRIMARY KEY (`ID`) ";
