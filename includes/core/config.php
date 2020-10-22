@@ -24,3 +24,8 @@
 
 	define('MP_ORDERS_ITEMS_VARS', MP_PREFIX.'orders_items_vars');
 	define('MP_ORDERS_ITEMS_VARS_FIELD', ' `otid`, `vrid`, `created_by` ');
+
+	define('MP_ACCESS', MP_PREFIX.'access');
+	define('MP_ACCESS_FIELD', ' `groups`, `actions` ');
+	define('MP_ACCESS_DATA', $access_data);
+

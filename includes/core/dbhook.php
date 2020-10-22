@@ -17,6 +17,7 @@
 		$tbl_orders = MP_ORDERS;
 		$tbl_orders_items = MP_ORDERS_ITEMS;
 		$tbl_orders_items_vars = MP_ORDERS_ITEMS_VARS;
+		$tbl_access = MP_ACCESS;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -95,9 +96,29 @@
 
 			$wpdb->query("CREATE INDEX `hsid` ON $tbl_orders_items_vars (`hsid`);");
 			$wpdb->query("CREATE INDEX `date_created` ON $tbl_orders_items_vars (`date_created`);");
-
 		}
 
+		//Database table creation for orders_items
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_access'" ) != $tbl_access) {
+			$sql = "CREATE TABLE `".$tbl_access."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `groups` enum('product', 'store', 'category', 'variant', 'document', 'coupon', 'order', 'report', 'dashboard', 'schedule', 'operation', 'personnel', 'role') NOT NULL  COMMENT 'Categories of access.', ";
+				$sql .= " `title` varchar(150) NOT NULL  COMMENT 'Title of access to be displayed in app',  ";
+				$sql .= " `actions` varchar(150) NOT NULL  COMMENT 'Access key',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `actions` ON $tbl_access (`actions`);");
+			$wpdb->query("CREATE INDEX `hsid` ON $tbl_access (`hsid`);");
+			$data = MP_ACCESS_DATA;
+
+			$wpdb->query("INSERT INTO $tbl_access (`hsid`, `groups`, `title`, `actions`) VALUES $data ");
+			$access_id = $wpdb->insert_id;
+
+		}
 
 	}
     add_action( 'activated_plugin', 'mp_dbhook_activate' );
