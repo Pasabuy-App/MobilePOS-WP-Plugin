@@ -13,121 +13,91 @@
 	function mp_dbhook_activate() {
 
 		global $wpdb;
+		$tbl_roles = MP_ROLES;
+		$tbl_orders = MP_ORDERS;
+		$tbl_orders_items = MP_ORDERS_ITEMS;
+		$tbl_orders_items_vars = MP_ORDERS_ITEMS_VARS;
 
-		//Initializing table name
-		$tbl_configs = MP_CONFIGS_TABLE;
-		$tbl_inventory = MP_INVENTORY_TABLE;
-		$tbl_operations = MP_OPERATIONS_TABLE;
-		$tbl_orders = MP_ORDERS_TABLE;
-		$tbl_order_items = MP_ORDER_ITEMS_TABLE;
-		$tbl_order_items_vars = MP_ORDER_ITEM_VARS_TABLE;
-		$tbl_revisions = MP_REVISIONS_TABLE;
-
-		//Database table creation for config
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_configs'" ) != $tbl_configs) {
-			$sql = "CREATE TABLE `".$tbl_configs."` (";
+		//Database table creation for revisions
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
+			$sql = "CREATE TABLE `".$tbl_roles."` (";
 				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`config_desc` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Config Description', ";
-				$sql .= "`config_key` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Config KEY', ";
-				$sql .= "`config_value` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Config VALUES', ";
+				$sql .= "`hsid` varchar(255) NOT NULL, ";
+				$sql .= "`title` varchar(100) NOT NULL  COMMENT 'Title of role.', ";
+				$sql .= "`info` varchar(200) NOT NULL  COMMENT 'Information of this role',  ";
+				$sql .= "`status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this role.',  ";
+				$sql .= "`created_by` bigint(20) NOT NULL COMMENT 'The one who creates thos role.',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
-		}
 
-		//Database table creation for inventory
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_inventory'" ) != $tbl_inventory) {
-			$sql = "CREATE TABLE `".$tbl_inventory."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product ID.', ";
-				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store ID.',  ";
-				$sql .= "`wpid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User ID.', ";
-				$sql .= "`odid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order ID.', ";
-				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'No of items.', ";
-				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this inventory was created.', ";
-				$sql .= "PRIMARY KEY (`ID`) ";
-				$sql .= ") ENGINE = InnoDB; ";
-			$result = $wpdb->get_results($sql);
-		}
+			$wpdb->query("CREATE INDEX title ON $tbl_roles (title);");
+			$wpdb->query("CREATE INDEX `status` ON $tbl_roles (`status`);");
+			$wpdb->query("CREATE INDEX `date_created` ON $tbl_roles (`date_created`);");
 
-		//Database table creation for operations
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_operations'" ) != $tbl_operations) {
-			$sql = "CREATE TABLE `".$tbl_operations."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`date_open` datetime(0) NULL DEFAULT NULL COMMENT 'Date and time of opening.', ";
-				$sql .= "`date_close` datetime(0) NULL DEFAULT NULL COMMENT 'Date and time of closing.', ";
-				$sql .= "`open_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who encoded this.', ";
-				$sql .= "`close_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who encoded this',  ";
-				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store id which this operation belongs to.',  ";
-				$sql .= "`sched_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Schedule id from tp_schedule.',  ";
-				$sql .= "PRIMARY KEY (`ID`) ";
-				$sql .= ") ENGINE = InnoDB; ";
-			$result = $wpdb->get_results($sql);
 		}
 
 		//Database table creation for orders
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_orders'" ) != $tbl_orders) {
 			$sql = "CREATE TABLE `".$tbl_orders."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`stid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Store id which this order belongs to', ";
-				$sql .= "`opid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Operation id which this order belongs to',  ";
-				$sql .= "`wpid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id',  ";
-				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this order',  ";
-				$sql .= "`status` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Status revision id (stage)',  ";
-				$sql .= "`method` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Payment method.',  ";
-				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this inventory was created.', ";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `pubkey` varchar(100) NOT NULL  COMMENT 'Public Key of this order.', ";
+				$sql .= " `opid` varchar(200) NOT NULL  COMMENT 'Store operation hsid',  ";
+				$sql .= " `stages` enum('pending', 'accepted', 'ongoing', 'preparing', 'shipping', 'completed', 'cancelled') NOT NULL COMMENT 'Stage of this order.',  ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order.',  ";
+				$sql .= " `adid` bigint(20) NOT NULL COMMENT 'Address ID of this order.',  ";
+				$sql .= " `method` enum('cash', 'wallet', 'card') NOT NULL COMMENT 'Method choosen for this order.',  ";
+				$sql .= " `instructions` varchar(255) NOT NULL COMMENT 'Additional instruction of this order.',  ";
+				$sql .= " `order_by` bigint(20) NOT NULL COMMENT 'The one who created this order.',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `pubkey` ON $tbl_roles (`pubkey`);");
+			$wpdb->query("CREATE INDEX `stages` ON $tbl_roles (`stages`);");
+
 		}
 
-		//Database table creation for order items
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_order_items'" ) != $tbl_order_items) {
-			$sql = "CREATE TABLE `".$tbl_order_items."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`odid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order id which this item belongs to', ";
-				$sql .= "`pdid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Product id of this item',  ";
-				$sql .= "`quantity` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Quantity revision id', ";
-				$sql .= "`status` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Status revision id 1 or 0',  ";
-				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this order was created.', ";
+		//Database table creation for orders_items
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_orders_items'" ) != $tbl_orders_items) {
+			$sql = "CREATE TABLE `".$tbl_orders_items."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `odid` varchar(150) NOT NULL  COMMENT 'Order hsid.', ";
+				$sql .= " `pdid` varchar(150) NOT NULL  COMMENT 'Product hsid',  ";
+				$sql .= " `quantity` int(50) NOT NULL COMMENT 'Quantity hsid.',  ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order items.',  ";
+				$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'The one who creates this order items.',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `hsid` ON $tbl_orders_items (`hsid`);");
+
 		}
 
-		//Database table creation for order items
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_order_items_vars'" ) != $tbl_order_items_vars) {
-			$sql = "CREATE TABLE `".$tbl_order_items_vars."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`vrid` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Variant ID', ";
-				$sql .= "`item_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Order item id',  ";
-				$sql .= "`date_created` datetime(0) NULL DEFAULT current_timestamp() COMMENT 'The date this order was created.', ";
+		//Database table creation for orders_items
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_orders_items_vars'" ) != $tbl_orders_items_vars) {
+			$sql = "CREATE TABLE `".$tbl_orders_items_vars."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `otid` varchar(150) NOT NULL  COMMENT 'Order item hsid.', ";
+				$sql .= " `vrid` varchar(150) NOT NULL  COMMENT 'Variant hsid',  ";
+				$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'The one who creates this order items vars.',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 				$sql .= "PRIMARY KEY (`ID`) ";
 				$sql .= ") ENGINE = InnoDB; ";
 			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `hsid` ON $tbl_orders_items_vars (`hsid`);");
+			$wpdb->query("CREATE INDEX `date_created` ON $tbl_orders_items_vars (`date_created`);");
+
 		}
 
-		//Database table creation for revisions
-		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_revisions'" ) != $tbl_revisions) {
-			$sql = "CREATE TABLE `".$tbl_revisions."` (";
-				$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
-				$sql .= "`hash_id` varchar(255) NOT NULL, ";
-				$sql .= "`revs_type` enum('none','configs','orders','order_items', 'operations') NOT NULL DEFAULT 'none' COMMENT 'Target table', ";
-				$sql .= "`parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT 'Parent id of this revision',  ";
-				$sql .= "`child_key` varchar(20) NOT NULL DEFAULT 0 COMMENT 'Column name on the table',  ";
-				$sql .= "`child_val` varchar(50) NOT NULL DEFAULT 0 COMMENT 'Value of the row key',  ";
-				$sql .= "`created_by` bigint(20) NOT NULL DEFAULT 0 COMMENT 'User id who created this revision',  ";
-				$sql .= "`date_created` datetime(0) NULL DEFAULT NULL COMMENT 'The date this revision was created.', ";
-				$sql .= "PRIMARY KEY (`ID`) ";
-				$sql .= ") ENGINE = InnoDB; ";
-			$result = $wpdb->get_results($sql);
-		}
 
 	}
     add_action( 'activated_plugin', 'mp_dbhook_activate' );
