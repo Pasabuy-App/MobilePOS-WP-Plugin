@@ -13,24 +13,14 @@
 	//Defining Global Variables
 	define('MP_PREFIX', 'mp_');
 
-	//Configs config
-	define('MP_CONFIGS_TABLE', MP_PREFIX.'configs');
+	define('MP_ROLES', MP_PREFIX.'roles');
+	define('MP_ROLES_FILED', ' `title`, `info`, `created_by` ');
 
-	//Inventory config
-	define('MP_INVENTORY_TABLE', MP_PREFIX.'inventory');
+	define('MP_ORDERS', MP_PREFIX.'orders');
+	define('MP_ORDERS_FILED', ' `opid`, `stages`, `adid`, `method`, `instructions`, `order_by` ');
 
-	//Operations config
-	define('MP_OPERATIONS_TABLE', MP_PREFIX.'operations');
+	define('MP_ORDERS_ITEMS', MP_PREFIX.'orders_items');
+	define('MP_ORDERS_ITEMS_FIELD', ' `odid`, `pdid`, `quantity`, `created_by` ');
 
-	//Orders config
-	define('MP_ORDERS_TABLE', MP_PREFIX.'orders');
-	define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, created_by, status, method, date_created)");
-
-	//Order Items config
-	define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
-	define('MP_ORDER_ITEM_VARS_TABLE', MP_PREFIX.'order_item_variant');
-	define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, quantity, status, date_created)");
-
-	//Revisions config
-	define('MP_REVISIONS_TABLE', MP_PREFIX.'revisions');
-	define("MP_REVISIONS_TABLE_FIELD", "(revs_type, parent_id, child_key, child_val, created_by, date_created)");
+	define('MP_ORDERS_ITEMS_VARS', MP_PREFIX.'orders_items_vars');
+	define('MP_ORDERS_ITEMS_VARS_FIELD', ' `otid`, `vrid`, `created_by` ');
