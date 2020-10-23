@@ -29,7 +29,12 @@
 	define('MP_ACCESS_FIELD', ' `groups`, `actions` ');
 	define('MP_ACCESS_DATA', $access_data);
 
-
 	define('MP_PERMISSION', MP_PREFIX.'permission');
 	define('MP_PERMISSION_FIELD', ' `roid`, `access`, `assigned_by` ');
 
+	define('MP_PERSONNELS', MP_PREFIX.'personnels');
+	define('MP_PERSONNELS_FIELD', ' `stid`, `wpid`, `roid`, `pincode`, `assigned_by` ');
+
+
+	define('MP_SCHEDULES', MP_PREFIX.'schedule');
+	define('MP_SCHEDULES_FIELD', ' `stid`, `types`, `started`, `ended` ');

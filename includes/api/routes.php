@@ -15,6 +15,7 @@
 
     //Require the USocketNet class which have the core function of this plguin.
     // Personnels
+    require plugin_dir_path(__FILE__) . '/v2/personnel/class-insert.php';
 
         // Role
         require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
@@ -34,6 +35,11 @@
         /**
          * PERSONNEL REST API'S
         */
+
+            register_rest_route( 'mobilepos/v2/personnels', 'insert', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Insert_Personnel','listen'),
+            ));
 
             // ROLE
                 register_rest_route( 'mobilepos/v2/personnels/role', 'insert', array(

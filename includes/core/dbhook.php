@@ -19,6 +19,8 @@
 		$tbl_orders_items_vars = MP_ORDERS_ITEMS_VARS;
 		$tbl_access = MP_ACCESS;
 		$tbl_permission = MP_PERMISSION;
+		$tbl_personnel= MP_PERSONNELS;
+		$tbl_schedule = MP_SCHEDULES;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -140,6 +142,54 @@
 			$wpdb->query("CREATE INDEX `status` ON $tbl_permission (`status`);");
 			$wpdb->query("CREATE INDEX `hsid` ON $tbl_permission (`hsid`);");
 
+		}
+
+		//Database table creation for permission
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_personnel'" ) != $tbl_personnel) {
+			$sql = "CREATE TABLE `".$tbl_personnel."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `stid` varchar(150) NOT NULL  COMMENT 'Store ID.', ";
+				$sql .= " `wpid` bigint(20) NOT NULL  COMMENT 'Wordpres Id',  ";
+				$sql .= " `roid` varchar(255) NOT NULL  COMMENT 'Role id of this permission',  ";
+				$sql .= " `pincode` varchar(255) NOT NULL  COMMENT 'Pincode of this personnel',  ";
+				$sql .= " `activated` enum('true', 'false') NOT NULL  COMMENT 'Status of this personnel',  ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL  COMMENT 'Status of this personnel',  ";
+				$sql .= " `assigned_by` bigint(20) NOT NULL  COMMENT 'The one who assigned of this personnel.',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `wpid` ON $tbl_personnel (`wpid`);");
+			$wpdb->query("CREATE INDEX `stid` ON $tbl_personnel (`stid`);");
+			$wpdb->query("CREATE INDEX `status` ON $tbl_personnel (`status`);");
+			$wpdb->query("CREATE INDEX `hsid` ON $tbl_personnel (`hsid`);");
+
+		}
+
+		//Database table creation for mover documents schedule
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_schedule'" ) != $tbl_schedule) {
+			$sql = "CREATE TABLE `".$tbl_schedule."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `stid` varchar(150) NOT NULL COMMENT 'Store ID' , ";
+				$sql .= " `types` enum('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') NOT NULL , ";
+				$sql .= " `started` datetime NOT NULL , ";
+				$sql .= " `ended` datetime NOT NULL,  ";
+				$sql .= " `activated` enum('false', 'true') NOT NULL COMMENT 'Status of this schedule', ";
+				$sql .= " `executed_by` bigint(20) COMMENT 'The one who approve this schedule', ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_schedule (hsid);");
+			$wpdb->query("CREATE INDEX mvid ON $tbl_schedule (mvid);");
+			$wpdb->query("CREATE INDEX types ON $tbl_schedule (types);");
+			$wpdb->query("CREATE INDEX `started` ON $tbl_schedule (`started`);");
+			$wpdb->query("CREATE INDEX ended ON $tbl_schedule (ended);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_schedule (date_created);");
 		}
 
 	}
