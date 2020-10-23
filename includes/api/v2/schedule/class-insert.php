@@ -32,7 +32,7 @@
 
             global $wpdb;
             $tbl_schedule = MP_SCHEDULES;
-            $tbl_schedule_field = MP_SCHEDULES_FIELD;
+            $tbl_schedule_fields = MP_SCHEDULES_FIELD;
 
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {
@@ -70,23 +70,35 @@
                 );
             }
 
+            $user = self::catch_post();
+
+            $validate = MP_Globals::check_listener($user);
+            if ($validate !== true) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
+                );
+            }
+
             $wpdb->query("START TRANSACTION");
 
             // Check document of user
             $check_schedule = $wpdb->get_row("SELECT * FROM $tbl_schedule WHERE types = '{$user["type"]}' AND stid = '{$user["stid"]}'    ");
 
-            if( $check_schedule->executed_by != null && $check_schedule->activated == "true"  ){
-                return array(
-                    "status" => "failed",
-                    "message" => "This schedule is already exists."
-                );
-            }
+            if (!empty($check_schedule)) {
+                if( $check_schedule->executed_by != null && $check_schedule->activated == "true"  ){
+                    return array(
+                        "status" => "failed",
+                        "message" => "This schedule is already exists."
+                    );
+                }
 
-            if( $check_schedule->executed_by == null && $check_schedule->activated == "false"  ){
-                return array(
-                    "status" => "failed",
-                    "message" => "This schedule is already exists. Pending for approve."
-                );
+                if( $check_schedule->executed_by == null && $check_schedule->activated == "false"  ){
+                    return array(
+                        "status" => "failed",
+                        "message" => "This schedule is already exists. Pending for approve."
+                    );
+                }
             }
 
             $result = $wpdb->query("INSERT INTO
@@ -95,7 +107,7 @@
                 VALUES
                     ('{$user["stid"]}', '{$user["type"]}', '{$user["started"]}',  '{$user["ended"]}')");
             $result_id = $wpdb->insert_id;
-             $hsid = HP_Globals::generating_pubkey($result_id, $tbl_schedule, 'hsid');
+            $hsid = MP_Globals::generating_pubkey($result_id, $tbl_schedule, 'hsid', false, 64);
 
             if ($result < 1 ) {
                 $wpdb->query("ROLLBACK");

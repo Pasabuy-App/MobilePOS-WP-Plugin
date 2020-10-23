@@ -35,6 +35,8 @@
 	define('MP_PERSONNELS', MP_PREFIX.'personnels');
 	define('MP_PERSONNELS_FIELD', ' `stid`, `wpid`, `roid`, `pincode`, `assigned_by` ');
 
-
 	define('MP_SCHEDULES', MP_PREFIX.'schedule');
 	define('MP_SCHEDULES_FIELD', ' `stid`, `types`, `started`, `ended` ');
+
+	define('MP_OPERATIONS', MP_PREFIX.'operation');
+	define('MP_OPERATIONS_FIELD', ' `stid`, `sdid`, `created_by` ');

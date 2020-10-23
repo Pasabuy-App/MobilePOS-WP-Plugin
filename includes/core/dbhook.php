@@ -21,6 +21,7 @@
 		$tbl_permission = MP_PERMISSION;
 		$tbl_personnel= MP_PERSONNELS;
 		$tbl_schedule = MP_SCHEDULES;
+		$tbl_operation = MP_OPERATIONS;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -190,6 +191,25 @@
 			$wpdb->query("CREATE INDEX `started` ON $tbl_schedule (`started`);");
 			$wpdb->query("CREATE INDEX ended ON $tbl_schedule (ended);");
 			$wpdb->query("CREATE INDEX date_created ON $tbl_schedule (date_created);");
+		}
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_operation'" ) != $tbl_operation) {
+			$sql = "CREATE TABLE `".$tbl_operation."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `stid` varchar(150) NOT NULL COMMENT 'Mover ID' , ";
+				$sql .= " `sdid` varchar(150) NOT NULL , ";
+				$sql .= " `created_by` bigint(20) COMMENT 'The one who creates this operation', ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_operation (hsid);");
+			$wpdb->query("CREATE INDEX stid ON $tbl_operation (stid);");
+			$wpdb->query("CREATE INDEX sdid ON $tbl_operation (sdid);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_operation (date_created);");
 		}
 
 	}
