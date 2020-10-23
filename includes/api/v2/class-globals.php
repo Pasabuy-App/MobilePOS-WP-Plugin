@@ -49,8 +49,8 @@
             }
 
             $sql .=" substring('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed)*36+1, 1)
-            )
-            WHERE ID = $primary_key;";
+                )
+                WHERE ID = $primary_key;";
 
 
             $results = $wpdb->query($sql);

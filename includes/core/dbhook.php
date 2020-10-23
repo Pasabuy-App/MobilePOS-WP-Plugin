@@ -18,6 +18,7 @@
 		$tbl_orders_items = MP_ORDERS_ITEMS;
 		$tbl_orders_items_vars = MP_ORDERS_ITEMS_VARS;
 		$tbl_access = MP_ACCESS;
+		$tbl_permission = MP_PERMISSION;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -117,6 +118,27 @@
 
 			$wpdb->query("INSERT INTO $tbl_access (`hsid`, `groups`, `title`, `actions`) VALUES $data ");
 			$access_id = $wpdb->insert_id;
+
+		}
+
+		//Database table creation for permission
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_permission'" ) != $tbl_permission) {
+			$sql = "CREATE TABLE `".$tbl_permission."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL, ";
+				$sql .= " `roid` varchar(255) NOT NULL  COMMENT 'Role hsid.', ";
+				$sql .= " `access` varchar(255) NOT NULL  COMMENT 'Access of this permission',  ";
+				$sql .= " `enabled` enum('false', 'true') NOT NULL  COMMENT 'Status of this permission',  ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL  COMMENT 'Status of this permission',  ";
+				$sql .= " `assigned_by` bigint(20) NOT NULL  COMMENT 'Assigned of this permission',  ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX `access` ON $tbl_permission (`access`);");
+			$wpdb->query("CREATE INDEX `status` ON $tbl_permission (`status`);");
+			$wpdb->query("CREATE INDEX `hsid` ON $tbl_permission (`hsid`);");
 
 		}
 

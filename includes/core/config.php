@@ -29,3 +29,7 @@
 	define('MP_ACCESS_FIELD', ' `groups`, `actions` ');
 	define('MP_ACCESS_DATA', $access_data);
 
+
+	define('MP_PERMISSION', MP_PREFIX.'permission');
+	define('MP_PERMISSION_FIELD', ' `roid`, `access`, `assigned_by` ');
+

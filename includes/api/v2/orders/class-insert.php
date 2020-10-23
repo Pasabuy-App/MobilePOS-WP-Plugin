@@ -34,7 +34,6 @@
         public static function list_open(){
 
             global $wpdb;
-            return $_POST['data'];
 
             $tbl_order = MP_ORDERS;
             $tbl_order_field = MP_ORDERS_FILED;

@@ -19,6 +19,10 @@
         // Role
         require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
 
+            // Access
+                require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-listing.php';
+
+
         // Orders
         require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
 
@@ -36,6 +40,13 @@
                     'methods' => 'POST',
                     'callback' => array('MP_Insert_Role','listen'),
                 ));
+
+                //  Access
+
+                    register_rest_route( 'mobilepos/v2/personnels/role/access', 'list', array(
+                        'methods' => 'POST',
+                        'callback' => array('MP_Listing_Access','listen'),
+                    ));
         /**
          * ORDER REST API'S
          *
