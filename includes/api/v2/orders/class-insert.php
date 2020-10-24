@@ -26,7 +26,9 @@
             $curl_user['adid'] = $_POST['adid'];
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['items'] = $_POST['data']['items'];
+            $curl_user['payments'] = $_POST['data']['payments'];
             isset($_POST['msg']) && !empty($_POST['msg'])? $curl_user['msg'] =  $_POST['msg'] :  $curl_user['msg'] = null ;
+            $curl_user['items'] = $_POST['data']['items'];
 
             return $curl_user;
         }
@@ -34,7 +36,7 @@
         public static function list_open(){
 
             global $wpdb;
-
+            //return $_POST['data'];
             $tbl_order = MP_ORDERS;
             $tbl_order_field = MP_ORDERS_FILED;
             $tbl_order_times = MP_ORDERS_ITEMS;

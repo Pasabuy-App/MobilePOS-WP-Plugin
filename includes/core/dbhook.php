@@ -222,8 +222,9 @@
 				$sql .= " `pdid` varchar(150) NOT NULL COMMENT 'Product ID' , ";
 				$sql .= " `title` varchar(150) NOT NULL , ";
 				$sql .= " `info` varchar(150) NOT NULL , ";
-				$sql .= " `quantity` tinyint(50) NOT NULL , ";
 				$sql .= " `limit` tinyint(50) NOT NULL , ";
+				$sql .= " `extra` varchar(150) NOT NULL , ";
+				$sql .= " `action` enum('free_ship','discount','min_spend','less') , ";
 				$sql .= " `expiry` datetime  , ";
 				$sql .= " `created_by` bigint(20) COMMENT 'The one who creates this counpon', ";
 				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";

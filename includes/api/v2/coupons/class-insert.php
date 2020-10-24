@@ -25,8 +25,9 @@
             $curl_user['expiry'] = $_POST['expiry'];
             $curl_user['limit'] = $_POST['limit'];
             $curl_user['title'] = $_POST['title'];
+            $curl_user['action'] = $_POST['action'];
+            isset($_POST['value']) && !empty($_POST['value'])? $curl_user['extra'] =  $_POST['value'] :  $curl_user['extra'] = null ;
             $curl_user['info'] = $_POST['info'];
-            $curl_user['quantity'] = $_POST['qty'];
             $curl_user['wpid'] = $_POST['wpid'];
 
             return $curl_user;
@@ -58,6 +59,13 @@
                 );
             }
 
+            if($_POST['action'] != "free_ship" || $_POST['action'] != "discount" || $_POST['action'] != "min_spend" || $_POST['action'] != "less"  ){
+                return array(
+                    "status" => "failed",
+                    "message" => "Invalid value of action."
+                );
+            }
+
             // VALIDATE COUNPON
             $check_coupon = $wpdb->get_results("SELECT * FROM $tbl_coupon WHERE title LIKE '%{$user["title"]}%' AND pdid = '{$user["pdid"]}' ");
             if (!empty($check_coupon)) {
@@ -81,7 +89,7 @@
                 $tbl_coupon
                     ($tbl_coupon_field)
                 VALUES
-                    ('{$user["pdid"]}', '{$user["title"]}', '{$user["info"]}', '{$user["quantity"]}', '{$user["limit"]}', '{$user["expiry"]}', '{$user["wpid"]}' )");
+                    ('{$user["pdid"]}', '{$user["title"]}', '{$user["info"]}', '{$user["action"]}', '{$user["extra"]}', '{$user["limit"]}', '{$user["expiry"]}', '{$user["wpid"]}' )");
 
             if ($resulst < 1) {
                 $wpdb->query("ROLLBACK");

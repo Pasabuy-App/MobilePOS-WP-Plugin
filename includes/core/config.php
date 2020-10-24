@@ -42,7 +42,7 @@
 	define('MP_OPERATIONS_FIELD', ' `stid`, `sdid`, `created_by` ');
 
 	define('MP_COUPONS', MP_PREFIX.'coupons');
-	define('MP_COUPONS_FIELD', ' `pdid`, `title`, `info`, `quantity`, `limit`, `expiry`, `created_by` ');
+	define('MP_COUPONS_FIELD', ' `pdid`, `title`, `info`, `action`, `extra`, `limit`, `expiry`, `created_by` ');
 
 	define('MP_COUPONS_USAGE', MP_PREFIX.'coupons_usage');
 	define('MP_COUPONS_USAGE_FIELD', ' `cpid` ');
