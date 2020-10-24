@@ -24,6 +24,7 @@
 		$tbl_operation = MP_OPERATIONS;
 		$tbl_coupon = MP_COUPONS;
 		$tbl_coupon_usage = MP_COUPONS_USAGE;
+		$tbl_payments = MP_PAYMENTS;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -252,6 +253,25 @@
 
 			$wpdb->query("CREATE INDEX hsid ON $tbl_coupon_usage (hsid);");
 			$wpdb->query("CREATE INDEX date_created ON $tbl_coupon_usage (date_created);");
+		}
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_payments'" ) != $tbl_payments) {
+			$sql = "CREATE TABLE `".$tbl_payments."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `odid` varchar(255) NOT NULL COMMENT 'Order ID' , ";
+				$sql .= " `method` enum('card', 'cash', 'savings', 'pluss', 'coupon') NOT NULL COMMENT 'Method used for this payment' , ";
+				$sql .= " `extra` varchar(255) NOT NULL COMMENT 'Coupon ID' , ";
+				$sql .= " `amount` int(20) NOT NULL COMMENT 'Amount of payments' , ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this payment transactiom' , ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_payments (hsid);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_payments (date_created);");
 		}
 
 	}

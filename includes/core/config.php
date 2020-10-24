@@ -46,3 +46,6 @@
 
 	define('MP_COUPONS_USAGE', MP_PREFIX.'coupons_usage');
 	define('MP_COUPONS_USAGE_FIELD', ' `cpid` ');
+
+	define('MP_PAYMENTS', MP_PREFIX.'payments');
+	define('MP_PAYMENTS_FIELD', ' `odid`, `method`, `extra`, `amount` ');
