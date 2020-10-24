@@ -22,6 +22,8 @@
 		$tbl_personnel= MP_PERSONNELS;
 		$tbl_schedule = MP_SCHEDULES;
 		$tbl_operation = MP_OPERATIONS;
+		$tbl_coupon = MP_COUPONS;
+		$tbl_coupon_usage = MP_COUPONS_USAGE;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -210,6 +212,45 @@
 			$wpdb->query("CREATE INDEX stid ON $tbl_operation (stid);");
 			$wpdb->query("CREATE INDEX sdid ON $tbl_operation (sdid);");
 			$wpdb->query("CREATE INDEX date_created ON $tbl_operation (date_created);");
+		}
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_coupon'" ) != $tbl_coupon) {
+			$sql = "CREATE TABLE `".$tbl_coupon."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `pdid` varchar(150) NOT NULL COMMENT 'Product ID' , ";
+				$sql .= " `title` varchar(150) NOT NULL , ";
+				$sql .= " `info` varchar(150) NOT NULL , ";
+				$sql .= " `quantity` tinyint(50) NOT NULL , ";
+				$sql .= " `limit` tinyint(50) NOT NULL , ";
+				$sql .= " `expiry` datetime  , ";
+				$sql .= " `created_by` bigint(20) COMMENT 'The one who creates this counpon', ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_coupon (hsid);");
+			$wpdb->query("CREATE INDEX pdid ON $tbl_coupon (pdid);");
+			$wpdb->query("CREATE INDEX expiry ON $tbl_coupon (expiry);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_coupon (date_created);");
+		}
+
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_coupon_usage'" ) != $tbl_coupon_usage) {
+			$sql = "CREATE TABLE `".$tbl_coupon_usage."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `cpid` varchar(255) NOT NULL COMMENT 'Coupon ID' , ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_coupon_usage (hsid);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_coupon_usage (date_created);");
 		}
 
 	}
