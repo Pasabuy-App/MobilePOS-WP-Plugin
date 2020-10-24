@@ -27,7 +27,7 @@
 
         public static function listen_open(){
 
-			// Initialize WP global variable
+            // Initialize WP global variable
             global $wpdb;
             $table_schedule = MP_SCHEDULES;
             $table_attendance = MP_OPERATIONS;
