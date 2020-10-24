@@ -14,6 +14,9 @@
 <?php
 
     //Require the USocketNet class which have the core function of this plguin.
+    // Coupon
+        require plugin_dir_path(__FILE__) . '/v2/coupons/class-insert.php';
+
     // Schedule
         require plugin_dir_path(__FILE__) . '/v2/schedule/class-insert.php';
             // operation
@@ -37,6 +40,16 @@
 	// Init check if USocketNet successfully request from wapi.
     function mobilepos_route()
     {
+
+        /**
+         * ORDER REST API'S
+         *
+        */
+            register_rest_route( 'mobilepos/v2/coupon', 'insert', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Insert_Coupons','listen'),
+            ));
+
         /**
          * PERSONNEL REST API'S
         */
