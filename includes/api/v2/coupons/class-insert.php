@@ -1,0 +1,100 @@
+<?php
+	// Exit if accessed directly
+	if ( ! defined( 'ABSPATH' ) )
+	{
+		exit;
+	}
+
+	/**
+        * @package mobilepos-wp-plugin
+        * @version 0.1.0
+	*/
+	class MP_Insert_Coupons {
+
+        public static function listen(){
+            return rest_ensure_response(
+                self:: list_open()
+            );
+        }
+
+
+        public static function catch_post(){
+            $curl_user = array();
+
+            $curl_user['pdid'] = $_POST['pdid'];
+            $curl_user['expiry'] = $_POST['expiry'];
+            $curl_user['limit'] = $_POST['limit'];
+            $curl_user['title'] = $_POST['title'];
+            $curl_user['info'] = $_POST['info'];
+            $curl_user['quantity'] = $_POST['qty'];
+            $curl_user['wpid'] = $_POST['wpid'];
+
+            return $curl_user;
+        }
+
+        public static function list_open(){
+
+            global $wpdb;
+            $tbl_coupon = MP_COUPONS;
+            $tbl_coupon_field = MP_COUPONS_FIELD;
+            $date = MP_Globals::date_stamp();
+
+            if(!isset($_POST['pdid']) || !isset($_POST['expiry'])
+                || !isset($_POST['limit'])  || !isset($_POST['title'])
+                || !isset($_POST['info']) || !isset($_POST['qty']) ){
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator."
+                );
+            }
+
+            $user = self::catch_post();
+
+            $validate = MP_Globals::check_listener($user);
+            if ($validate !== true) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
+                );
+            }
+
+            // VALIDATE COUNPON
+            $check_coupon = $wpdb->get_results("SELECT * FROM $tbl_coupon WHERE title LIKE '%{$user["title"]}%' AND pdid = '{$user["pdid"]}' ");
+            if (!empty($check_coupon)) {
+                return array(
+                    "status" => "failed",
+                    "message" => "This coupons is already exists."
+                );
+            }
+            // END
+
+            if ( $user['expiry'] < $date ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Please select correct value of expiry."
+                );
+            }
+
+            $wpdb->query("START TRANSACTION");
+
+            $resulst = $wpdb->query("INSERT INTO
+                $tbl_coupon
+                    ($tbl_coupon_field)
+                VALUES
+                    ('{$user["pdid"]}', '{$user["title"]}', '{$user["info"]}', '{$user["quantity"]}', '{$user["limit"]}', '{$user["expiry"]}', '{$user["wpid"]}' )");
+
+            if ($resulst < 1) {
+                $wpdb->query("ROLLBACK");
+                return array(
+                    "status" => "failed",
+                    "message" => "An error occured while submitting data to server."
+                );
+            }else{
+                $wpdb->query("COMMIT");
+                return array(
+                    "status" => "success",
+                    "message" => "Data has been added successfully."
+                );
+            }
+        }
+    }
