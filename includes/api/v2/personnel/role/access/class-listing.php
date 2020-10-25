@@ -60,9 +60,12 @@
             $smp = array_values( array_unique(array_column($groups, 'groups')));
             $var = array();
 
+            $count = 0;
             foreach($smp as $key => $value){
                 $access = $wpdb->get_results("SELECT hsid as ID, title, actions, groups  FROM $tbl_access WHERE groups = '$value' ");
-                $var[$value] = $access;
+                $var[$count]['name'] = ucfirst($value);
+                $var[$count]['access'] = $access;
+                $count ++;
             }
 
             return array(

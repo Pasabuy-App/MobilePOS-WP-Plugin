@@ -9,7 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Delete_Role_v2 {
+	class MP_Delete_Personnel_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -20,7 +20,7 @@
 
         public static function catch_post(){
             $curl_user = array();
-            $curl_user['role_id'] = $_POST['roid'];
+            $curl_user['personel_id'] = $_POST['pid'];
             $curl_user['wpid'] = $_POST['wpid'];
             return $curl_user;
         }
@@ -28,9 +28,8 @@
         public static function list_open(){
 
             global $wpdb;
-            $table_role = MP_ROLES_v2;
-            $table_role_field = MP_ROLES_FILED_v2;
             $tbl_personnel = MP_PERSONNELS_v2;
+            $tbl_personnel_filed = MP_PERSONNELS_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -41,12 +40,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
 
             $user = self::catch_post();
@@ -58,39 +57,39 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
-
-            // Check if this role is already used
-                $check_role = $wpdb->get_row("SELECT ID FROM $tbl_personnel WHERE roid = '{$user["role_id"]}' AND `status` = 'active' AND activated = 'true' ");
-
-                if (!empty($check_role)) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This role cannot be deleted because it currently used by an active personnel."
-                    );
-                }
-            // End
-
-            $get_data =  $wpdb->get_row("SELECT `status`, `title`, `stid`, `info` FROM  $table_role WHERE hsid = '{$user["role_id"]}'  GROUP BY title DESC");
+            // AND `status` = 'active' AND activated = 'true'
+            return $get_data =  $wpdb->get_row("SELECT
+            hsid as ID,
+            stid,
+            wpid,
+            `status`,
+            date_created
+            FROM
+                $tbl_personnel
+            WHERE hsid = '{$user["personel_id"]}'
+            GROUP BY `wpid`
+            DESC");
 
             if (empty($get_data)) {
                 return array(
                     "status" => "failed",
-                    "message" => "This role does not exists."
+                    "message" => "This personnel does not exists."
                 );
             }
 
             if ($get_data->status == "inactive") {
                 return array(
                     "status" => "failed",
-                    "message" => "This role is currently inactive."
+                    "message" => "This personnel is currently inactive."
                 );
             }
 
             $results = $wpdb->query("INSERT INTO
-                $table_role
-                    ($table_role_field, `status`)
+                $tbl_personnel
+                    ($tbl_personnel_filed, `status`)
                 VALUES
-                    ($get_data->title, $get_data->info, $get_data->stid, '{$user["wpid"]}', 'inactive' ) ");
+                    #`stid`, `wpid`, `roid`, `pincode`, `assigned_by`
+                    ('$get_data->stid', '$get_data->wpid', '$get_data->roid', '$get_data->pincode', '$get_data->assigned_by', 'inactive' ) ");
 
             if ($results < 1) {
                 return array(
