@@ -51,6 +51,7 @@
 
     // Personnels
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-insert.php';
+        require plugin_dir_path(__FILE__) . '/v2/personnel/class-listing.php';
 
             // Role
             require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
@@ -230,10 +231,12 @@
                     'callback' => array('MP_Insert_Personnel_v2','listen'),
                 ));
 
-                register_rest_route( 'mobilepos/v2/personnels/role', 'delete', array(
+                register_rest_route( 'mobilepos/v2/personnels', 'list', array(
                     'methods' => 'POST',
-                    'callback' => array('MP_Delete_Role_v2','listen'),
+                    'callback' => array('MP_Listing_Personnel_v2','listen'),
                 ));
+
+
 
                 // ROLE
                     register_rest_route( 'mobilepos/v2/personnels/role', 'insert', array(
@@ -244,6 +247,11 @@
                     register_rest_route( 'mobilepos/v2/personnels/role', 'list', array(
                         'methods' => 'POST',
                         'callback' => array('MP_Listing_Role_v2','listen'),
+                    ));
+
+                    register_rest_route( 'mobilepos/v2/personnels/role', 'delete', array(
+                        'methods' => 'POST',
+                        'callback' => array('MP_Delete_Role_v2','listen'),
                     ));
 
                     //  Access
