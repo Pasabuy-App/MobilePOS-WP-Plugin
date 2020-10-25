@@ -30,10 +30,10 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_role = MP_ROLES;
-            $tbl_role_field = MP_ROLES_FILED;
-            $tbl_permission = MP_PERMISSION;
-            $tbl_permission_field = MP_PERMISSION_FIELD;
+            $tbl_role = MP_ROLES_v2;
+            $tbl_role_field = MP_ROLES_FILED_v2;
+            $tbl_permission = MP_PERMISSION_v2;
+            $tbl_permission_field = MP_PERMISSION_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -48,6 +48,15 @@
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
+
+            if(!isset($_POST['title']) || !isset($_POST['info'])
+                || !isset($_POST['limit'])  || !isset($_POST['title'])
+                || !isset($_POST['data'])  ){
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Request unknown!"
                 );
             }
 

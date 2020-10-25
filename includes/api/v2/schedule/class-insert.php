@@ -31,8 +31,8 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_schedule = MP_SCHEDULES;
-            $tbl_schedule_fields = MP_SCHEDULES_FIELD;
+            $tbl_schedule = MP_SCHEDULES_v2;
+            $tbl_schedule_fields = MP_SCHEDULES_FIELD_v2;
 
             $plugin = MP_Globals::verify_prerequisites();
             if ($plugin !== true) {

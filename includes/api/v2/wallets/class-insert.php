@@ -29,8 +29,8 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_wallet = MP_WALLETS;
-            $tbl_wallet_field = MP_WALLETS_FIELD;
+            $tbl_wallet = MP_WALLETS_v2;
+            $tbl_wallet_field = MP_WALLETS_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {

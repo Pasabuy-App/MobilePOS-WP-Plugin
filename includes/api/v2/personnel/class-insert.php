@@ -31,8 +31,8 @@
         public static function list_open(){
 
             global $wpdb;
-		    $tbl_personnel = MP_PERSONNELS;
-		    $tbl_personnel_field = MP_PERSONNELS_FIELD;
+		    $tbl_personnel = MP_PERSONNELS_v2;
+		    $tbl_personnel_field = MP_PERSONNELS_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {

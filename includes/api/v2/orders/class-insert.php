@@ -38,12 +38,12 @@
 
             global $wpdb;
 
-            $tbl_order = MP_ORDERS;
-            $tbl_order_field = MP_ORDERS_FILED;
-            $tbl_order_times = MP_ORDERS_ITEMS;
-            $tbl_order_times_field = MP_ORDERS_ITEMS_FIELD;
-            $tbl_order_times_vars = MP_ORDERS_ITEMS_VARS;
-            $tbl_order_times_vars_field = MP_ORDERS_ITEMS_VARS_FIELD;
+            $tbl_order = MP_ORDERS_v2;
+            $tbl_order_field = MP_ORDERS_FILED_v2;
+            $tbl_order_times = MP_ORDERS_ITEMS_v2;
+            $tbl_order_times_field = MP_ORDERS_ITEMS_FIELD_v2;
+            $tbl_order_times_vars = MP_ORDERS_ITEMS_VARS_v2;
+            $tbl_order_times_vars_field = MP_ORDERS_ITEMS_VARS_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -222,7 +222,6 @@
                         }
                     }
                     // End Pasabuy wallet
-
                 }
             /**
              * END Process payment
@@ -331,8 +330,8 @@
         public static function save_payment($odid, $method, $amount, $extra){
             global $wpdb;
             $wpdb->query("START TRANSACTION");
-            $tbl_payment = MP_PAYMENTS;
-            $tbl_payment_filed = MP_PAYMENTS_FIELD;
+            $tbl_payment = MP_PAYMENTS_v2;
+            $tbl_payment_filed = MP_PAYMENTS_v2;
 
             $data = $wpdb->query("INSERT INTO mp_payments ($tbl_payment_filed) VALUES ('$odid', '$method', $extra, $amount ) ");
 

@@ -29,9 +29,9 @@
 
             // Initialize WP global variable
             global $wpdb;
-            $table_schedule = MP_SCHEDULES;
-            $table_attendance = MP_OPERATIONS;
-            $table_attendance_field = MP_OPERATIONS_FIELD;
+            $table_schedule = MP_SCHEDULES_v2;
+            $table_attendance = MP_OPERATIONS_v2;
+            $table_attendance_field = MP_OPERATIONS_FIELD_v2;
 
             // Step 1: Check if prerequisites plugin are missing
             $plugin = MP_Globals_v2::verify_prerequisites();

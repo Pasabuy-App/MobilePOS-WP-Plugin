@@ -30,7 +30,7 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_access = MP_ACCESS;
+            $tbl_access = MP_ACCESS_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -41,12 +41,12 @@
             }
 
 			// Step 2: Validate user
-		/* 	if (DV_Verification::is_verified() == false) {
+			if (DV_Verification::is_verified() == false) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
-            } */
+            }
 
             $user = self::catch_post();
 

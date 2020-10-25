@@ -36,8 +36,8 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_coupon = MP_COUPONS;
-            $tbl_coupon_field = MP_COUPONS_FIELD;
+            $tbl_coupon = MP_COUPONS_v2;
+            $tbl_coupon_field = MP_COUPONS_FIELD_v2;
             $date = MP_Globals_v2::date_stamp();
 
             if(!isset($_POST['pdid']) || !isset($_POST['expiry'])
@@ -45,7 +45,7 @@
                 || !isset($_POST['info']) || !isset($_POST['qty']) ){
                 return array(
                     "status" => "unknown",
-                    "message" => "Please contact your administrator."
+                    "message" => "Please contact your administrator. Request unknown"
                 );
             }
 

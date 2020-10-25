@@ -30,7 +30,7 @@
 
 
 
-  /*
+        /*
          * STORE RESTAPI
         */
             register_rest_route( 'mobilepos/v1/store', 'select', array(
