@@ -20,6 +20,7 @@
         public static function catch_post(){
             $curl_user = array();
             isset($_POST['roid']) && !empty($_POST['roid'])? $curl_user['role_id'] =  $_POST['roid'] :  $curl_user['role_id'] = null ;
+            isset($_POST['stid']) && !empty($_POST['stid'])? $curl_user['store_id'] =  $_POST['stid'] :  $curl_user['store_id'] = null ;
             isset($_POST['status']) && !empty($_POST['status'])? $curl_user['status'] =  $_POST['status'] :  $curl_user['status'] = null ;
             return $curl_user;
         }
@@ -76,6 +77,16 @@
 
                 }else{
                     $sql .= " WHERE hsid = '{$user["role_id"]}' ";
+                }
+            }
+
+
+            if ($user['store_id'] != null) {
+                if ($user['role_id'] != null || $user['status'] != null) {
+                    $sql .= " AND `stid` = '{$user["store_id"]}' ";
+
+                }else{
+                    $sql .= " WHERE `stid` = '{$user["store_id"]}' ";
                 }
             }
 

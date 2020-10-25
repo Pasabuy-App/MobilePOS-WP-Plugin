@@ -29,6 +29,6 @@
 
             global $wpdb;
 
-            $wpdb->query();
+            $wpdb->query("");
         }
     }
