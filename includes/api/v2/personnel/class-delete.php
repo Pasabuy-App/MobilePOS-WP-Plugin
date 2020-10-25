@@ -40,12 +40,12 @@
             }
 
 			// Step 2: Validate user
-			// if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
 
             $user = self::catch_post();
@@ -58,7 +58,7 @@
                 );
             }
             // AND `status` = 'active' AND activated = 'true'
-            return $get_data =  $wpdb->get_row("SELECT
+            $get_data =  $wpdb->get_row("SELECT
             hsid as ID,
             stid,
             wpid,
@@ -90,6 +90,9 @@
                 VALUES
                     #`stid`, `wpid`, `roid`, `pincode`, `assigned_by`
                     ('$get_data->stid', '$get_data->wpid', '$get_data->roid', '$get_data->pincode', '$get_data->assigned_by', 'inactive' ) ");
+
+            $results_id = $wpdb->insert_id;
+            $hsid = MP_Globals_v2::generating_pubkey($results_id, $tbl_personnel, 'hsid', false, 64);
 
             if ($results < 1) {
                 return array(

@@ -91,6 +91,8 @@
                     ($table_role_field, `status`)
                 VALUES
                     ($get_data->title, $get_data->info, $get_data->stid, '{$user["wpid"]}', 'inactive' ) ");
+            $results_id = $wpdb->insert_id;
+            $hsid = MP_Globals_v2::generating_pubkey($results_id, $table_role, 'hsid', false, 64);
 
             if ($results < 1) {
                 return array(
