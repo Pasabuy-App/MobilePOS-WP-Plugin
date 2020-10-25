@@ -41,12 +41,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             $user = self::catch_post();
 
@@ -58,22 +58,22 @@
                 date_created
             FROM $tbl_role ";
 
-            if ($use['role_id'] != null) {
-                $sql .= " WHERE hsid = '{$use["role_id"]}' ";
+            if ($user['role_id'] != null) {
+                $sql .= " WHERE hsid = '{$user["role_id"]}' ";
             }
 
-            if ($use['status'] != null) {
+            if ($user['status'] != null) {
                 if ($user['role_id'] != null) {
-                    if ($use['status'] != 'active' && $use['status'] != 'inactive'  ) {
+                    if ($user['status'] != 'active' && $user['status'] != 'inactive'  ) {
                         return array(
                             "status" => "failed",
                             "message" => "Invalid value of status."
                         );
                     }
-                    $sql .= " AND `status` = '{$use["status"]}' ";
+                    $sql .= " AND `status` = '{$user["status"]}' ";
 
                 }else{
-                    $sql .= " WHERE hsid = '{$use["role_id"]}' ";
+                    $sql .= " WHERE hsid = '{$user["role_id"]}' ";
                 }
             }
 
