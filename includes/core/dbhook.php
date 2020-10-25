@@ -155,6 +155,7 @@
 					$sql .= "`hsid` varchar(255) NOT NULL, ";
 					$sql .= "`title` varchar(100) NOT NULL  COMMENT 'Title of role.', ";
 					$sql .= "`info` varchar(200) NOT NULL  COMMENT 'Information of this role',  ";
+					$sql .= "`stid` varchar(200) NOT NULL  COMMENT 'Store id of this role',  ";
 					$sql .= "`status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this role.',  ";
 					$sql .= "`created_by` bigint(20) NOT NULL COMMENT 'The one who creates thos role.',  ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
