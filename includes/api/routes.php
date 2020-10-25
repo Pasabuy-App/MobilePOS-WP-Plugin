@@ -55,6 +55,7 @@
             // Role
             require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
             require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-listing.php';
+            require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-delete.php';
 
                 // Access
                     require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-listing.php';
@@ -202,7 +203,7 @@
         *    Version two Routes
         */
             /**
-             * ORDER REST API'S
+             * WALLET REST API'S
              *
             */
                 register_rest_route( 'mobilepos/v2/wallets', 'insert', array(
@@ -211,7 +212,7 @@
                 ));
 
             /**
-             * ORDER REST API'S
+             * COUPON REST API'S
              *
             */
                 register_rest_route( 'mobilepos/v2/coupon', 'insert', array(
@@ -226,6 +227,11 @@
                 register_rest_route( 'mobilepos/v2/personnels', 'insert', array(
                     'methods' => 'POST',
                     'callback' => array('MP_Insert_Personnel_v2','listen'),
+                ));
+
+                register_rest_route( 'mobilepos/v2/personnels/role', 'delete', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Delete_Role_v2','listen'),
                 ));
 
                 // ROLE

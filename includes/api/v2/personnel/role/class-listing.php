@@ -89,6 +89,7 @@
                     $sql .= " WHERE `stid` = '{$user["store_id"]}' ";
                 }
             }
+            $sql ." GROUP BY title DESC ";
 
             $results =  $wpdb->get_results($sql);
 
