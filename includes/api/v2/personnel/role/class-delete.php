@@ -30,6 +30,7 @@
             global $wpdb;
             $table_role = MP_ROLES_v2;
             $table_role_field = MP_ROLES_FILED_v2;
+            $tbl_personnel = MP_PERSONNELS_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -58,7 +59,18 @@
                 );
             }
 
-            $get_data =  $wpdb->get_row("SELECT * FROM  $table_role WHERE hsid = '{$user["role_id"]}'  GROUP BY title DESC");
+            // Check if this role is already used
+                $check_role = $wpdb->get_row("SELECT ID FROM $tbl_personnel WHERE roid = '{$user["role_id"]}' AND `status` = 'active' AND activated = 'true' ");
+
+                if (!empty($check_role)) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This role cannot be deleted because it currently used by an active personnel."
+                    );
+                }
+            // End
+
+            $get_data =  $wpdb->get_row("SELECT `status`, `title`, `stid`, `info` FROM  $table_role WHERE hsid = '{$user["role_id"]}'  GROUP BY title DESC");
 
             if (empty($get_data)) {
                 return array(
@@ -74,7 +86,11 @@
                 );
             }
 
-            $results = $wpdb->query("INSERT INTO $table_role ($table_role_field, `status`) VALUES ($get_data->title, $get_data->info, $get_data->stid, '{$user["wpid"]}', 'inactive' ) ");
+            $results = $wpdb->query("INSERT INTO
+                $table_role
+                    ($table_role_field, `status`)
+                VALUES
+                    ($get_data->title, $get_data->info, $get_data->stid, '{$user["wpid"]}', 'inactive' ) ");
 
             if ($results < 1) {
                 return array(

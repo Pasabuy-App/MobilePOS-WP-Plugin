@@ -64,6 +64,7 @@
             require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
 
     require plugin_dir_path(__FILE__) . '/v2/class-globals.php';
+    require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
 
 	// Init check if USocketNet successfully request from wapi.
     function mobilepos_route()
