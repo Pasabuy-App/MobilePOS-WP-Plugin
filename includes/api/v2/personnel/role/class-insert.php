@@ -44,16 +44,14 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
-            if(!isset($_POST['title']) || !isset($_POST['info'])
-                || !isset($_POST['limit'])  || !isset($_POST['title'])
-                || !isset($_POST['data'])  ){
+            if(!isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['title']) || !isset($_POST['data'])  ){
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown!"
@@ -71,6 +69,15 @@
             }
 
             $wpdb->query("START TRANSACTION");
+
+                $check_role = $wpdb->get_row("SELECT `status` FROM $tbl_role WHERE title LIKE '%{$user["title"]}%' ");
+
+                if (!empty($check_role)) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This Role is already exists."
+                    );
+                }
 
                 // IMPORT ROLE DATA
                 $reuslts = $wpdb->query("INSERT INTO
