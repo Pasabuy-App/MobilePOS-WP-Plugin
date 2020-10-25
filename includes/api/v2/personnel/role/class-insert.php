@@ -21,6 +21,7 @@
         public static function catch_post(){
             $curl_user = array();
             $curl_user['wpid'] = $_POST['wpid'];
+            $curl_user['stid'] = $_POST['stid'];
             $curl_user['title'] = $_POST['title'];
             $curl_user['info'] = $_POST['info'];
             $curl_user['access'] = $_POST['data']['access'];
@@ -44,14 +45,14 @@
             }
 
 			// Step 2: Validate user
-			// if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
-            if(!isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['title']) || !isset($_POST['data'])  ){
+            if(!isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['title']) || !isset($_POST['data'])  || !isset($_POST['stid']) ){
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown!"
@@ -84,7 +85,7 @@
                     $tbl_role
                         ($tbl_role_field)
                     VALUES
-                        ('{$user["title"]}', '{$user["info"]}', '{$user["wpid"]}') ");
+                        ('{$user["title"]}', '{$user["info"]}', '{$user["stid"]}','{$user["wpid"]}') ");
                 $reuslts_id = $wpdb->insert_id;
 
                 $reuslts_hsid = MP_Globals_v2::generating_pubkey($reuslts_id, $tbl_role, 'hsid', true, 64);

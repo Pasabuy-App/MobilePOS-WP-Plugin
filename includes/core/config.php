@@ -43,7 +43,7 @@
 		define('MP_PREFIX_v2', 'mp_v2_');
 
 		define('MP_ROLES_v2', MP_PREFIX_v2.'roles');
-		define('MP_ROLES_FILED_v2', ' `title`, `info`, `created_by` ');
+		define('MP_ROLES_FILED_v2', ' `title`, `info`, `stid`, `created_by` ');
 
 		define('MP_ORDERS_v2', MP_PREFIX_v2.'orders');
 		define('MP_ORDERS_FILED_v2', ' `opid`, `stages`, `adid`, `instructions`, `order_by` ');

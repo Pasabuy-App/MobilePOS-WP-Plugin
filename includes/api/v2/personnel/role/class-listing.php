@@ -52,11 +52,13 @@
 
             $sql = "SELECT
                 hsid as ID,
+                stid,
                 title,
                 info,
+                `status`,
                 created_by,
                 date_created
-            FROM $tbl_role ";
+            FROM $tbl_role  ";
 
             if ($user['role_id'] != null) {
                 $sql .= " WHERE hsid = '{$user["role_id"]}' ";
