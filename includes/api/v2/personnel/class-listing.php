@@ -95,9 +95,9 @@
             if ($user['plid'] != null) {
 
                 if ($user['status'] != null || $user['store_id'] != null || $user['user_id'] != null) {
-                    $sql .= " AND hash_id = '{$user["plid"]}' ";
+                    $sql .= " AND hsid = '{$user["plid"]}' ";
                 }else{
-                    $sql .= " WHERE hash_id = '{$user["plid"]}' ";
+                    $sql .= " WHERE hsid = '{$user["plid"]}' ";
                 }
             }
 
