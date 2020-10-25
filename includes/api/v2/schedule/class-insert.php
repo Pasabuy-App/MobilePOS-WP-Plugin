@@ -9,7 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Insert_Schedule {
+	class MP_Insert_Schedule_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -72,7 +72,7 @@
 
             $user = self::catch_post();
 
-            $validate = MP_Globals::check_listener($user);
+            $validate = MP_Globals_v2::check_listener($user);
             if ($validate !== true) {
                 return array(
                     "status" => "failed",
@@ -107,7 +107,7 @@
                 VALUES
                     ('{$user["stid"]}', '{$user["type"]}', '{$user["started"]}',  '{$user["ended"]}')");
             $result_id = $wpdb->insert_id;
-            $hsid = MP_Globals::generating_pubkey($result_id, $tbl_schedule, 'hsid', false, 64);
+            $hsid = MP_Globals_v2::generating_pubkey($result_id, $tbl_schedule, 'hsid', false, 64);
 
             if ($result < 1 ) {
                 $wpdb->query("ROLLBACK");

@@ -25,6 +25,7 @@
 		$tbl_coupon = MP_COUPONS;
 		$tbl_coupon_usage = MP_COUPONS_USAGE;
 		$tbl_payments = MP_PAYMENTS;
+		$tbl_wallet = MP_WALLETS;
 
 		//Database table creation for revisions
 		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles'" ) != $tbl_roles) {
@@ -56,8 +57,9 @@
 				$sql .= " `stages` enum('pending', 'accepted', 'ongoing', 'preparing', 'shipping', 'completed', 'cancelled') NOT NULL COMMENT 'Stage of this order.',  ";
 				$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order.',  ";
 				$sql .= " `adid` bigint(20) NOT NULL COMMENT 'Address ID of this order.',  ";
-				$sql .= " `method` enum('cash', 'wallet', 'card') NOT NULL COMMENT 'Method choosen for this order.',  ";
 				$sql .= " `instructions` varchar(255) NOT NULL COMMENT 'Additional instruction of this order.',  ";
+				$sql .= " `delivery_charges` varchar(150) NOT NULL COMMENT 'Method choosen for this order.',  ";
+				$sql .= " `psb_fee` double(6, 2) NOT NULL COMMENT 'Method choosen for this order.',  ";
 				$sql .= " `order_by` bigint(20) NOT NULL COMMENT 'The one who created this order.',  ";
 				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 				$sql .= "PRIMARY KEY (`ID`) ";
@@ -110,7 +112,7 @@
 			$sql = "CREATE TABLE `".$tbl_access."` (";
 				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 				$sql .= " `hsid` varchar(255) NOT NULL, ";
-				$sql .= " `groups` enum('product', 'store', 'category', 'variant', 'document', 'coupon', 'order', 'report', 'dashboard', 'schedule', 'operation', 'personnel', 'role') NOT NULL  COMMENT 'Categories of access.', ";
+				$sql .= " `groups` enum('product', 'store', 'category', 'wallet', 'variant', 'document', 'coupon', 'order', 'report', 'dashboard', 'schedule', 'operation', 'personnel', 'role') NOT NULL  COMMENT 'Categories of access.', ";
 				$sql .= " `title` varchar(150) NOT NULL  COMMENT 'Title of access to be displayed in app',  ";
 				$sql .= " `actions` varchar(150) NOT NULL  COMMENT 'Access key',  ";
 				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
@@ -272,6 +274,25 @@
 
 			$wpdb->query("CREATE INDEX hsid ON $tbl_payments (hsid);");
 			$wpdb->query("CREATE INDEX date_created ON $tbl_payments (date_created);");
+		}
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_wallet'" ) != $tbl_wallet) {
+			$sql = "CREATE TABLE `".$tbl_wallet."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `stid` varchar(255) NOT NULL COMMENT 'Store ID' , ";
+				$sql .= " `pubkey` varchar(255) NOT NULL COMMENT 'Public key of this wallet' , ";
+				$sql .= " `assigned_by` varchar(150) NOT NULL COMMENT 'User ID' , ";
+				$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this payment transactiom' , ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_wallet (hsid);");
+			$wpdb->query("CREATE INDEX pubkey ON $tbl_wallet (pubkey);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_wallet (date_created);");
 		}
 
 	}

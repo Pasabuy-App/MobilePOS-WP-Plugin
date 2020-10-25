@@ -17,6 +17,9 @@
     // Coupon
         require plugin_dir_path(__FILE__) . '/v2/coupons/class-insert.php';
 
+    // Wallet
+        require plugin_dir_path(__FILE__) . '/v2/wallets/class-insert.php';
+
     // Schedule
         require plugin_dir_path(__FILE__) . '/v2/schedule/class-insert.php';
             // operation
@@ -35,11 +38,21 @@
             // Orders
             require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
 
-    require plugin_dir_path(__FILE__) . '/v2/class-globals.php';
+    require plugin_dir_path(__FILE__) . '/v2/class-globals_v2.php';
 
 	// Init check if USocketNet successfully request from wapi.
     function mobilepos_route()
     {
+
+
+        /**
+         * ORDER REST API'S
+         *
+        */
+            register_rest_route( 'mobilepos/v2/wallets', 'insert', array(
+                'methods' => 'POST',
+                'callback' => array('MP_Insert_Wallet_v2','listen'),
+            ));
 
         /**
          * ORDER REST API'S
@@ -77,7 +90,7 @@
         */
             register_rest_route( 'mobilepos/v2/orders', 'insert', array(
                 'methods' => 'POST',
-                'callback' => array('MP_Insert_Order','listen'),
+                'callback' => array('MP_Insert_Order_v2','listen'),
             ));
 
         /**

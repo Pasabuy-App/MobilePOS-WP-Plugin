@@ -9,7 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Insert_Role_v2 {
+	class MP_Insert_Wallet_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -17,23 +17,20 @@
             );
         }
 
-
         public static function catch_post(){
             $curl_user = array();
+
+            $curl_user['stid'] = $_POST['stid'];
             $curl_user['wpid'] = $_POST['wpid'];
-            $curl_user['title'] = $_POST['title'];
-            $curl_user['info'] = $_POST['info'];
-            $curl_user['access'] = $_POST['data']['access'];
+
             return $curl_user;
         }
 
         public static function list_open(){
 
             global $wpdb;
-            $tbl_role = MP_ROLES;
-            $tbl_role_field = MP_ROLES_FILED;
-            $tbl_permission = MP_PERMISSION;
-            $tbl_permission_field = MP_PERMISSION_FIELD;
+            $tbl_wallet = MP_WALLETS;
+            $tbl_wallet_field = MP_WALLETS_FIELD;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -51,6 +48,13 @@
                 );
             }
 
+            if (!isset($_POST['stid'])) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Request unknown!",
+                );
+            }
+
             $user = self::catch_post();
 
             $validate = MP_Globals_v2::check_listener($user);
@@ -63,30 +67,24 @@
 
             $wpdb->query("START TRANSACTION");
 
-                // IMPORT ROLE DATA
-                $reuslts = $wpdb->query("INSERT INTO
-                    $tbl_role
-                        ($tbl_role_field)
-                    VALUES
-                        ('{$user["title"]}', '{$user["info"]}', '{$user["wpid"]}') ");
-                $reuslts_id = $wpdb->insert_id;
-
-                $reuslts_hsid = MP_Globals_v2::generating_pubkey($reuslts_id, $tbl_role, 'hsid', true, 64);
-                // END
-                foreach ($user['access'] as $key => $value) {
-                    foreach ($value as $keys => $values) {
-                        // IMPORT PERMISSION
-                        $permission = $wpdb->query("INSERT INTO
-                            $tbl_permission
-                                ($tbl_permission_field)
-                            VALUES
-                                ( '$reuslts_hsid', '$values', '{$user["wpid"]}' ) ");
-                        $permission_id = $wpdb->insert_id;
-                        $permission_hsid = MP_Globals_v2::generating_pubkey($permission_id, $tbl_permission, 'hsid', false, 64);
-                    }
+            // CHECK IF STORE WALLET IS ALREADY EXISTS
+                $check_wallet = $wpdb->get_row("SELECT hsid, `status` FROM $tbl_wallet WHERE stid = '{$user["stid"]}' ");
+                if (!empty($check_wallet)) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This store is already have an wallet."
+                    );
                 }
+            // END
 
-            if($reuslts < 1){
+            $insert = $wpdb->query("INSERT INTO $tbl_wallet ($tbl_wallet_field) VALUES ( '{$user["stid"]}', '', '{$user["wpid"]}' ) ");
+            $insert_id = $wpdb->insert_id;
+
+            $generate_pubkey = MP_Globals_v2::generating_pubkey($insert_id, $tbl_wallet, 'pubkey', true, 9);
+
+            $update_data = $wpdb->query("UPDATE $tbl_wallet SET hsid = sha2($insert_id, 256) WHERE ID = '$insert_id' ");
+
+            if ($insert < 1 || $generate_pubkey == false || $update_data < 1) {
                 $wpdb->query("ROLLBACK");
                 return array(
                     "status" => "failed",

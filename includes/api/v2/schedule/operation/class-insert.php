@@ -9,7 +9,7 @@
 		* @version 0.1.0
 		* This is the primary gateway of all the rest api request.
 	*/
-  	class HP_Insert_Operation {
+  	class HP_Insert_Operation_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -34,7 +34,7 @@
             $table_attendance_field = MP_OPERATIONS_FIELD;
 
             // Step 1: Check if prerequisites plugin are missing
-            $plugin = MP_Globals::verify_prerequisites();
+            $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
                     "status" => "unknown",
@@ -59,7 +59,7 @@
 
             $user = self::catch_post();
 
-            $validate = MP_Globals::check_listener($user);
+            $validate = MP_Globals_v2::check_listener($user);
             if ($validate !== true) {
                 return array(
                     "status" => "failed",

@@ -10,7 +10,7 @@
         * @version 0.1.0
 	*/
 
-	class MP_Listing_Access {
+	class MP_Listing_Access_v2 {
         public static function listen(){
             return rest_ensure_response(
                 self:: list_open()
@@ -32,7 +32,7 @@
             global $wpdb;
             $tbl_access = MP_ACCESS;
 
-            $plugin = MP_Globals::verify_prerequisites();
+            $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
                     "status" => "unknown",

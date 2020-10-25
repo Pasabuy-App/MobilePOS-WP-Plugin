@@ -45,5 +45,8 @@
         ( sha2(32 , 256), 'personnel','Delete Personnel', 'delete_personnel' ),
         ( sha2(33 , 256), 'role','Add Role', 'add_role' ),
         ( sha2(34 , 256), 'role','Edit Role', 'edit_role' ),
-        ( sha2(35 , 256), 'role','Delete Role', 'delete_role' );
+        ( sha2(35 , 256), 'role','Delete Role', 'delete_role' ),
+        ( sha2(36 , 256), 'wallet','Change Wallet', 'change_wallet' ),
+        ( sha2(37 , 256), 'wallet','View Wallet', 'view_wallet' ),
+        ( sha2(38 , 256), 'wallet','Create Wallet', 'create_wallet' ),;
         ";

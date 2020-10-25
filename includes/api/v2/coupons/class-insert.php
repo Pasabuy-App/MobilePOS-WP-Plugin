@@ -9,7 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Insert_Coupons {
+	class MP_Insert_Coupons_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -26,7 +26,7 @@
             $curl_user['limit'] = $_POST['limit'];
             $curl_user['title'] = $_POST['title'];
             $curl_user['action'] = $_POST['action'];
-            isset($_POST['value']) && !empty($_POST['value'])? $curl_user['extra'] =  $_POST['value'] :  $curl_user['extra'] = null ;
+            isset($_POST['value']) && !empty($_POST['value'])? $curl_user['extra'] =  ($_POST['value'] / 100) :  $curl_user['extra'] = null ;
             $curl_user['info'] = $_POST['info'];
             $curl_user['wpid'] = $_POST['wpid'];
 
@@ -38,7 +38,7 @@
             global $wpdb;
             $tbl_coupon = MP_COUPONS;
             $tbl_coupon_field = MP_COUPONS_FIELD;
-            $date = MP_Globals::date_stamp();
+            $date = MP_Globals_v2::date_stamp();
 
             if(!isset($_POST['pdid']) || !isset($_POST['expiry'])
                 || !isset($_POST['limit'])  || !isset($_POST['title'])
@@ -51,7 +51,7 @@
 
             $user = self::catch_post();
 
-            $validate = MP_Globals::check_listener($user);
+            $validate = MP_Globals_v2::check_listener($user);
             if ($validate !== true) {
                 return array(
                     "status" => "failed",

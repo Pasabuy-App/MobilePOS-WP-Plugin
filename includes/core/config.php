@@ -17,7 +17,7 @@
 	define('MP_ROLES_FILED', ' `title`, `info`, `created_by` ');
 
 	define('MP_ORDERS', MP_PREFIX.'orders');
-	define('MP_ORDERS_FILED', ' `opid`, `stages`, `adid`, `method`, `instructions`, `order_by` ');
+	define('MP_ORDERS_FILED', ' `opid`, `stages`, `adid`, `instructions`, `order_by` ');
 
 	define('MP_ORDERS_ITEMS', MP_PREFIX.'orders_items');
 	define('MP_ORDERS_ITEMS_FIELD', ' `odid`, `pdid`, `quantity`, `created_by` ');
@@ -49,3 +49,6 @@
 
 	define('MP_PAYMENTS', MP_PREFIX.'payments');
 	define('MP_PAYMENTS_FIELD', ' `odid`, `method`, `extra`, `amount` ');
+
+	define('MP_WALLETS', MP_PREFIX.'wallets');
+	define('MP_WALLETS_FIELD', ' `stid`, `pubkey`, `assigned_by` ');

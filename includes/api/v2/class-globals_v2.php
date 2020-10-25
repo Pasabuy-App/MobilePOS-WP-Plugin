@@ -10,7 +10,7 @@
         * @version 0.1.0
     */
 
-  	class MP_Globals {
+  	class MP_Globals_v2 {
 
 
 
@@ -28,8 +28,11 @@
                 return 'TindaPress';
             }
 
-            return true;
+            if(!class_exists('CP_Globals') ){
+                return 'CoinPress';
+            }
 
+            return true;
         }
 
         /**
@@ -86,4 +89,6 @@
 			return true;
 
         }
+
+        
     }
