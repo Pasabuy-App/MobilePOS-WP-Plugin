@@ -53,6 +53,7 @@
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-insert.php';
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-listing.php';
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-delete.php';
+        require plugin_dir_path(__FILE__) . '/v2/personnel/class-activate.php';
 
             // Role
             require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
@@ -242,6 +243,10 @@
                     'callback' => array('MP_Delete_Personnel_v2','listen'),
                 ));
 
+                register_rest_route( 'mobilepos/v2/personnels', 'activate', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Activate_Personnel_v2','listen'),
+                ));
 
 
                 // ROLE
