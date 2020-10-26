@@ -80,5 +80,5 @@
 		define('MP_PAYMENTS_FIELD_v2', ' `odid`, `method`, `extra`, `amount` ');
 
 		define('MP_WALLETS_v2', MP_PREFIX_v2.'wallets');
-		define('MP_WALLETS_FIELD_v2', ' `stid`, `pubkey`, `assigned_by` ');
+		define('MP_WALLETS_FIELD_v2', ' `stid`, `pubkey`, `assigned_by`, `created_by` ');
 	// END
