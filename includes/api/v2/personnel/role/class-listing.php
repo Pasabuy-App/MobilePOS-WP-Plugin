@@ -52,14 +52,15 @@
             $user = self::catch_post();
 
             $sql = "SELECT
-                hsid as ID,
-                stid,
-                title,
-                info,
-                `status`,
-                created_by,
-                date_created
-            FROM $tbl_role
+                    hsid as ID,
+                    stid,
+                    title,
+                    info,
+                    `status`,
+                    created_by,
+                    date_created
+                FROM
+                    $tbl_role
                 WHERE
                     id IN ( SELECT MAX( id ) FROM $tbl_role GROUP BY title )
               ";
@@ -75,7 +76,7 @@
                         "message" => "Invalid value of status."
                     );
                 }
-                $sql .= " AND status = '{$user["status"]}' ";
+                $sql .= " AND `status` = '{$user["status"]}' ";
             }
 
 

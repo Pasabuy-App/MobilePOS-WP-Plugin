@@ -43,6 +43,8 @@
 
     // Wallet
         require plugin_dir_path(__FILE__) . '/v2/wallets/class-insert.php';
+        require plugin_dir_path(__FILE__) . '/v2/wallets/class-listing.php';
+        require plugin_dir_path(__FILE__) . '/v2/wallets/class-change.php';
 
     // Schedule
         require plugin_dir_path(__FILE__) . '/v2/schedule/class-insert.php';
@@ -214,6 +216,17 @@
                     'methods' => 'POST',
                     'callback' => array('MP_Insert_Wallet_v2','listen'),
                 ));
+
+                register_rest_route( 'mobilepos/v2/wallets', 'list', array(
+                    'methods' => 'POST',
+                    'callback' => array('HP_Listing_Wallet_v2','listen'),
+                ));
+
+                register_rest_route( 'mobilepos/v2/wallets', 'change', array(
+                    'methods' => 'POST',
+                    'callback' => array('HP_Wallet_Change_v2','listen'),
+                ));
+
 
             /**
              * COUPON REST API'S

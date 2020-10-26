@@ -31,25 +31,36 @@
 
             // Initialize WP global variable
             global $wpdb;
+            $tbl_wallet = MP_WALLETS_v2;
 
             $user = self::catch_post();
 
             $sql = "SELECT
-                    *
+                    hsid as ID,
+                    stid,
+                    pubkey,
+                    assigned_by,
+                    `status`,
+                    date_created
                 FROM
-                    mp_v2_wallets w
+                    $tbl_wallet w
                 WHERE
-                    ID = (SELECT MAX(ID) FROM mp_v2_wallets WHERE stid = w.stid )
-                ";
+                    id IN ( SELECT MAX( id ) FROM $tbl_wallet GROUP BY assigned_by ) ";
 
 
             if($user["status"]){
-                $sql .= " AND  ";
+                $sql .= " AND `status` = '{$user["status"]}'  ";
             }
 
+            if($user["wid"]){
+                $sql .= " AND `pubkey` = '{$user["wid"]}'  ";
+            }
 
-            $sql .=" GROUP BY `stid` ";
-            $data = $wpdb->query($sql);
+            if($user["user_id"]){
+                $sql .= " AND `assigned_by` = '{$user["user_id"]}'  ";
+            }
+
+            $data = $wpdb->get_results($sql);
 
             return array(
                 "status" => "succcess",

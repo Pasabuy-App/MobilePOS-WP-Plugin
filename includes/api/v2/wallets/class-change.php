@@ -20,7 +20,7 @@
         public static function catch_post(){
             $curl_user = array();
             $curl_user['stid'] = $_POST['stid'];
-            $curl_user['sdid'] = $_POST['sdid'];
+            $curl_user['pubkey'] = $_POST['key'];
             $curl_user['wpid'] = $_POST['wpid'];
             return $curl_user;
         }
@@ -29,6 +29,14 @@
 
             // Initialize WP global variable
             global $wpdb;
-            $wpdb->query("INSERT ");
+            $tbl_wallet = MP_WALLETS_v2;
+            $tbl_wallet_field = MP_WALLETS_FIELD_v2;
+
+            $user = self::catch_post();
+
+            $check_wallet = $wpdb->get_results("SELECT * FROM $tbl_wallet WHERE pubkey = '{$user["pubkey"]}' ");
+            $check_wallet;
+
+            $data = $wpdb->query("INSERT INTO $tbl_wallet ($tbl_wallet_field) VALUES (`stid`, `pubkey`, `assigned_by`) ");
         }
     }

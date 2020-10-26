@@ -76,9 +76,9 @@
 		define('MP_COUPONS_USAGE_v2', MP_PREFIX_v2.'coupons_usage');
 		define('MP_COUPONS_USAGE_FIELD_v2', ' `cpid` ');
 
-		define('MP_PAYMENTS_v2', MP_PREFIX.'payments');
+		define('MP_PAYMENTS_v2', MP_PREFIX_v2.'payments');
 		define('MP_PAYMENTS_FIELD_v2', ' `odid`, `method`, `extra`, `amount` ');
 
-		define('MP_WALLETS_v2', MP_PREFIX.'wallets');
+		define('MP_WALLETS_v2', MP_PREFIX_v2.'wallets');
 		define('MP_WALLETS_FIELD_v2', ' `stid`, `pubkey`, `assigned_by` ');
 	// END
