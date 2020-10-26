@@ -59,37 +59,30 @@
                 `status`,
                 created_by,
                 date_created
-            FROM $tbl_role  ";
+            FROM $tbl_role
+                WHERE
+                    id IN ( SELECT MAX( id ) FROM $tbl_role GROUP BY title )
+              ";
 
             if ($user['role_id'] != null) {
                 $sql .= " WHERE hsid = '{$user["role_id"]}' ";
             }
 
             if ($user['status'] != null) {
-                if ($user['role_id'] != null) {
-                    if ($user['status'] != 'active' && $user['status'] != 'inactive'  ) {
-                        return array(
-                            "status" => "failed",
-                            "message" => "Invalid value of status."
-                        );
-                    }
-                    $sql .= " AND `status` = '{$user["status"]}' ";
-
-                }else{
-                    $sql .= " WHERE hsid = '{$user["role_id"]}' ";
+                if ($user['status'] != 'active' && $user['status'] != 'inactive'  ) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "Invalid value of status."
+                    );
                 }
+                $sql .= " AND status = '{$user["status"]}' ";
             }
 
 
             if ($user['store_id'] != null) {
-                if ($user['role_id'] != null || $user['status'] != null) {
-                    $sql .= " AND `stid` = '{$user["store_id"]}' ";
-
-                }else{
-                    $sql .= " WHERE `stid` = '{$user["store_id"]}' ";
-                }
+                $sql .= " AND `stid` = '{$user["store_id"]}' ";
             }
-            $sql ." GROUP BY title DESC ";
+            $sql ."  ASC ";
 
             $results =  $wpdb->get_results($sql);
 
