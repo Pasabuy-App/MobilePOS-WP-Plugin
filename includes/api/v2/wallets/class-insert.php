@@ -22,6 +22,7 @@
 
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['wpid'] = $_POST['wpid'];
+            $curl_user['user_id'] = $_POST['user_id'];
 
             return $curl_user;
         }
@@ -77,7 +78,7 @@
                 }
             // END
 
-            $insert = $wpdb->query("INSERT INTO $tbl_wallet ($tbl_wallet_field) VALUES ( '{$user["stid"]}', '', '{$user["wpid"]}' ) ");
+            $insert = $wpdb->query("INSERT INTO $tbl_wallet ($tbl_wallet_field, `created_by`) VALUES ( '{$user["stid"]}', '', '{$user["user_id"]}', '{$user["wpid"]}' ) ");
             $insert_id = $wpdb->insert_id;
 
             $generate_pubkey = MP_Globals_v2::generating_pubkey($insert_id, $tbl_wallet, 'pubkey', true, 9);

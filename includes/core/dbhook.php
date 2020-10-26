@@ -407,6 +407,7 @@
 					$sql .= " `pubkey` varchar(255) NOT NULL COMMENT 'Public key of this wallet' , ";
 					$sql .= " `assigned_by` varchar(150) NOT NULL COMMENT 'User ID' , ";
 					$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this payment transactiom' , ";
+					$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'Created this wallet' , ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 					$sql .= "PRIMARY KEY (`ID`) ";
 					$sql .= ") ENGINE = InnoDB; ";
