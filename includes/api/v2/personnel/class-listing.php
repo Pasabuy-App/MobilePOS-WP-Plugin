@@ -66,7 +66,6 @@
                     id IN ( SELECT MAX( id ) FROM $tbl_personnel GROUP BY wpid )
             ";
 
-
             if ($user['status'] != null) {
                 if ($user['status'] != "active" && $user['status'] != "inactive") {
                     return array(
