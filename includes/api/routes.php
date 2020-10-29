@@ -68,6 +68,7 @@
     // Orders
         require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
         require plugin_dir_path(__FILE__) . '/v2/orders/class-listing.php';
+        require plugin_dir_path(__FILE__) . '/v2/orders/class-update.php';
 
     require plugin_dir_path(__FILE__) . '/v2/class-globals.php';
     require plugin_dir_path(__FILE__) . '/v1/class-globals.php';
@@ -297,6 +298,11 @@
                 register_rest_route( 'mobilepos/v2/orders', 'list', array(
                     'methods' => 'POST',
                     'callback' => array('MP_Listing_Order_v2','listen'),
+                ));
+
+                register_rest_route( 'mobilepos/v2/orders', 'update', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Update_Order_v2','listen'),
                 ));
 
             /**

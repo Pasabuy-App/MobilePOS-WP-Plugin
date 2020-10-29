@@ -27,9 +27,7 @@
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['items'] = $_POST['data']['items'];
             $curl_user['payments'] = $_POST['data']['payments'];
-            $curl_user['payments'] = $_POST['data']['payments'];
             isset($_POST['msg']) && !empty($_POST['msg'])? $curl_user['msg'] =  $_POST['msg'] :  $curl_user['msg'] = null ;
-            $curl_user['items'] = $_POST['data']['items'];
 
             return $curl_user;
         }
