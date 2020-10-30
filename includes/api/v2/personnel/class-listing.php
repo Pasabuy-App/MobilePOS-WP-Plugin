@@ -57,7 +57,6 @@
                 wpid,
                 (SELECT display_name FROM wp_users WHERE ID = wpid ) as display_name,
                 null as avatar,
-                null as dname,
                 `status`,
                 date_created
                 FROM

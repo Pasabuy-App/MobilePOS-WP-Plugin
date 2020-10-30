@@ -37,6 +37,7 @@
 			$tbl_coupon_usage_v2 = MP_COUPONS_USAGE_v2;
 			$tbl_payments_v2 = MP_PAYMENTS_v2;
 			$tbl_wallet_v2 = MP_WALLETS_v2;
+			$tbl_inventory_v2 = MP_INVENTORY_v2;
 
 		// Database creation for version one
 
@@ -416,6 +417,27 @@
 				$wpdb->query("CREATE INDEX hsid ON $tbl_wallet_v2 (hsid);");
 				$wpdb->query("CREATE INDEX pubkey ON $tbl_wallet_v2 (pubkey);");
 				$wpdb->query("CREATE INDEX date_created ON $tbl_wallet_v2 (date_created);");
+			}
+
+			//Database table creation for mover Operations
+			if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_inventory_v2'" ) != $tbl_inventory_v2) {
+				$sql = "CREATE TABLE `".$tbl_inventory_v2."` (";
+					$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+					$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+					$sql .= " `pdid` varchar(150) NOT NULL COMMENT 'Store ID' , ";
+					$sql .= " `odid` varchar(150) NOT NULL COMMENT 'Public key of this wallet' , ";
+					$sql .= " `types` enum('positive', 'negative') NOT NULL COMMENT 'User ID' , ";
+					$sql .= " `quantity` bigint(20) NOT NULL COMMENT 'Status of this payment transactiom' , ";
+					$sql .= " `updated_notes` bigint(20) NOT NULL COMMENT 'Created this wallet' , ";
+					$sql .= " `updated_by` bigint(20) NOT NULL COMMENT 'Created this wallet' , ";
+					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+					$sql .= "PRIMARY KEY (`ID`) ";
+					$sql .= ") ENGINE = InnoDB; ";
+				$result = $wpdb->get_results($sql);
+
+				$wpdb->query("CREATE INDEX hsid ON $tbl_inventory_v2 (hsid);");
+				$wpdb->query("CREATE INDEX pubkey ON $tbl_inventory_v2 (pubkey);");
+				$wpdb->query("CREATE INDEX date_created ON $tbl_inventory_v2 (date_created);");
 			}
 		// End
 	}

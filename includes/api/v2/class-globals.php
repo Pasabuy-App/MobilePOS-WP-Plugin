@@ -72,6 +72,37 @@
 			}
         }
 
+        public static function generating_coupon_code($primary_key, $table_name, $column_name, $get_key, $lenght){
+            global $wpdb;
+
+            $sql = "UPDATE  $table_name SET $column_name = concat(
+                substring('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand($primary_key)*4294967296))*36+1, 1), ";
+
+            for ($i=0; $i < $lenght ; $i++) {
+                $sql .= "substring('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed:=round(rand(@seed)*4294967296))*36+1, 1),";
+            }
+
+            $sql .=" substring('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', rand(@seed)*36+1, 1)
+                )
+                WHERE ID = $primary_key;";
+
+
+            $results = $wpdb->query($sql);
+
+            if ($get_key = true) {
+                $key  = $wpdb->get_row("SELECT `$column_name` as `key` FROM $table_name WHERE ID = '$primary_key' ");
+                return $key->key;
+            }
+
+            if ($results < 1) {
+				return false;
+			}else{
+				if ($results == 1) {
+					return true;
+				}
+			}
+        }
+
         public static function check_listener($array_post){
 			$var = array();
 			$keys = array();
@@ -90,5 +121,5 @@
 
         }
 
-        
+
     }

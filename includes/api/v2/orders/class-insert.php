@@ -33,15 +33,18 @@
         }
 
         public static function list_open(){
-
+            //return MP_Globals_v2::generating_coupon_code(1, 'mp_v2_coupons', 'pubkey', false, 7);
             global $wpdb;
-
+            $tbl_product = TP_PRODUCT_v2;
             $tbl_order = MP_ORDERS_v2;
+            $tbl_coupons = MP_COUPONS_v2;
             $tbl_order_field = MP_ORDERS_FILED_v2;
             $tbl_order_times = MP_ORDERS_ITEMS_v2;
             $tbl_order_times_field = MP_ORDERS_ITEMS_FIELD_v2;
             $tbl_order_times_vars = MP_ORDERS_ITEMS_VARS_v2;
             $tbl_order_times_vars_field = MP_ORDERS_ITEMS_VARS_FIELD_v2;
+            $tbl_inventory = MP_INVENTORY_v2;
+            $tbl_inventory_fields = MP_INVENTORY_FIELD_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -77,54 +80,82 @@
                 );
             }
 
+            // CHECK IF PRODUCT EXISTS
+            foreach ($user['items'] as $key => $value) {
+
+                $check_product = $wpdb->get_row("SELECT `status`, `title` FROM $tbl_product WHERE hsid = '{$value["pdid"]}'");
+                if (empty($check_product)) {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This product does not exists"
+                    );
+                }
+
+                if ($check_product->status == "inactive") {
+                    return array(
+                        "status" => "failed",
+                        "message" => "This product is currently inactive. $check_product->title"
+                    );
+                }
+
+            }
+            // END
+
+
             $wpdb->query("START TRANSACTION");
 
 
             // IMPORT ORDER DATA
-            $insert_order = $wpdb->query("INSERT INTO
-                $tbl_order
-                    ($tbl_order_field)
-                VALUES
-                    ( 'awdawd', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}') ");
-            $insert_order_id = $wpdb->insert_id;
+                $insert_order = $wpdb->query("INSERT INTO
+                    $tbl_order
+                        ($tbl_order_field)
+                    VALUES
+                        ( 'awdawd', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}') ");
+                $insert_order_id = $wpdb->insert_id;
 
-            $insert_order_pubkey = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'pubkey', true, 5);
-            $insert_order_hsid = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'hsid', false, 64);
+                $insert_order_pubkey = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'pubkey', true, 5);
+                $insert_order_hsid = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'hsid', false, 64);
+            // END
 
             // IMPORT ORDER ITEMS DATA
-            foreach ($user['items'] as $key => $value) {
+                foreach ($user['items'] as $key => $value) {
 
-                $insert_order_items = $wpdb->query("INSERT INTO
-                    $tbl_order_times
-                        ($tbl_order_times_field)
-                    VALUES
-                        ('$insert_order_pubkey',  '{$value["pdid"]}', '{$value["qty"]}', '{$user["wpid"]}' ) ");
-                $insert_order_items_id = $wpdb->insert_id;
+                    $insert_order_items = $wpdb->query("INSERT INTO
+                        $tbl_order_times
+                            ($tbl_order_times_field)
+                        VALUES
+                            ('$insert_order_pubkey',  '{$value["pdid"]}', '{$value["qty"]}', '{$user["wpid"]}' ) ");
+                    $insert_order_items_id = $wpdb->insert_id;
 
-                $insert_order_items_hsid = MP_Globals_v2::generating_pubkey($insert_order_items_id, $tbl_order_times, 'hsid', true, 64);
+                    $insert_order_items_hsid = MP_Globals_v2::generating_pubkey($insert_order_items_id, $tbl_order_times, 'hsid', true, 64);
 
-                // IMPORT ORDER ITEMS VARS DATA
-                if ( isset($value['variants']) ) {
-                    foreach ($value['variants'] as $key => $value) {
-                        $insert_order_items_vars = $wpdb->query("INSERT INTO
-                            $tbl_order_times_vars
-                                ($tbl_order_times_vars_field)
-                            VALUES
-                                ( '$insert_order_items_hsid', '$value', '{$user["wpid"]}') ");
+                    // IMPORT ORDER ITEMS VARS DATA
+                    if ( isset($value['variants']) ) {
+                        foreach ($value['variants'] as $key => $value) {
+                            $insert_order_items_vars = $wpdb->query("INSERT INTO
+                                $tbl_order_times_vars
+                                    ($tbl_order_times_vars_field)
+                                VALUES
+                                    ( '$insert_order_items_hsid', '$value', '{$user["wpid"]}') ");
 
-                        $insert_order_items_vars_id = $wpdb->insert_id;
+                            $insert_order_items_vars_id = $wpdb->insert_id;
 
-                        $insert_order_items_vars_hsid = MP_Globals_v2::generating_pubkey($insert_order_items_vars_id, $tbl_order_times_vars, 'hsid', false, 64);
+                            $insert_order_items_vars_hsid = MP_Globals_v2::generating_pubkey($insert_order_items_vars_id, $tbl_order_times_vars, 'hsid', false, 64);
+                        }
                     }
                 }
-            }
+            // End
+
+            // IMPORT ORDER TO MP INVENTORY
+
+            // END
 
             /**
              * Process payment
             */
 
                 $counpon_val = 0;
-
+                $delivery_fee = $user["dlfee"];
                 // IMPORT PAYMENT
 
                 $TOTAL_PRICE = 0;
@@ -132,51 +163,70 @@
 
                 foreach ($user['items'] as $key => $value) {
 
-                    $get_discount =  $wpdb->get_row("SELECT
-                    (SELECT child_val  FROM tp_revisions rev  WHERE child_key = 'discount_name'  AND revs_type = 'products'  AND parent_id = '{$value["pdid"]}' 	AND ID = ( SELECT max(ID) FROM tp_revisions WHERE child_key = 'discount_name' AND parent_id = '{$value["pdid"]}' AND revs_type = 'products' )) as  `name`,
-                    (SELECT child_val  FROM tp_revisions rev  WHERE child_key = 'discount_value'  AND revs_type = 'products'  AND parent_id = '{$value["pdid"]}' 	AND ID = ( SELECT max(ID) FROM tp_revisions WHERE child_key = 'discount_value' AND parent_id = '{$value["pdid"]}' AND revs_type = 'products' )) as  `value`,
-                    (SELECT child_val  FROM tp_revisions rev  WHERE child_key = 'discount_expiry'  AND revs_type = 'products'  AND parent_id = '{$value["pdid"]}' 	AND ID = ( SELECT max(ID) FROM tp_revisions WHERE child_key = 'discount_expiry' AND parent_id = '{$value["pdid"]}' AND revs_type = 'products' )) as  `expiry`,
-                    IF ( (SELECT child_val  FROM tp_revisions rev  WHERE child_key = 'discount_status'  AND revs_type = 'products'  AND parent_id = '{$value["pdid"]}' 	AND ID = ( SELECT max(ID) FROM tp_revisions WHERE child_key = 'discount_status' AND parent_id = '{$value["pdid"]}' AND revs_type = 'products' )) = 1 , 'Active', 'Inactive') as  `status`
-                    ");
 
-                    if ($get_discount->name != null) {
-                        $discount = ($get_discount->value / 100);
+                    // get product
+                        $get_product_data = $wpdb->get_row("SELECT title, price, discount, `status`, `inventory` FROM $tbl_product WHERE hsid = '{$value["pdid"]}' ");
+                    // End
+
+                    if($get_product_data->inventory == "true"){
+                        $import_inventory = $wpdb0>query("INSERT INTO  $tbl_inventory ($tbl_inventory_fields) VALUES ('{$value["pdid"]}', '$insert_order_pubkey', `negative`, '{$value["qty"]}') ");
+                        if ($import_inventory < 1) {
+                            $wpdb->query("ROLLBACK");
+                            return  array(
+                                "status" => "failed",
+                                "message" => "An error occured while submitting data to server."
+                            );
+                        }
                     }
 
-                    $get_price = $wpdb->get_row("SELECT
-                        ( SELECT tp_rev.child_val FROM tp_revisions tp_rev WHERE ID = tp_prod.price AND revs_type = 'products' AND child_key ='price' AND tp_rev.ID = (SELECT MAX(ID) FROM tp_revisions WHERE ID = tp_rev.ID )  ) AS `price`
-                    FROM
-                        tp_products tp_prod
-                        INNER JOIN tp_revisions tp_rev ON tp_rev.ID = tp_prod.title
-                        WHERE tp_prod.ID = '{$value["pdid"]}' ");
-                    $TOTAL_PRICE += $get_price->price;
+                    $TOTAL_PRICE += ($get_product_data->price - ($get_product_data->price *  ($get_product_data->discount == null ? 0 : $get_product_data->discount  / 100) )) * (int)$value->qty  ;
                 }
 
                 // Counpons
                 foreach ($user['payments'] as $key => $value) {
                     // Get coupon value
-                    if ($discount == false) {
+                    // NOTE: Temporary commented discount validation
+                    // if ($discount == false) {
                         if ($value['method'] == "coupon") {
-                            $counpon = $wpdb->get_row("SELECT * FROM mp_coupons WHERE hsid = '{$value["value"]}'");
-
+                            $counpon = $wpdb->get_row("SELECT * FROM $tbl_coupons WHERE hsid = '{$value["value"]}'");
                             if (empty($counpon)) {
+                                $wpdb->query("ROLLBACK");
                                 return  array(
                                     "status" => "failed",
                                     "message" => "This coupon does not exits!",
                                 );
                             }
-                            $counpon_val = (double)$counpon->extra;
+
+                            switch ($counpon->action) {
+
+                                case 'free_ship':
+                                    $delivery_fee = 0;
+                                    $counpon_val = 0;
+                                    break;
+
+                                case 'percentage':
+
+                                    // Compute total price
+                                    $total = $TOTAL_PRICE - (($TOTAL_PRICE * (double)$counpon->extra) + ($TOTAL_PRICE * $discount)) ;
+                                    break;
+
+                                case 'fix_amount':
+
+                                    $counpon_val = (double)$counpon->extra;
+
+                                    break;
+                            }
                         }
-                    }
+                    // }
                 }
+
                 // END
-
-                if ($discount != false) {
-                    $total = $TOTAL_PRICE - ($TOTAL_PRICE * $discount);
-                }else{
-                    $total = $TOTAL_PRICE - ($TOTAL_PRICE * $counpon_val);
-                }
-
+                // NOTE: Temporary comment for discount
+                // if ($discount != false) {
+                //     $total = $TOTAL_PRICE - ($TOTAL_PRICE * $discount);
+                // }else{
+                //     $total = $TOTAL_PRICE - ($TOTAL_PRICE * $counpon_val);
+                // }
 
                 foreach ($user['payments'] as $key => $value) {
 

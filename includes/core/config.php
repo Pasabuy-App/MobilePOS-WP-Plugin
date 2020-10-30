@@ -12,7 +12,7 @@
 
 	//Defining Global Variables
 	// VERSION ONE
-		define('MP_PREFIX', 'mp_');
+		define('MP_PREFIX', 'mp_V1_');
 
 		//Configs config
 		define('MP_CONFIGS_TABLE', MP_PREFIX.'configs');
@@ -40,7 +40,7 @@
 
 	// VERSION TWO
 
-		define('MP_PREFIX_v2', 'mp_v2_');
+		define('MP_PREFIX_v2', 'mp_');
 
 		define('MP_ROLES_v2', MP_PREFIX_v2.'roles');
 		define('MP_ROLES_FILED_v2', ' `title`, `info`, `stid`, `created_by` ');
@@ -81,4 +81,7 @@
 
 		define('MP_WALLETS_v2', MP_PREFIX_v2.'wallets');
 		define('MP_WALLETS_FIELD_v2', ' `stid`, `pubkey`, `assigned_by`, `created_by` ');
+
+		define('MP_INVENTORY_v2', MP_PREFIX_v2.'inventory');
+		define('MP_INVENTORY_FIELD_v2', ' `pdid`, `odid`, `types`,`quantity` ');
 	// END
