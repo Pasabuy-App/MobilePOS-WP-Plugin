@@ -23,7 +23,7 @@
     #region WP Recommendation - Prevent direct initilization of the plugin.
     if ( !defined( 'ABSPATH' ) ) { exit; } // Exit if accessed directly
 
-    if ( ! function_exists( 'is_plugin_active' ) ) 
+    if ( ! function_exists( 'is_plugin_active' ) )
     {
         require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
     }
@@ -33,6 +33,7 @@
     define("MP_PLUGIN_URL", plugin_dir_url( __FILE__ ) );
 
     //Important config files and plugin updates.
+    include_once ( MP_PLUGIN_PATH . '/includes/core/source.php' );
     include_once ( MP_PLUGIN_PATH . '/includes/core/config.php' );
     include_once ( MP_PLUGIN_PATH . '/includes/core/update.php' );
 

@@ -205,6 +205,7 @@
                     $status = $wpdb->insert_id; // Insert last id to array
 
                     $update_order = $wpdb->query("UPDATE $table_ord_it SET quantity = '$quantity', `status` = '$status' WHERE ID = $order_items_id ");
+
                     if(isset($value['variants'])){
                         foreach ($value['variants'] as $key => $value) {
                             $insert_variants = $wpdb->query("INSERT INTO mp_order_item_variant (vrid, item_id) VALUES ('$value', '$order_items_id') ");

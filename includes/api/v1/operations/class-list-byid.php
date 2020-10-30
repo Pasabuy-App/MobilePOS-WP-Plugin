@@ -44,10 +44,13 @@
                     op.stid,
                     IF(op.date_close is null, '', op.date_close) as date_close,
                     IF(op.date_open is null, '', op.date_open) as date_open,
+
                     IF((SELECT child_val FROM mp_revisions WHERE ID = op.open_by AND child_key = 'open_by') is null , '',
                     (SELECT child_val FROM mp_revisions WHERE ID = op.open_by AND child_key = 'open_by') ) as open_by,
+
                     IF((SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')is null, '',
                     (SELECT child_val FROM mp_revisions WHERE ID = op.close_by AND child_key = 'close_by')) as close_by,
+
                     op.stid,
                     null as total_sale,
                     op.date_open as `date`
