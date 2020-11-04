@@ -20,6 +20,7 @@
         public static function catch_post(){
             $curl_user = array();
 
+            $curl_user['stages'] = $_POST['stages'];
             $curl_user['odid'] = $_POST['odid'];
             $curl_user['status'] = $_POST['status'];
             isset($_POST['msg']) && !empty($_POST['msg'])? $curl_user['msg'] =  $_POST['msg'] :  $curl_user['msg'] = null ;
@@ -41,17 +42,21 @@
                     "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
+
             // Step 2: Validate user
-            if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+            // if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             $user = self::catch_post();
+            $status = '';
+            $get_data = $wpdb->get_row("SELECT * FROM $tbl_order m WHERE pubkey = '{$user["odid"]}'
+                AND
+                    id IN ( SELECT MAX( id ) FROM $tbl_order WHERE m.pubkey = pubkey  GROUP BY pubkey ) ");
 
-            $get_data = $wpdb->get_row("SELECT * FROM $tbl_order WHERE pubkey = '{$user["odid"]}' ");
             if (empty($get_data)) {
                 return array(
                     "status" => "failed",
@@ -64,6 +69,57 @@
                     "status" => "failed",
                     "message" => "This order is already been $get_data->stages."
                 );
+
+            }else{
+
+                if($user['stages'] != "accepted" && $user['stages'] != "cancelled"
+                   && $user['stages'] != "preparing" && $user['stages'] != "shipping"){
+                    return array(
+                        "status" => "failed",
+                        "message" => "Invalid value of stages."
+                    );
+                }
+
+                switch ($user['stages']) {
+
+                    case 'accepted':
+                    case 'cancelled':
+
+                        if ($get_data->stages != "pending" ) {
+                            return array( "status" => "failed", "message" => "This order is already been $get_data->stages.");
+                        }else{
+                            $status = $user["stages"];
+                        }
+                        break;
+
+                    case 'preparing':
+
+                        if ($get_data->stages != "ongoing" ) {
+                            return array( "status" => "failed", "message" => "This order is already been $get_data->stages.");
+                        }else{
+                            $status = $user["stages"];
+                        }
+                        break;
+
+                    case 'shipping':
+
+                        if ($get_data->stages != "preparing" ) {
+                            return array( "status" => "failed", "message" => "This order is already been $get_data->stages.");
+                        }else{
+                            $status = $user["stages"];
+                        }
+                        break;
+
+                    case 'completed':
+
+                        if ($get_data->stages != "shipping" ) {
+                            return array( "status" => "failed", "message" => "This order is already been $get_data->stages.");
+                        }else{
+                            $status = $user["stages"];
+                        }
+                        break;
+                }
+
             }
 
             $wpdb->query("START TRANSACTION");
@@ -74,13 +130,14 @@
                 VALUES
                     ( '$get_data->pubkey',
                       '$get_data->opid',
-                      '{$user["status"]}',
+                      '$status',
                       'active',
                       '$get_data->adid',
                       '$get_data->instructions',
                       '$get_data->delivery_charges',
                       '$get_data->psb_fee',
                       '$get_data->order_by' )");
+
             $order_data_id = $wpdb->insert_id;
 
             $order_data_hsid = MP_Globals_v2::generating_pubkey($order_data_id, $tbl_order, 'hsid', false, 64);

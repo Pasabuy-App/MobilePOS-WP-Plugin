@@ -9,7 +9,7 @@
         * @package mobilepos-wp-plugin
         * @version 0.1.0
 	*/
-	class MP_Delete_Personnel_v2 {
+	class MP_Update_Personnel_v2 {
 
         public static function listen(){
             return rest_ensure_response(
@@ -20,8 +20,10 @@
 
         public static function catch_post(){
             $curl_user = array();
+
             $curl_user['personel_id'] = $_POST['pid'];
             $curl_user['wpid'] = $_POST['wpid'];
+
             return $curl_user;
         }
 
@@ -40,13 +42,12 @@
             }
 
 			// Step 2: Validate user
-			// if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
-
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
             $user = self::catch_post();
 
@@ -59,19 +60,13 @@
             }
             // AND `status` = 'active' AND activated = 'true'
             $get_data =  $wpdb->get_row("SELECT
-                hsid as ID,
-                stid,
-                wpid,
-                `status`,
-                roid,
-                pincode,
-                assigned_by,
-                date_created
+                  *
                 FROM
                     $tbl_personnel p
                 WHERE hsid = '{$user["personel_id"]}'
                 AND
-                    id IN ( SELECT MAX( id ) FROM $tbl_personnel WHERE p.hsid = hsid GROUP BY hsid )");
+                    id IN ( SELECT MAX( id ) FROM $tbl_personnel WHERE p.hsid = hsid GROUP BY hsid )"
+                );
 
             if (empty($get_data)) {
                 return array(
@@ -80,18 +75,14 @@
                 );
             }
 
-            if ($get_data->status == "inactive") {
-                return array(
-                    "status" => "failed",
-                    "message" => "This personnel is currently inactive."
-                );
-            }
+            isset($_POST['roid']) && !empty($_POST['roid'])? $user['roid'] =  $_POST['roid'] :  $user['roid'] = $get_data->roid ;
+            isset($_POST['pincode']) && !empty($_POST['pincode'])? $user['pincode'] =  md5($_POST['pincode']) :  $user['pincode'] = $get_data->pincode ;
 
             $results = $wpdb->query("INSERT INTO
                 $tbl_personnel
                     (`hsid`, $tbl_personnel_filed, `status`)
                 VALUES
-                    ('$get_data->ID', '$get_data->stid', '$get_data->wpid', '$get_data->roid', '$get_data->pincode', '$get_data->assigned_by', 'inactive' ) ");
+                    ('$get_data->hsid', '$get_data->stid', '$get_data->wpid', '{$user["roid"]}', '{$user["pincode"]}', '$get_data->assigned_by', '$get_data->status' ) ");
 
             $results_id = $wpdb->insert_id;
 

@@ -48,14 +48,18 @@
 
     // Schedule
         require plugin_dir_path(__FILE__) . '/v2/schedule/class-insert.php';
+        require plugin_dir_path(__FILE__) . '/v2/schedule/class-listing.php';
             // operation
             require plugin_dir_path(__FILE__) . '/v2/schedule/operation/class-insert.php';
+            require plugin_dir_path(__FILE__) . '/v2/schedule/operation/class-listing.php';
 
     // Personnels
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-insert.php';
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-listing.php';
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-delete.php';
-        require plugin_dir_path(__FILE__) . '/v2/personnel/class-activate.php';
+        require plugin_dir_path(__FILE__) . '/v2/personnel/class-approve.php';
+        require plugin_dir_path(__FILE__) . '/v2/personnel/class-assign-store.php';
+        require plugin_dir_path(__FILE__) . '/v2/personnel/class-update.php';
 
             // Role
             require plugin_dir_path(__FILE__) . '/v2/personnel/role/class-insert.php';
@@ -263,6 +267,16 @@
                     'callback' => array('MP_Activate_Personnel_v2','listen'),
                 ));
 
+                register_rest_route( 'mobilepos/v2/personnels/store', 'assigned', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Listing_Personnels_Store_v2','listen'),
+                ));
+
+                register_rest_route( 'mobilepos/v2/personnels', 'update', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Update_Personnel_v2','listen'),
+                ));
+
 
                 // ROLE
                     register_rest_route( 'mobilepos/v2/personnels/role', 'insert', array(
@@ -314,10 +328,20 @@
                     'callback' => array('MP_Insert_Schedule_v2','listen'),
                 ));
 
+                register_rest_route( 'mobilepos/v2/schedule', 'list', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Listing_Schedule_v2','listen'),
+                ));
+
                     // Operation
                         register_rest_route( 'mobilepos/v2/schedule/operation', 'insert', array(
                             'methods' => 'POST',
-                            'callback' => array('HP_Insert_Operation_v2','listen'),
+                            'callback' => array('MP_Insert_Operation_v2','listen'),
+                        ));
+
+                        register_rest_route( 'mobilepos/v2/schedule/operation', 'list', array(
+                            'methods' => 'POST',
+                            'callback' => array('MP_Operation_Listing_v2','listen'),
                         ));
     }
     add_action( 'rest_api_init', 'mobilepos_route' );

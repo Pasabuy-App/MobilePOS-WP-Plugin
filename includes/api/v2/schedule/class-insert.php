@@ -84,6 +84,7 @@
 
             // Check document of user
             $check_schedule = $wpdb->get_row("SELECT * FROM $tbl_schedule WHERE types = '{$user["type"]}' AND stid = '{$user["stid"]}'    ");
+            $count_schedule = $wpdb->get_row("SELECT count(ID)as sched FROM $tbl_schedule WHERE stid = '{$user["stid"]}'    ");
 
             if (!empty($check_schedule)) {
                 if( $check_schedule->executed_by != null && $check_schedule->activated == "true"  ){
@@ -99,6 +100,13 @@
                         "message" => "This schedule is already exists. Pending for approve."
                     );
                 }
+            }
+
+            if ($count_schedule->sched >= 7 ) {
+                return array(
+                    "status" => "failed",
+                    "message" => "You already have an schedule for a week."
+                );
             }
 
             $result = $wpdb->query("INSERT INTO

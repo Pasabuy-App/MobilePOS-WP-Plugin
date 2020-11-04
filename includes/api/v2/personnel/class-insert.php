@@ -17,7 +17,6 @@
             );
         }
 
-
         public static function catch_post(){
             $curl_user = array();
             $curl_user['stid'] = $_POST['stid'];
@@ -67,7 +66,9 @@
                     ($tbl_personnel_field)
                 VALUES
                     ('{$user["stid"]}', '{$user["user_id"]}', '{$user["roid"]}', '{$user["pincode"]}','{$user["wpid"]}') ");
+            $personnel_id = $wpdb->insert_id;
 
+            $personnel_hsid = MP_Globals_v2::generating_pubkey($personnel_id, $tbl_personnel, 'hsid', false, 64);
 
             if($personnel < 1){
                 $wpdb->query("ROLLBACK");

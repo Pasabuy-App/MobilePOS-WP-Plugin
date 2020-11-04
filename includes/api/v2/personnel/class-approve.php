@@ -65,10 +65,10 @@
                 `status`,
                 date_created
                 FROM
-                    $tbl_personnel
+                    $tbl_personnel p
                 WHERE hsid = '{$user["personel_id"]}'
-                GROUP BY `wpid`
-                DESC");
+                AND
+                    id IN ( SELECT MAX( id ) FROM $tbl_personnel WHERE p.hsid = hsid GROUP BY hsid )");
 
             if (empty($get_data)) {
                 return array(
@@ -86,13 +86,11 @@
 
             $results = $wpdb->query("INSERT INTO
                 $tbl_personnel
-                    ($tbl_personnel_filed, `status`)
+                    (`hsid`, $tbl_personnel_filed, `activated`)
                 VALUES
-                    #`stid`, `wpid`, `roid`, `pincode`, `assigned_by`
-                    ('$get_data->stid', '$get_data->wpid', '$get_data->roid', '$get_data->pincode', '$get_data->assigned_by', 'active' ) ");
+                    ('$get_data->ID', '$get_data->stid', '$get_data->wpid', '$get_data->roid', '$get_data->pincode', '$get_data->assigned_by', 'true' ) ");
 
             $results_id = $wpdb->insert_id;
-            $hsid = MP_Globals_v2::generating_pubkey($results_id, $tbl_personnel, 'hsid', false, 64);
 
             if ($results < 1) {
                 return array(

@@ -42,12 +42,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             $user = self::catch_post();
 
@@ -60,32 +60,38 @@
                     created_by,
                     date_created
                 FROM
-                    $tbl_role
+                    $tbl_role r
                 WHERE
-                    id IN ( SELECT MAX( id ) FROM $tbl_role GROUP BY title )
+                    id IN ( SELECT MAX( id ) FROM $tbl_role WHERE r.hsid = hsid GROUP BY hsid )
               ";
 
-            if ($user['role_id'] != null) {
-                $sql .= " WHERE hsid = '{$user["role_id"]}' ";
-            }
+            // Filtering
 
-            if ($user['status'] != null) {
-                if ($user['status'] != 'active' && $user['status'] != 'inactive'  ) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "Invalid value of status."
-                    );
+                if ($user['role_id'] != null) {
+                    $sql .= " AND hsid = '{$user["role_id"]}' ";
                 }
-                $sql .= " AND `status` = '{$user["status"]}' ";
-            }
 
+                if ($user['status'] != null) {
+                    if ($user['status'] != 'active' && $user['status'] != 'inactive'  ) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "Invalid value of status."
+                        );
+                    }
+                    $sql .= " AND `status` = '{$user["status"]}' ";
+                }
 
-            if ($user['store_id'] != null) {
-                $sql .= " AND `stid` = '{$user["store_id"]}' ";
-            }
-            $sql ."  ASC ";
+                if ($user['store_id'] != null) {
+                    $sql .= " AND `stid` = '{$user["store_id"]}' ";
+                }
+                $sql ."  ASC ";
+            // End
 
             $results =  $wpdb->get_results($sql);
+
+            foreach ($results as $key => $value) {
+                $value->permission = $wpdb->get_results("SELECT (SELECT title FROM $tbl_access WHERE hsid = access ) as title, access FROM $tbl_permission p WHERE roid = '$value->ID' ");
+            }
 
             return array(
                 "status" => "success",

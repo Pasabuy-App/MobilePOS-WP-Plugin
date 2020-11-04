@@ -71,7 +71,7 @@
 
             $wpdb->query("START TRANSACTION");
 
-                $check_role = $wpdb->get_row("SELECT `status` FROM $tbl_role WHERE title LIKE '%{$user["title"]}%' ");
+                $check_role = $wpdb->get_row("SELECT `status` FROM $tbl_role r WHERE title LIKE '%{$user["title"]}%' AND r.status = 'active'  AND id IN ( SELECT MAX( id ) FROM $tbl_role WHERE r.hsid = hsid GROUP BY hsid )  ");
 
                 if (!empty($check_role)) {
                     return array(

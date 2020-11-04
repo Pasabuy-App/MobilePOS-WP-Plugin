@@ -41,12 +41,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
 
             $user = self::catch_post();
@@ -70,7 +70,9 @@
                 }
             // End
 
-            $get_data =  $wpdb->get_row("SELECT `status`, `title`, `stid`, `info` FROM  $table_role WHERE hsid = '{$user["role_id"]}'  GROUP BY title DESC");
+            $get_data =  $wpdb->get_row("SELECT `hsid`, `status`, `title`, `stid`, `info` FROM  $table_role r WHERE hsid = '{$user["role_id"]}'
+                AND
+                    id IN ( SELECT MAX( id ) FROM $table_role WHERE r.hsid = hsid GROUP BY hsid ) ");
 
             if (empty($get_data)) {
                 return array(
@@ -88,11 +90,11 @@
 
             $results = $wpdb->query("INSERT INTO
                 $table_role
-                    ($table_role_field, `status`)
+                    (`hsid`,$table_role_field, `status`)
                 VALUES
-                    ($get_data->title, $get_data->info, $get_data->stid, '{$user["wpid"]}', 'inactive' ) ");
+                    ('$get_data->hsid', '$get_data->title', '$get_data->info',' $get_data->stid', '{$user["wpid"]}', 'inactive' ) ");
             $results_id = $wpdb->insert_id;
-            $hsid = MP_Globals_v2::generating_pubkey($results_id, $table_role, 'hsid', false, 64);
+            // $hsid = MP_Globals_v2::generating_pubkey($results_id, $table_role, 'hsid', false, 64);
 
             if ($results < 1) {
                 return array(

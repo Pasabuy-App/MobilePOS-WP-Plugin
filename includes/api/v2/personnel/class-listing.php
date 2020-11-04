@@ -32,6 +32,7 @@
 
             global $wpdb;
             $tbl_personnel = MP_PERSONNELS_v2;
+            $tbl_roles = MP_ROLES_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -42,12 +43,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
+		/* 	if (DV_Verification::is_verified() == false) {
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Verification issues!",
                 );
-            }
+            } */
 
             $user = self::catch_post();
 
@@ -55,14 +56,16 @@
                 hsid as ID,
                 stid,
                 wpid,
+                (SELECT title FROM $tbl_roles WHERE hsid = roid ) as position,
                 (SELECT display_name FROM wp_users WHERE ID = wpid ) as display_name,
                 null as avatar,
                 `status`,
+                activated,
                 date_created
                 FROM
-                    $tbl_personnel
+                    $tbl_personnel p
                 WHERE
-                    id IN ( SELECT MAX( id ) FROM $tbl_personnel GROUP BY wpid )
+                    id IN ( SELECT MAX( id ) FROM $tbl_personnel WHERE p.hsid = hsid GROUP BY hsid )
             ";
 
             if ($user['status'] != null) {
@@ -95,7 +98,7 @@
 
             foreach ($get_data as $key => $value) {
                 $wp_user = get_user_by("ID", $value->wpid);
-
+                $value->status = ucfirst($value->status);
                 $value->avatar = $wp_user->avatar != null? $wp_user->avatar: $wp_user->avatar= TP_PLUGIN_URL. "assets/images/default-avatar.png" ;
             }
 

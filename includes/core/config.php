@@ -40,7 +40,7 @@
 
 	// VERSION TWO
 
-		define('MP_PREFIX_v2', 'mp_');
+		define('MP_PREFIX_v2', 'mp_v2_');
 
 		define('MP_ROLES_v2', MP_PREFIX_v2.'roles');
 		define('MP_ROLES_FILED_v2', ' `title`, `info`, `stid`, `created_by` ');
