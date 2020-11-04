@@ -55,12 +55,12 @@
             }
 
 			// Step 2: Validate user
-			// if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
             if (!isset($_POST['wpid']) || !isset($_POST['method'])
                 || !isset($_POST['adid']) || !isset($_POST['stid']) ) {
