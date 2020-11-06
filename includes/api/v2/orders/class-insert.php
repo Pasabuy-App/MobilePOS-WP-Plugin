@@ -20,14 +20,13 @@
         public static function catch_post(){
             $curl_user = array();
 
+            $curl_user['opid'] = $_POST['opid'];
             $curl_user['dlfee'] = $_POST['dlfee'];
             $curl_user['wpid'] = $_POST['wpid'];
-            $curl_user['method'] = $_POST['method'];
             $curl_user['adid'] = $_POST['adid'];
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['items'] = $_POST['data']['items'];
             $curl_user['payments'] = $_POST['data']['payments'];
-            isset($_POST['msg']) && !empty($_POST['msg'])? $curl_user['msg'] =  $_POST['msg'] :  $curl_user['msg'] = null ;
 
             return $curl_user;
         }
@@ -62,8 +61,7 @@
                 );
             }
 
-            if (!isset($_POST['wpid']) || !isset($_POST['method'])
-                || !isset($_POST['adid']) || !isset($_POST['stid']) ) {
+            if (!isset($_POST['wpid']) || !isset($_POST['adid']) || !isset($_POST['stid']) ) {
                 return  array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request Unknown!",
@@ -79,38 +77,44 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
+            isset($_POST['msg']) && !empty($_POST['msg'])? $user['msg'] =  $_POST['msg'] :  $user['msg'] = null ;
+
+            if (empty($_POST['data']['payments'])) {
+                return array(
+                    "status" => "failed",
+                    "message" => "Payment method cannot be empty."
+                );
+            }
 
             // CHECK IF PRODUCT EXISTS
-            foreach ($user['items'] as $key => $value) {
+                foreach ($user['items'] as $key => $value) {
 
-                $check_product = $wpdb->get_row("SELECT `status`, `title` FROM $tbl_product WHERE hsid = '{$value["pdid"]}'");
-                if (empty($check_product)) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This product does not exists"
-                    );
+                    $check_product = $wpdb->get_row("SELECT `status`, `title` FROM $tbl_product WHERE hsid = '{$value["pdid"]}' AND ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid ) ");
+                    if (empty($check_product)) {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This product does not exists. $check_product->hsid"
+                        );
+                    }
+
+                    if ($check_product->status == "inactive") {
+                        return array(
+                            "status" => "failed",
+                            "message" => "This product is currently inactive. $check_product->title"
+                        );
+                    }
+
                 }
-
-                if ($check_product->status == "inactive") {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This product is currently inactive. $check_product->title"
-                    );
-                }
-
-            }
             // END
 
-
             $wpdb->query("START TRANSACTION");
-
 
             // IMPORT ORDER DATA
                 $insert_order = $wpdb->query("INSERT INTO
                     $tbl_order
-                        ($tbl_order_field)
+                        (`delivery_charges`,$tbl_order_field)
                     VALUES
-                        ( 'awdawd', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}') ");
+                        ( '{$user["dlfee"]}','{$user["opid"]}', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}') ");
                 $insert_order_id = $wpdb->insert_id;
 
                 $insert_order_pubkey = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'pubkey', true, 5);
@@ -124,7 +128,7 @@
                         $tbl_order_times
                             ($tbl_order_times_field)
                         VALUES
-                            ('$insert_order_pubkey',  '{$value["pdid"]}', '{$value["qty"]}', '{$user["wpid"]}' ) ");
+                            ('$insert_order_pubkey',  '{$value["pdid"]}', '{$value["remarks"]}', '{$value["qty"]}', '{$user["wpid"]}' ) ");
                     $insert_order_items_id = $wpdb->insert_id;
 
                     $insert_order_items_hsid = MP_Globals_v2::generating_pubkey($insert_order_items_id, $tbl_order_times, 'hsid', true, 64);
@@ -146,14 +150,9 @@
                 }
             // End
 
-            // IMPORT ORDER TO MP INVENTORY
-
-            // END
-
             /**
              * Process payment
             */
-
                 $counpon_val = 0;
                 $delivery_fee = $user["dlfee"];
                 // IMPORT PAYMENT
@@ -163,13 +162,14 @@
 
                 foreach ($user['items'] as $key => $value) {
 
-
                     // get product
                         $get_product_data = $wpdb->get_row("SELECT title, price, discount, `status`, `inventory` FROM $tbl_product WHERE hsid = '{$value["pdid"]}' ");
                     // End
 
                     if($get_product_data->inventory == "true"){
+
                         $import_inventory = $wpdb0>query("INSERT INTO  $tbl_inventory ($tbl_inventory_fields) VALUES ('{$value["pdid"]}', '$insert_order_pubkey', `negative`, '{$value["qty"]}') ");
+
                         if ($import_inventory < 1) {
                             $wpdb->query("ROLLBACK");
                             return  array(
@@ -179,7 +179,8 @@
                         }
                     }
 
-                    $TOTAL_PRICE += ($get_product_data->price - ($get_product_data->price *  ($get_product_data->discount == null ? 0 : $get_product_data->discount  / 100) )) * (int)$value->qty  ;
+                    $TOTAL_PRICE += ( $get_product_data->price - ( $get_product_data->price *  ( $get_product_data->discount == null ? 0 : $get_product_data->discount  / 100 ) ) ) * (int)$value["qty"] ;
+
                 }
 
                 // Counpons
@@ -216,6 +217,8 @@
 
                                     break;
                             }
+                        }else{
+                            $total = $TOTAL_PRICE + $delivery_fee;
                         }
                     // }
                 }
@@ -231,7 +234,7 @@
                 foreach ($user['payments'] as $key => $value) {
 
                     if ($value['method'] == "cash") {
-                        $payment = self::save_payment($insert_order_pubkey, 'savings', $total, '0');
+                        $payment = self::save_payment($insert_order_pubkey, 'cash', $total, '0');
                         if ($payment == false) {
                             return  array(
                                 "status" => "failed",
@@ -241,7 +244,7 @@
                     }
 
                     if ($value['method'] == "card") {
-                        $payment = self::save_payment($insert_order_pubkey, 'savings', $total, '0');
+                        $payment = self::save_payment($insert_order_pubkey, 'card', $total, '0');
                         if ($payment == false) {
                             return  array(
                                 "status" => "failed",
@@ -292,6 +295,7 @@
         public static function savings($wpid, $curency, $amount, $stid){
 
             global $wpdb;
+            $tbl_wallet = MP_WALLETS_v2;
             $master_key = DV_Library_Config::dv_get_config('master_key', 123);
 
             $wpdb->query("START TRANSACTION");
@@ -336,7 +340,7 @@
             // END
 
             // Check if Store has wallet
-            $store_wallet = $wpdb->get_row("SELECT * FROM mp_wallets WHERE stid = '$stid' ");
+            $store_wallet = $wpdb->get_row("SELECT * FROM $tbl_wallet WHERE stid = '$stid' ");
             if (empty($store_wallet)) {
                 return array(
                     "status" => false,
@@ -379,14 +383,17 @@
             global $wpdb;
             $wpdb->query("START TRANSACTION");
             $tbl_payment = MP_PAYMENTS_v2;
-            $tbl_payment_filed = MP_PAYMENTS_v2;
+            $tbl_payment_filed = MP_PAYMENTS_FIELD_v2;
 
-            $data = $wpdb->query("INSERT INTO mp_payments ($tbl_payment_filed) VALUES ('$odid', '$method', $extra, $amount ) ");
+            $data = $wpdb->query("INSERT INTO $tbl_payment ($tbl_payment_filed) VALUES ('$odid', '$method', $extra, $amount ) ");
+            $data_id = $wpdb->insert_id;
+            $data_hsid = MP_Globals_v2::generating_pubkey($data_id, $tbl_payment, 'hsid', false, 64);
 
             if ($data < 1) {
                 $wpdb->query("ROLLBACK");
                 return false;
             }else{
+                $wpdb->query("COMMIT");
                 return true;
             }
         }

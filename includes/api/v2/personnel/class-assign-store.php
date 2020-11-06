@@ -62,6 +62,26 @@
 
             $data = $wpdb->get_results($sql);
 
+            foreach ($data as $key => $value) {
+                if (is_numeric($value->avatar)) {
+
+                    $image = wp_get_attachment_image_src( $value->avatar, 'medium', $icon =false );
+                    if ($image != false) {
+                        $value->avatar = $image[0];
+                    }else{
+                        $get_image = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_id = $value->avatar ");
+                        if(!empty($get_image)){
+                            // $value->avatar = 'https://pasabuy.app/wp-content/uploads/'.$get_image->meta_value;
+                            $value->avatar =   $value->avatar;
+                        }else{
+                            $value->avatar = $get_image->meta_value;
+                        }
+                    }
+
+                }else{
+                    $value->avatar = 'Nawdawdwone';
+                }
+            }
             return array(
                 "status" => "success",
                 "data" => $data

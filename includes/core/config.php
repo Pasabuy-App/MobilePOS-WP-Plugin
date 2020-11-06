@@ -11,36 +11,10 @@
 	*/
 
 	//Defining Global Variables
-	// VERSION ONE
-		define('MP_PREFIX', 'mp_V1_');
-
-		//Configs config
-		define('MP_CONFIGS_TABLE', MP_PREFIX.'configs');
-
-		//Inventory config
-		define('MP_INVENTORY_TABLE', MP_PREFIX.'inventory');
-
-		//Operations config
-		define('MP_OPERATIONS_TABLE', MP_PREFIX.'operations');
-
-		//Orders config
-		define('MP_ORDERS_TABLE', MP_PREFIX.'orders');
-		define("MP_ORDER_TABLE_FIELD", "(stid, opid, wpid, created_by, status, method, date_created)");
-
-		//Order Items config
-		define('MP_ORDER_ITEMS_TABLE', MP_PREFIX.'order_items');
-		define('MP_ORDER_ITEM_VARS_TABLE', MP_PREFIX.'order_item_variant');
-		define("MP_ORDER_ITEMS_TABLE_FIELD", "(odid, pdid, quantity, status, date_created)");
-
-		//Revisions config
-		define('MP_REVISIONS_TABLE', MP_PREFIX.'revisions');
-		define("MP_REVISIONS_TABLE_FIELD", "(revs_type, parent_id, child_key, child_val, created_by, date_created)");
-
-	// END
 
 	// VERSION TWO
 
-		define('MP_PREFIX_v2', 'mp_v2_');
+		define('MP_PREFIX_v2', 'mpv2_');
 
 		define('MP_ROLES_v2', MP_PREFIX_v2.'roles');
 		define('MP_ROLES_FILED_v2', ' `title`, `info`, `stid`, `created_by` ');
@@ -49,7 +23,7 @@
 		define('MP_ORDERS_FILED_v2', ' `opid`, `stages`, `adid`, `instructions`, `order_by` ');
 
 		define('MP_ORDERS_ITEMS_v2', MP_PREFIX_v2.'orders_items');
-		define('MP_ORDERS_ITEMS_FIELD_v2', ' `odid`, `pdid`, `quantity`, `created_by` ');
+		define('MP_ORDERS_ITEMS_FIELD_v2', ' `odid`, `pdid`, `remarks`, `quantity`, `created_by` ');
 
 		define('MP_ORDERS_ITEMS_VARS_v2', MP_PREFIX_v2.'orders_items_vars');
 		define('MP_ORDERS_ITEMS_VARS_FIELD_v2', ' `otid`, `vrid`, `created_by` ');

@@ -14,8 +14,6 @@
 
         public static function notify_device(){
             global $wpdb;
-
+            
         }
-
-
     }

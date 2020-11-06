@@ -84,7 +84,7 @@
             if(empty($check_schedule)){
                 return array(
                     "status" => "failed",
-                    "message" => "This store does not have schedule today. ".ucfirst($day)
+                    "message" => "This store does not have schedule today. "
                 );
             }
 

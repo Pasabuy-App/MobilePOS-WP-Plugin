@@ -58,7 +58,7 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
-            // AND `status` = 'active' AND activated = 'true'
+
             $get_data =  $wpdb->get_row("SELECT
                   *
                 FROM
@@ -75,8 +75,8 @@
                 );
             }
 
-            isset($_POST['roid']) && !empty($_POST['roid'])? $user['roid'] =  $_POST['roid'] :  $user['roid'] = $get_data->roid ;
-            isset($_POST['pincode']) && !empty($_POST['pincode'])? $user['pincode'] =  md5($_POST['pincode']) :  $user['pincode'] = $get_data->pincode ;
+            isset($_POST['roid']) && !empty($_POST['roid']) ? $user['roid'] =  $_POST['roid'] :  $user['roid'] = $get_data->roid ;
+            isset($_POST['pincode']) && !empty($_POST['pincode']) ? $user['pincode'] =  md5($_POST['pincode']) :  $user['pincode'] = $get_data->pincode ;
 
             $results = $wpdb->query("INSERT INTO
                 $tbl_personnel

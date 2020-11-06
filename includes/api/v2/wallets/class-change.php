@@ -43,12 +43,12 @@
             }
 
 			// Step 2: Validate user
-			if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             if(!isset($_POST['key']) || !isset($_POST['user_id'])  ){
                 return array(
@@ -67,8 +67,7 @@
                 );
             }
 
-            $check_wallet = $wpdb->get_row("SELECT * FROM $tbl_wallet WHERE pubkey = '{$user["pubkey"]}' ");
-
+            $check_wallet = $wpdb->get_row("SELECT * FROM $tbl_wallet w WHERE pubkey = '{$user["pubkey"]}'  AND  id IN ( SELECT MAX( id ) FROM $tbl_wallet WHERE w.hsid = hsid  GROUP BY pubkey )  ");
 
             if (empty($check_wallet)) {
                 return array(
@@ -93,9 +92,9 @@
 
             $data = $wpdb->query("INSERT INTO
                 $tbl_wallet
-                    ($tbl_wallet_field)
+                    (`hsid`,$tbl_wallet_field)
                 VALUES
-                    ($check_wallet->stid, '{$user["pubkey"]}', '{$user["user_id"]}', '{$user["wpid"]}') ");
+                    ('$check_wallet->hsid','$check_wallet->stid', '{$user["pubkey"]}', '{$user["user_id"]}', '{$user["wpid"]}') ");
 
             if($data < 1){
                 return array(

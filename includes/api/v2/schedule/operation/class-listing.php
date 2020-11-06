@@ -49,6 +49,7 @@
                     "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
+            
 
 			// Step 2: Validate user
 			if (DV_Verification::is_verified() == false) {

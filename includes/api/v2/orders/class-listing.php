@@ -55,12 +55,12 @@
                 );
             }
             // Step 2: Validate user
-            if (DV_Verification::is_verified() == false) {
-                return array(
-                    "status" => "unknown",
-                    "message" => "Please contact your administrator. Verification issues!",
-                );
-            }
+            // if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
 
             $user = self::catch_post();
 
@@ -70,15 +70,19 @@
                 # Customer Data
                 (SELECT display_name FROM $tbl_user WHERE ID = m.order_by) AS customer,
                 (SELECT meta_value FROM wp_usermeta WHERE `user_id` = m.order_by and meta_key = 'avatar' ) AS avatar,
-                CONCAT(
-                (SELECT child_val FROM dv_revisions WHERE ID = (SELECT street FROM dv_address WHERE ID = m.adid )),', ',
-                (SELECT brgy_name FROM dv_geo_brgys WHERE ID = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT brgy FROM dv_address WHERE ID = m.adid ))) , ', ',
-                (SELECT city_name FROM dv_geo_cities WHERE city_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT city FROM dv_address WHERE ID = m.adid ))) ,', ',
-                (SELECT prov_name FROM dv_geo_provinces WHERE prov_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT province FROM dv_address WHERE ID = m.adid ))),', ',
-                (SELECT country_name FROM dv_geo_countries WHERE country_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT country FROM dv_address WHERE ID = m.adid ))) )as cutomer_address,
+
+                -- CONCAT(
+                -- (SELECT child_val FROM dv_revisions WHERE ID = (SELECT street FROM dv_address WHERE ID = m.adid )),', ',
+                -- (SELECT brgy_name FROM dv_geo_brgys WHERE ID = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT brgy FROM dv_address WHERE ID = m.adid ))) , ', ',
+                -- (SELECT city_name FROM dv_geo_cities WHERE city_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT city FROM dv_address WHERE ID = m.adid ))) ,', ',
+                -- (SELECT prov_name FROM dv_geo_provinces WHERE prov_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT province FROM dv_address WHERE ID = m.adid ))),', ',
+                -- (SELECT country_name FROM dv_geo_countries WHERE country_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT country FROM dv_address WHERE ID = m.adid ))) )as cutomer_address,
+
                 (SELECT child_val FROM dv_revisions WHERE ID = (SELECT latitude FROM dv_address WHERE ID = m.adid )) as cutomer_lat,
                 (SELECT child_val FROM dv_revisions WHERE ID = (SELECT longitude FROM dv_address WHERE ID = m.adid )) as cutomer_long,
                 opid,
+                adid,
+                delivery_charges,
                 (SELECT method FROM $tbl_payment WHERE odid = m.pubkey ) as method,
                 # Store Data
                 null as store_name,
@@ -129,7 +133,7 @@
             }
 
             $order_data = $wpdb->get_results($sql);
-
+            $smp = array();
             $total_variants = '';
             $total_variants_price = 0;
             $total_price = 0;
@@ -141,12 +145,35 @@
                     $get_store_data = $wpdb->get_row("SELECT adid, title, avatar FROM $tbl_store WHERE hsid = '$get_store_id->stid' ");
 
                     $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$get_store_data->adid' ");
+                    $get_customer_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$value->adid' ");
 
                     $value->store_address = $get_store_address->street.', '.$get_store_address->brgy.', '.$get_store_address->city.', '.$get_store_address->province.', '.$get_store_address->country;
                     $value->store_name = $get_store_data->title;
-                    $value->store_logo = $get_store_data->avatar;
+                    // $value->store_logo = $get_store_data->avatar;
                     $value->store_lat = $get_store_address->latitude;
                     $value->store_long = $get_store_address->longitude;
+
+                    $value->cutomer_address = $get_customer_address->street.', '.$get_customer_address->brgy.', '.$get_customer_address->city.', '.$get_customer_address->province.', '.$get_customer_address->country;
+
+                    if (is_numeric($get_store_data->avatar)) {
+
+                        $image = wp_get_attachment_image_src( $get_store_data->avatar, 'medium', $icon =false );
+                        if ($image != false) {
+                            $get_store_data->avatar = $image[0];
+                        }else{
+                            $get_image = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_id = $get_store_data->avatar ");
+                            if(!empty($get_image)){
+                                // $value->preview = 'https://pasabuy.app/wp-content/uploads/'.$get_image->meta_value;
+                                $value->store_logo = 'None';
+                            }else{
+                                $value->store_logo = 'None';
+                            }
+                        }
+
+                    }else{
+                        $value->avatar = 'None';
+                    }
+
                 // End
 
                 // Get Product Data
@@ -176,11 +203,14 @@
                             otid = '$values->ID'");
 
                         foreach ($get_order_variants as $var_key => $var_value) {
+
                             $total_variants .= ' '.$var_value->name;
                             $total_variants_price += $var_value->price;
+
                         }
 
-                        $value->total_price += ($values->price * $values->quantity) + $total_variants_price;
+
+                        $value->total_price += ( $values->price + $total_variants_price ) * $values->quantity ;
                         $values->variants = $total_variants;
                         $values->variants_price = $total_variants_price;
                     }

@@ -31,8 +31,6 @@
 			$tbl_wallet_v2 = MP_WALLETS_v2;
 			$tbl_inventory_v2 = MP_INVENTORY_v2;
 
-
-
 		//Database table creation version two
 			if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles_v2'" ) != $tbl_roles_v2) {
 				$sql = "CREATE TABLE `".$tbl_roles_v2."` (";
@@ -86,6 +84,7 @@
 					$sql .= " `odid` varchar(150) NOT NULL  COMMENT 'Order hsid.', ";
 					$sql .= " `pdid` varchar(150) NOT NULL  COMMENT 'Product hsid',  ";
 					$sql .= " `quantity` int(50) NOT NULL COMMENT 'Quantity hsid.',  ";
+					$sql .= " `remarks` varchar(255) NOT NULL COMMENT 'Remarks for this order items.',  ";
 					$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order items.',  ";
 					$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'The one who creates this order items.',  ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";

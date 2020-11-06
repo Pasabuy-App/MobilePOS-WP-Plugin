@@ -33,6 +33,23 @@
             global $wpdb;
             $tbl_wallet = MP_WALLETS_v2;
 
+            // Step 1: Check if prerequisites plugin are missing
+            $plugin = MP_Globals_v2::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                );
+            }
+
+			// Step 2: Validate user
+			// if (DV_Verification::is_verified() == false) {
+            //     return array(
+            //         "status" => "unknown",
+            //         "message" => "Please contact your administrator. Verification issues!",
+            //     );
+            // }
+
             $user = self::catch_post();
 
             $sql = "SELECT
@@ -48,15 +65,15 @@
                     id IN ( SELECT MAX( id ) FROM $tbl_wallet GROUP BY assigned_by ) ";
 
 
-            if($user["status"]){
+            if($user["status"] != null){
                 $sql .= " AND `status` = '{$user["status"]}'  ";
             }
 
-            if($user["wid"]){
+            if($user["wid"] != null){
                 $sql .= " AND `pubkey` = '{$user["wid"]}'  ";
             }
 
-            if($user["user_id"]){
+            if($user["user_id"] != null){
                 $sql .= " AND `assigned_by` = '{$user["user_id"]}'  ";
             }
 
