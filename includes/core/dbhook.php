@@ -37,7 +37,7 @@
 					$sql .= "`ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
 					$sql .= "`hsid` varchar(255) NOT NULL, ";
 					$sql .= "`title` varchar(100) NOT NULL  COMMENT 'Title of role.', ";
-					$sql .= "`info` varchar(200) NOT NULL  COMMENT 'Information of this role',  ";
+					$sql .= "`info` varchar(200) COMMENT 'Information of this role',  ";
 					$sql .= "`stid` varchar(200) NOT NULL  COMMENT 'Store id of this role',  ";
 					$sql .= "`status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this role.',  ";
 					$sql .= "`created_by` bigint(20) NOT NULL COMMENT 'The one who creates thos role.',  ";
@@ -62,7 +62,7 @@
 					$sql .= " `stages` enum('pending', 'accepted', 'ongoing', 'preparing', 'shipping', 'completed', 'cancelled') NOT NULL COMMENT 'Stage of this order.',  ";
 					$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order.',  ";
 					$sql .= " `adid` bigint(20) NOT NULL COMMENT 'Address ID of this order.',  ";
-					$sql .= " `instructions` varchar(255) NOT NULL COMMENT 'Additional instruction of this order.',  ";
+					$sql .= " `instructions` varchar(255) COMMENT 'Additional instruction of this order.',  ";
 					$sql .= " `delivery_charges` varchar(150) NOT NULL COMMENT 'Method choosen for this order.',  ";
 					$sql .= " `psb_fee` double(6, 2) NOT NULL COMMENT 'Method choosen for this order.',  ";
 					$sql .= " `order_by` bigint(20) NOT NULL COMMENT 'The one who created this order.',  ";
@@ -84,7 +84,7 @@
 					$sql .= " `odid` varchar(150) NOT NULL  COMMENT 'Order hsid.', ";
 					$sql .= " `pdid` varchar(150) NOT NULL  COMMENT 'Product hsid',  ";
 					$sql .= " `quantity` int(50) NOT NULL COMMENT 'Quantity hsid.',  ";
-					$sql .= " `remarks` varchar(255) NOT NULL COMMENT 'Remarks for this order items.',  ";
+					$sql .= " `remarks` varchar(255) COMMENT 'Remarks for this order items.',  ";
 					$sql .= " `status` enum('active', 'inactive') NOT NULL COMMENT 'Status of this order items.',  ";
 					$sql .= " `created_by` bigint(20) NOT NULL COMMENT 'The one who creates this order items.',  ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
@@ -232,7 +232,7 @@
 					$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
 					$sql .= " `pdid` varchar(150) NOT NULL COMMENT 'Product ID' , ";
 					$sql .= " `title` varchar(150) NOT NULL , ";
-					$sql .= " `info` varchar(150) NOT NULL , ";
+					$sql .= " `info` varchar(150) , ";
 					$sql .= " `limit` tinyint(50) NOT NULL , ";
 					$sql .= " `extra` varchar(150) NOT NULL , ";
 					$sql .= " `action` enum('free_ship','discount','min_spend','less') , ";

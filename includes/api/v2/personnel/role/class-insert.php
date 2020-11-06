@@ -23,7 +23,6 @@
             $curl_user['wpid'] = $_POST['wpid'];
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['title'] = $_POST['title'];
-            $curl_user['info'] = $_POST['info'];
             $curl_user['access'] = $_POST['data']['access'];
             return $curl_user;
         }
@@ -52,7 +51,7 @@
                 );
             }
 
-            if(!isset($_POST['title']) || !isset($_POST['info']) || !isset($_POST['title']) || !isset($_POST['data'])  || !isset($_POST['stid']) ){
+            if(!isset($_POST['title']) || !isset($_POST['title']) || !isset($_POST['data'])  || !isset($_POST['stid']) ){
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown!"
@@ -68,6 +67,8 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
+
+            isset($_POST['info']) && !empty($_POST['info'])? $user['info'] =  $_POST['info'] :  $user['info'] = null ;
 
             $wpdb->query("START TRANSACTION");
 

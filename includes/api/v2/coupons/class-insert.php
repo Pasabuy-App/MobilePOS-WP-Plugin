@@ -27,7 +27,6 @@
             $curl_user['title'] = $_POST['title'];
             $curl_user['action'] = $_POST['action'];
             isset($_POST['value']) && !empty($_POST['value'])? $curl_user['extra'] =  ($_POST['value'] / 100) :  $curl_user['extra'] = null ;
-            $curl_user['info'] = $_POST['info'];
             $curl_user['wpid'] = $_POST['wpid'];
 
             return $curl_user;
@@ -40,9 +39,23 @@
             $tbl_coupon_field = MP_COUPONS_FIELD_v2;
             $date = MP_Globals_v2::date_stamp();
 
-            if(!isset($_POST['pdid']) || !isset($_POST['expiry'])
-                || !isset($_POST['limit'])  || !isset($_POST['title'])
-                || !isset($_POST['info']) || !isset($_POST['qty']) ){
+            $plugin = MP_Globals_v2::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                );
+            }
+
+			// Step 2: Validate user
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
+
+            if(!isset($_POST['pdid']) || !isset($_POST['expiry']) || !isset($_POST['limit']) || !isset($_POST['action'])  || !isset($_POST['title']) || !isset($_POST['qty']) ){
                 return array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request unknown"
@@ -58,6 +71,8 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
+
+            isset($_POST['info']) && !empty($_POST['info'])? $user['info'] =  $_POST['info'] :  $user['info'] = null ;
 
             if($_POST['action'] != "free_ship" || $_POST['action'] != "discount" || $_POST['action'] != "min_spend" || $_POST['action'] != "less"  ){
                 return array(

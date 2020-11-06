@@ -34,7 +34,7 @@
             $tbl_schedule = MP_SCHEDULES_v2;
             $tbl_schedule_fields = MP_SCHEDULES_FIELD_v2;
 
-            $plugin = MP_Globals::verify_prerequisites();
+            $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
                 return array(
                     "status" => "unknown",

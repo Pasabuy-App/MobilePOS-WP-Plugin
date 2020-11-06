@@ -38,6 +38,22 @@
             $user = self::catch_post();
             $data = array();
 
+            $plugin = MP_Globals_v2::verify_prerequisites();
+            if ($plugin !== true) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. ".$plugin." plugin missing!",
+                );
+            }
+
+			// Step 2: Validate user
+			if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
+
             // Get wallet pubkey of store wallet
                 $store_wallet = $wpdb->get_row("SELECT pubkey, assigned_by FROM $tbl_wallet w WHERE stid = '{$user["stid"]}' AND id IN ( SELECT MAX( id ) FROM $tbl_wallet WHERE w.hsid = hsid GROUP BY pubkey ) ");
 

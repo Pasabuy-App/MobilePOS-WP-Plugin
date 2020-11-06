@@ -22,7 +22,6 @@
 
             $curl_user['stages'] = $_POST['stages'];
             $curl_user['odid'] = $_POST['odid'];
-            $curl_user['status'] = $_POST['status'];
             isset($_POST['msg']) && !empty($_POST['msg'])? $curl_user['msg'] =  $_POST['msg'] :  $curl_user['msg'] = null ;
 
             return $curl_user;

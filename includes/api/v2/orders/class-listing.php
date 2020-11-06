@@ -44,7 +44,6 @@
             // TP
             $tbl_store = TP_STORES_v2;
             $tbl_product = TP_PRODUCT_v2;
-            $tbl_store_view = TP_STORES_VIEW;
             $tbl_variants = TP_PRODUCT_VARIANTS_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
@@ -55,12 +54,12 @@
                 );
             }
             // Step 2: Validate user
-            // if (DV_Verification::is_verified() == false) {
-            //     return array(
-            //         "status" => "unknown",
-            //         "message" => "Please contact your administrator. Verification issues!",
-            //     );
-            // }
+            if (DV_Verification::is_verified() == false) {
+                return array(
+                    "status" => "unknown",
+                    "message" => "Please contact your administrator. Verification issues!",
+                );
+            }
 
             $user = self::catch_post();
 
@@ -70,14 +69,6 @@
                 # Customer Data
                 (SELECT display_name FROM $tbl_user WHERE ID = m.order_by) AS customer,
                 (SELECT meta_value FROM wp_usermeta WHERE `user_id` = m.order_by and meta_key = 'avatar' ) AS avatar,
-
-                -- CONCAT(
-                -- (SELECT child_val FROM dv_revisions WHERE ID = (SELECT street FROM dv_address WHERE ID = m.adid )),', ',
-                -- (SELECT brgy_name FROM dv_geo_brgys WHERE ID = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT brgy FROM dv_address WHERE ID = m.adid ))) , ', ',
-                -- (SELECT city_name FROM dv_geo_cities WHERE city_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT city FROM dv_address WHERE ID = m.adid ))) ,', ',
-                -- (SELECT prov_name FROM dv_geo_provinces WHERE prov_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT province FROM dv_address WHERE ID = m.adid ))),', ',
-                -- (SELECT country_name FROM dv_geo_countries WHERE country_code = (SELECT child_val FROM dv_revisions WHERE ID = (SELECT country FROM dv_address WHERE ID = m.adid ))) )as cutomer_address,
-
                 (SELECT child_val FROM dv_revisions WHERE ID = (SELECT latitude FROM dv_address WHERE ID = m.adid )) as cutomer_lat,
                 (SELECT child_val FROM dv_revisions WHERE ID = (SELECT longitude FROM dv_address WHERE ID = m.adid )) as cutomer_long,
                 opid,
