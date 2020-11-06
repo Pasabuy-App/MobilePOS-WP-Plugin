@@ -24,7 +24,7 @@
                 return 'DataVice';
             }
 
-            if(!class_exists('TP_Globals') ){
+            if(!class_exists('TP_Globals_v2') ){
                 return 'TindaPress';
             }
 
