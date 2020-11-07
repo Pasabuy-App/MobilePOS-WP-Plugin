@@ -47,7 +47,6 @@
                 );
             }
 
-
             $user = self::catch_post();
 
             $validate = MP_Globals_v2::check_listener($user);

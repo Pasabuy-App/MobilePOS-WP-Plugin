@@ -187,8 +187,8 @@
 					$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
 					$sql .= " `stid` varchar(150) NOT NULL COMMENT 'Store ID' , ";
 					$sql .= " `types` enum('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun') NOT NULL , ";
-					$sql .= " `started` datetime NOT NULL , ";
-					$sql .= " `ended` datetime NOT NULL,  ";
+					$sql .= " `started` time NOT NULL , ";
+					$sql .= " `ended` time NOT NULL,  ";
 					$sql .= " `activated` enum('false', 'true') NOT NULL COMMENT 'Status of this schedule', ";
 					$sql .= " `executed_by` bigint(20) COMMENT 'The one who approve this schedule', ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
