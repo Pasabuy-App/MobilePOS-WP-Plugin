@@ -79,8 +79,27 @@
                     }
 
                 }else{
-                    $value->avatar = 'Nawdawdwone';
+                    $value->avatar = '';
                 }
+
+                if (is_numeric($value->banner)) {
+
+                    $image = wp_get_attachment_image_src( $value->banner, 'medium', $icon =false );
+                    if ($image != false) {
+                        $value->banner = $image[0];
+                    }else{
+                        $get_image = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_id = $value->banner ");
+                        if(!empty($get_image)){
+                            $value->banner = $get_image->meta_value;
+                        }else{
+                            $value->banner =   $value->banner;
+                        }
+                    }
+
+                }else{
+                    $value->banner = '';
+                }
+
             }
             return array(
                 "status" => "success",

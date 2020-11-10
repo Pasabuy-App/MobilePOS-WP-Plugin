@@ -20,6 +20,7 @@
         public static function catch_post(){
             $curl_user = array();
 
+            $curl_user["wpid"] = $_POST["wpid"];
             $curl_user["stid"] = $_POST["stid"];
 
             return $curl_user;
@@ -32,6 +33,7 @@
 
             $tbl_transaction = CP_TRANSACTION;
             $tbl_wallet = MP_WALLETS_v2;
+            $tbl_wallet_field = MP_WALLETS_FIELD_v2;
             $tbl_payment = MP_PAYMENTS_v2;
             $tbl_order = MP_ORDERS_v2;
             $tbl_operation = MP_OPERATIONS_v2;
@@ -58,10 +60,15 @@
                 $store_wallet = $wpdb->get_row("SELECT pubkey, assigned_by FROM $tbl_wallet w WHERE stid = '{$user["stid"]}' AND id IN ( SELECT MAX( id ) FROM $tbl_wallet WHERE w.hsid = hsid GROUP BY pubkey ) ");
 
                 if (empty($store_wallet)) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "This store does not have a wallet."
-                    );
+
+                    // If store has no wallet auto create wallet
+                        $insert = $wpdb->query("INSERT INTO $tbl_wallet ($tbl_wallet_field) VALUES ( '{$user["stid"]}', '', '{$user["wpid"]}', '{$user["wpid"]}' ) ");
+                        $insert_id = $wpdb->insert_id;
+
+                        $generate_pubkey = MP_Globals_v2::generating_pubkey($insert_id, $tbl_wallet, 'pubkey', true, 9);
+                        $generate_hsid = MP_Globals_v2::generating_pubkey($insert_id, $tbl_wallet, 'hsid', true, 64);
+                    // Address
+
                 }else{
                     $data['pubkey'] = $store_wallet->pubkey;
                     $user_data = get_userdata( $store_wallet->assigned_by );

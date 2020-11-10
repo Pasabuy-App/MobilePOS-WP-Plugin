@@ -32,7 +32,7 @@
         }
 
         public static function list_open(){
-            //return MP_Globals_v2::generating_coupon_code(1, 'mp_v2_coupons', 'pubkey', false, 7);
+
             global $wpdb;
             $tbl_product = TP_PRODUCT_v2;
             $tbl_order = MP_ORDERS_v2;
