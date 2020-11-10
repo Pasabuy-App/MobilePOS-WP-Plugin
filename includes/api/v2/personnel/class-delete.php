@@ -68,7 +68,8 @@
                 date_created
                 FROM
                     $tbl_personnel p
-                WHERE hsid = '{$user["personel_id"]}'
+                WHERE
+                    hsid = '{$user["personel_id"]}'
                 AND
                     id IN ( SELECT MAX( id ) FROM $tbl_personnel WHERE p.hsid = hsid GROUP BY hsid )");
 

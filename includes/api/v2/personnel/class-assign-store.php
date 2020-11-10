@@ -20,9 +20,11 @@
         public static function list_open(){
 
             global $wpdb;
-            $tbl_store = TP_STORES_v2;
-            $tbl_personnel = MP_PERSONNELS_v2;
-            $tbl_roles = MP_ROLES_v2;
+            $tbl_store      = TP_STORES_v2;
+            $tbl_personnel  = MP_PERSONNELS_v2;
+            $tbl_roles      = MP_ROLES_v2;
+            $tbl_access     = MP_ACCESS_v2;
+            $tbl_permission = MP_PERMISSION_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -46,11 +48,11 @@
                 stid as ID,
                 roid,
                 wpid,
-                (SELECT title FROM $tbl_roles WHERE hsid = p.roid ) as role_title,
-                (SELECT title FROM $tbl_store WHERE hsid = p.stid  AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as title,
+                (SELECT `title` FROM $tbl_roles WHERE hsid = p.roid ) as role_title,
+                (SELECT `title` FROM $tbl_store WHERE hsid = p.stid  AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as title,
                 (SELECT `info` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as `info`,
-                (SELECT avatar FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as avatar,
-                (SELECT banner FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as banner,
+                (SELECT `avatar` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as avatar,
+                (SELECT `banner` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as banner,
                 activated,
                 `status`
             FROM
@@ -100,6 +102,12 @@
                     $value->banner = '';
                 }
 
+                // Import Access
+                    $get_permissions = $wpdb->get_results("SELECT (SELECT title FROM $tbl_access WHERE hsid = p.access ) as access, (SELECT `actions` FROM $tbl_access WHERE hsid = p.access ) as `action` FROM $tbl_permission p WHERE roid = '$value->roid'   ");
+                    if (!empty($get_permissions)) {
+                        $value->permissions = $get_permissions;
+                    }
+                // End
             }
             return array(
                 "status" => "success",

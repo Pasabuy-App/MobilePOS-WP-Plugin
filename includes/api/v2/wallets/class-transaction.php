@@ -69,11 +69,12 @@
                         $generate_hsid = MP_Globals_v2::generating_pubkey($insert_id, $tbl_wallet, 'hsid', true, 64);
                     // Address
 
-                }else{
-                    $data['pubkey'] = $store_wallet->pubkey;
-                    $user_data = get_userdata( $store_wallet->assigned_by );
-                    $data['assigned_by'] = $user_data->display_name;
+                    $store_wallet = $wpdb->get_row("SELECT pubkey, assigned_by FROM $tbl_wallet w WHERE stid = '{$user["stid"]}' AND id IN ( SELECT MAX( id ) FROM $tbl_wallet WHERE w.hsid = hsid GROUP BY pubkey ) ");
                 }
+
+                $data['pubkey'] = $store_wallet->pubkey;
+                $user_data = get_userdata( $store_wallet->assigned_by );
+                $data['assigned_by'] = $user_data->display_name;
             // End
 
             $balance = $wpdb->get_row(
