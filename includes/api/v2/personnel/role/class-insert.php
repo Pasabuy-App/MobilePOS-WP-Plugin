@@ -92,16 +92,22 @@
                 $reuslts_hsid = MP_Globals_v2::generating_pubkey($reuslts_id, $tbl_role, 'hsid', true, 64);
                 // END
                 foreach ($user['access'] as $key => $value) {
-                    foreach ($value as $keys => $values) {
+                        if ($value['status'] != "active" && $value['status'] != "inactive") {
+                            $wpdb->query("ROLLBACK");
+                            return array(
+                                "status" => "failed",
+                                "message" => "Invalid value of status."
+                            );
+                        }
                         // IMPORT PERMISSION
                         $permission = $wpdb->query("INSERT INTO
                             $tbl_permission
-                                ($tbl_permission_field)
+                                ($tbl_permission_field, `status`)
                             VALUES
-                                ( '$reuslts_hsid', '$values', '{$user["wpid"]}' ) ");
+                                ( '$reuslts_hsid', '{$value["value"]}', '{$user["wpid"]}', '{$value["status"]}' ) ");
                         $permission_id = $wpdb->insert_id;
+
                         $permission_hsid = MP_Globals_v2::generating_pubkey($permission_id, $tbl_permission, 'hsid', false, 64);
-                    }
                 }
 
             if($reuslts < 1){

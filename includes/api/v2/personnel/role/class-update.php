@@ -62,16 +62,6 @@
             isset($_POST['info']) && !empty($_POST['info']) ? $user['info'] =  $_POST['info'] :  $user['info'] = $role_data->info ;
             isset($_POST['data']) && !empty($_POST['data']) ? $user['access'] = $_POST['data']['access']  :  $user['access'] = $access_data['value'] = $access ;
 
-            foreach ($access as $key => $value) {
-                foreach ($user['access'] as $keys => $values) {
-                    if (in_array($value->access,  $values ) ) {
-                        $smp['access'] = $value->access;
-                    }
-                }
-            }
-
-            return $smp;
-            // return;
             $wpdb->query("START TRANSACTION");
 
                 // IMPORT ROLE DATA
@@ -83,16 +73,8 @@
 
                 // END
                 foreach ($user['access'] as $key => $value) {
-                    foreach ($value as $keys => $values) {
                         // IMPORT PERMISSION
-                        $permission = $wpdb->query("INSERT INTO
-                            $tbl_permission
-                                ($tbl_permission_field)
-                            VALUES
-                                ('$role_data->hsid', '$values', '{$user["wpid"]}' ) ");
-                        $permission_id = $wpdb->insert_id;
-                        $permission_hsid = MP_Globals_v2::generating_pubkey($permission_id, $tbl_permission, 'hsid', false, 64);
-                    }
+                    $wpdb->query("UPDATE $tbl_permission SET `status` = '{$value["status"]}' WHERE hsid =  '{$value["value"]}' ");
                 }
 
             if($reuslts < 1){

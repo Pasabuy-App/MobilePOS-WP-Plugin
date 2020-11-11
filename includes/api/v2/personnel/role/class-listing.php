@@ -90,7 +90,7 @@
             $results =  $wpdb->get_results($sql);
 
             foreach ($results as $key => $value) {
-                $value->permission = $wpdb->get_results("SELECT (SELECT title FROM $tbl_access WHERE hsid = access ) as title, access FROM $tbl_permission p WHERE roid = '$value->ID' ");
+                $value->permission = $wpdb->get_results("SELECT (SELECT title FROM $tbl_access WHERE hsid = access ) as title, access, hsid as permission_id FROM $tbl_permission p WHERE roid = '$value->ID' ");
             }
 
             return array(
