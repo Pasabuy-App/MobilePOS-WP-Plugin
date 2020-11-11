@@ -230,9 +230,13 @@
 #                        $get_mover_avatar
                         $wp_user = get_user_by("ID", $get_mover_data->wpid);
                         $value->driver_name = $wp_user->display_name;
-
+                        $value->mover_id = $get_mover_data->wpid;
                         $avatar = get_user_meta( $get_mover_data->wpid,  $key = 'avatar', $single = false );
                         $value->driver_avatar = !$avatar ? SP_PLUGIN_URL . "assets/default-avatar.png" : $avatar[0];
+                    }else{
+                        $value->driver_name = "";
+                        $value->mover_id = "";
+                        $value->driver_avatar = "";
                     }
                 // End
             } // End
