@@ -74,7 +74,7 @@
                 // END
                 foreach ($user['access'] as $key => $value) {
                         // IMPORT PERMISSION
-                    $wpdb->query("UPDATE $tbl_permission SET `status` = '{$value["status"]}' WHERE hsid =  '{$value["value"]}' ");
+                    $wpdb->query("UPDATE $tbl_permission SET `status` = '{$value["status"]}' WHERE access =  '{$value["value"]}' AND roid =  '{$user["role_id"]}'");
                 }
 
             if($reuslts < 1){
