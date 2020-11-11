@@ -45,6 +45,10 @@
             $tbl_store = TP_STORES_v2;
             $tbl_product = TP_PRODUCT_v2;
             $tbl_variants = TP_PRODUCT_VARIANTS_v2;
+            // Hp
+            $tbl_delivery = HP_DELIVERIES_v2;
+            $tbl_vehicle = HP_VEHICLES_v2;
+            $tbl_mover = HP_MOVERS_v2;
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -169,19 +173,19 @@
 
                 // Get Product Data
                     $get_product = $wpdb->get_results("SELECT
-                        hsid as ID,
-                        (SELECT title FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as product_name,
-                        #(SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = mi.pdid)) AS product_name,
-                        (SELECT price FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as price,
-                        mi.quantity,
-                        null as variants,
-                        null as variants_price
-                    FROM
-                        $tbl_order_items mi
-                    WHERE
-                        odid = '$value->pubkey'
-                    AND
-                        ID IN ( SELECT MAX( ID ) FROM $tbl_order_items WHERE mi.hsid = hsid GROUP BY hsid ) ");
+                            hsid as ID,
+                            (SELECT title FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as product_name,
+                            #(SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = mi.pdid)) AS product_name,
+                            (SELECT price FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as price,
+                            mi.quantity,
+                            null as variants,
+                            null as variants_price
+                        FROM
+                            $tbl_order_items mi
+                        WHERE
+                            odid = '$value->pubkey'
+                        AND
+                            ID IN ( SELECT MAX( ID ) FROM $tbl_order_items WHERE mi.hsid = hsid GROUP BY hsid ) ");
 
                     foreach ($get_product as $keys => $values) {
 
@@ -200,7 +204,6 @@
 
                         }
 
-
                         $value->total_price += ( $values->price + $total_variants_price ) * $values->quantity ;
                         $values->variants = $total_variants;
                         $values->variants_price = $total_variants_price;
@@ -209,7 +212,30 @@
                     $value->stages = ucfirst($value->stages);
                     $value->method = ucfirst($value->method);
                 // End
-            }
+
+
+                // Get Driver
+                    if ($value->stages == "Completed" ) {
+                        #return $value->pubkey;
+                        $driver_data = $wpdb->get_row("SELECT vhid FROM $tbl_delivery WHERE order_id = '$value->pubkey' ");
+
+                        $get_mover_data = $wpdb->get_row("SELECT
+                                (SELECT wpid FROM $tbl_mover WHERE pubkey = v.mvid ) as wpid
+                            FROM
+                                $tbl_vehicle v
+                            WHERE
+                                hsid = '$driver_data->vhid'
+                            AND
+                                id IN ( SELECT MAX( id ) FROM $tbl_vehicle WHERE hsid = v.hsid GROUP BY hsid ) ");
+#                        $get_mover_avatar
+                        $wp_user = get_user_by("ID", $get_mover_data->wpid);
+                        $value->driver_name = $wp_user->display_name;
+
+                        $avatar = get_user_meta( $get_mover_data->wpid,  $key = 'avatar', $single = false );
+                        $value->driver_avatar = !$avatar ? SP_PLUGIN_URL . "assets/default-avatar.png" : $avatar[0];
+                    }
+                // End
+            } // End
 
             return array(
                 "status" => "success",
