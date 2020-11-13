@@ -30,6 +30,7 @@
             // operation
             require plugin_dir_path(__FILE__) . '/v2/schedule/operation/class-insert.php';
             require plugin_dir_path(__FILE__) . '/v2/schedule/operation/class-listing.php';
+            require plugin_dir_path(__FILE__) . '/v2/schedule/operation/class-verify.php';
 
     // Personnels
         require plugin_dir_path(__FILE__) . '/v2/personnel/class-insert.php';
@@ -197,6 +198,11 @@
                         register_rest_route( 'mobilepos/v2/schedule/operation', 'list', array(
                             'methods' => 'POST',
                             'callback' => array('MP_Operation_Listing_v2','listen'),
+                        ));
+
+                        register_rest_route( 'mobilepos/v2/schedule/operation', 'Verify', array(
+                            'methods' => 'POST',
+                            'callback' => array('MP_Verify_Operation_v2','listen'),
                         ));
     }
     add_action( 'rest_api_init', 'mobilepos_route' );
