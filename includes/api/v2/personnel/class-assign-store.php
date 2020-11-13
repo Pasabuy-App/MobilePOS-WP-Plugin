@@ -48,11 +48,11 @@
                 stid as ID,
                 roid,
                 wpid,
-                (SELECT `title` FROM $tbl_roles WHERE hsid = p.roid ) as role_title,
-                (SELECT `title` FROM $tbl_store WHERE hsid = p.stid  AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as title,
-                (SELECT `info` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as `info`,
-                (SELECT `avatar` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as avatar,
-                (SELECT `banner` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store GROUP BY hsid ) ) as banner,
+                (SELECT `title` FROM $tbl_roles WHERE hsid = p.roid  AND id IN ( SELECT MAX( id ) FROM $tbl_roles r WHERE r.hsid = hsid GROUP BY hsid ) ) as role_title,
+                (SELECT `title` FROM $tbl_store WHERE hsid = p.stid  AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid GROUP BY hsid ) ) as title,
+                (SELECT `info` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid GROUP BY hsid ) ) as `info`,
+                (SELECT `avatar` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid GROUP BY hsid ) ) as avatar,
+                (SELECT `banner` FROM $tbl_store WHERE hsid = p.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid GROUP BY hsid ) ) as banner,
                 activated,
                 `status`
             FROM
@@ -111,7 +111,9 @@
                         WHERE
                             roid = '$value->roid'
                         AND
-                            `status` = 'active'   ");
+                            `status` = 'active'
+                        AND
+                            id IN ( SELECT MAX( id ) FROM $tbl_permission p WHERE p.hsid = hsid GROUP BY hsid )   ");
                     if (!empty($get_permissions)) {
                         $value->permissions = $get_permissions;
                     }
