@@ -176,6 +176,7 @@
                             hsid as ID,
                             (SELECT title FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as product_name,
                             #(SELECT child_val FROM tp_revisions WHERE ID = (SELECT title FROM tp_products  WHERE ID = mi.pdid)) AS product_name,
+                            remarks,
                             (SELECT price FROM $tbl_product WHERE  hsid = mi.pdid AND  ID IN ( SELECT MAX( pdd.ID ) FROM $tbl_product  pdd WHERE pdd.hsid = hsid GROUP BY hsid )  ) as price,
                             mi.quantity,
                             null as variants,
