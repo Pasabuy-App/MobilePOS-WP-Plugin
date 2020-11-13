@@ -220,7 +220,7 @@
                         $driver_data = $wpdb->get_row("SELECT vhid FROM $tbl_delivery WHERE order_id = '$value->pubkey' ");
 
                         $get_mover_data = $wpdb->get_row("SELECT
-                                (SELECT wpid FROM $tbl_mover WHERE pubkey = v.mvid ) as wpid
+                                mvid
                             FROM
                                 $tbl_vehicle v
                             WHERE
@@ -230,7 +230,7 @@
 #                        $get_mover_avatar
                         $wp_user = get_user_by("ID", $get_mover_data->wpid);
                         $value->driver_name = $wp_user->display_name;
-                        $value->mover_id = $get_mover_data->wpid;
+                        $value->mover_id = $get_mover_data->mvid;
                         $avatar = get_user_meta( $get_mover_data->wpid,  $key = 'avatar', $single = false );
                         $value->driver_avatar = !$avatar ? SP_PLUGIN_URL . "assets/default-avatar.png" : $avatar[0];
                     }else{
