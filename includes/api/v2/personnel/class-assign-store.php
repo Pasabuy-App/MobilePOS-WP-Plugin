@@ -103,7 +103,15 @@
                 }
 
                 // Import Access
-                    $get_permissions = $wpdb->get_results("SELECT (SELECT title FROM $tbl_access WHERE hsid = p.access ) as access, (SELECT `actions` FROM $tbl_access WHERE hsid = p.access ) as `action` FROM $tbl_permission p WHERE roid = '$value->roid'   ");
+                    $get_permissions = $wpdb->get_results("SELECT
+                            (SELECT title FROM $tbl_access WHERE hsid = p.access ) as access,
+                            (SELECT `actions` FROM $tbl_access WHERE hsid = p.access ) as `action`
+                        FROM
+                            $tbl_permission p
+                        WHERE
+                            roid = '$value->roid'
+                        AND
+                            `status` = 'active'   ");
                     if (!empty($get_permissions)) {
                         $value->permissions = $get_permissions;
                     }
