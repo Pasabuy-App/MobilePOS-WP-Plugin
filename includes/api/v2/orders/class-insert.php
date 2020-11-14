@@ -32,6 +32,8 @@
         }
 
         public static function list_open(){
+            return CP_Pasabuy_Pluss_Verify::verify_pls_store( $_POST['stid'], $_POST['wpid'], "" );
+
 
             global $wpdb;
             $tbl_product = TP_PRODUCT_v2;
@@ -77,6 +79,10 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
+
+
+
+
             isset($_POST['msg']) && !empty($_POST['msg'])? $user['msg'] =  $_POST['msg'] :  $user['msg'] = null ;
 
             if (empty($_POST['data']['payments'])) {

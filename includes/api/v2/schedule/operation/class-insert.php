@@ -19,9 +19,9 @@
 
         public static function catch_post(){
             $curl_user = array();
+  
             $curl_user['stid'] = $_POST['stid'];
             $curl_user['wpid'] = $_POST['wpid'];
-            $curl_user['status'] = $_POST['status'];
             return $curl_user;
         }
 
@@ -95,23 +95,13 @@
                 );
             }
 
-            // Check if operation is already exists
-                $check_operation = $wpdb->get_row("SELECT ID,`type` FROM  $table_attendance WHERE sdid = '$check_schedule->hsid' AND DATE(date_created) = '$date' AND `type` = '{$user["status"]}' ");
-                if (!empty($check_operation)) {
-                    return array(
-                        "status" => "failed",
-                        "message" => "You've already been ".ucfirst($user["status"])."."
-                    );
-                }
-            // End
-
             $wpdb->query("START TRANSACTION");
 
             $results = $wpdb->query("INSERT INTO
                 $table_attendance
-                    ($table_attendance_field, `type`)
+                    ($table_attendance_field)
                 VALUES
-                    ('{$user["stid"]}', '$check_schedule->hsid', '{$user["wpid"]}', '{$user["status"]}' )");
+                    ('{$user["stid"]}', '$check_schedule->hsid', '{$user["wpid"]}' )");
             $results_id = $wpdb->insert_id;
 
             $wpdb->query("UPDATE $table_attendance SET hsid = sha2($results_id, 256) WHERE ID = $results_id");

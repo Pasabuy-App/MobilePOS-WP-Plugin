@@ -211,7 +211,6 @@
 					$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
 					$sql .= " `stid` varchar(150) NOT NULL COMMENT 'Mover ID' , ";
 					$sql .= " `sdid` varchar(150) NOT NULL , ";
-					$sql .= " `type` enum('open','close') DEFAULT NULL, ";
 					$sql .= "   `status` enum('active','inactive') NOT NULL, ";
 					$sql .= " `created_by` bigint(20) COMMENT 'The one who creates this operation', ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
