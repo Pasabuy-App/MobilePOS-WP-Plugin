@@ -1,4 +1,3 @@
-
 <?php
 	// Exit if accessed directly
 	if ( ! defined( 'ABSPATH' ) )
@@ -45,6 +44,9 @@
             $tbl_order_times_vars_field = MP_ORDERS_ITEMS_VARS_FIELD_v2;
             $tbl_inventory = MP_INVENTORY_v2;
             $tbl_inventory_fields = MP_INVENTORY_FIELD_v2;
+            $time = time();
+            $year = date("Y");
+            $day = lcfirst(date('D', $time));
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -62,7 +64,7 @@
                 );
             }
 
-            if (!isset($_POST['wpid']) || !isset($_POST['adid']) || !isset($_POST['stid']) ) {
+            if (!isset($_POST['wpid']) || !isset($_POST['adid']) || !isset($_POST['stid']) || !isset($_POST['opid']) ) {
                 return  array(
                     "status" => "unknown",
                     "message" => "Please contact your administrator. Request Unknown!",
@@ -78,6 +80,10 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
+
+
+
+
             isset($_POST['msg']) && !empty($_POST['msg'])? $user['msg'] =  $_POST['msg'] :  $user['msg'] = null ;
 
             if (empty($_POST['data']['payments'])) {
@@ -219,7 +225,8 @@
                                     break;
                             }
                         }else{
-                            $total = $TOTAL_PRICE + $delivery_fee;
+                            #$total = $TOTAL_PRICE + $delivery_fee;
+                            $total = $TOTAL_PRICE;
                         }
                     // }
                 }
@@ -228,9 +235,33 @@
                 // NOTE: Temporary comment for discount
                 // if ($discount != false) {
                 //     $total = $TOTAL_PRICE - ($TOTAL_PRICE * $discount);
-                // }else{
+                // }else{$get_pls_mode
                 //     $total = $TOTAL_PRICE - ($TOTAL_PRICE * $counpon_val);
                 // }
+
+                // Compute price with pasabuy Plus
+                    // $get_pls_mode = CP_Pasabuy_Pluss_Verify::verify_pls_store();
+                    // if (empty($get_pls_mode)) {
+                    //     switch ($get_pls_mode->action) {
+                    //         case 'less':
+                    //             $total = $total - $get_pls_mode->amount;
+                    //             break;
+
+                    //         case 'free_ship':
+                    //             $delivery_fee = 0;
+                    //             break;
+
+                    //         case 'discount':
+                    //             # code...
+                    //             break;
+                    //         case 'min_spend':
+                    //             # code...
+                    //             break;
+                    //     }
+                    // }
+                // End
+
+                $total = $total - $delivery_fee;
 
                 foreach ($user['payments'] as $key => $value) {
 
@@ -379,6 +410,95 @@
                 );
             }
         }
+
+        /* public static function pasabuy_pluss($wpid, $curency, $amount, $stid){
+
+            global $wpdb;
+            $tbl_wallet = MP_WALLETS_v2;
+            $master_key = DV_Library_Config::dv_get_config('master_key', 123);
+
+            $wpdb->query("START TRANSACTION");
+
+            // Check if currency exists
+            $get_currency = $wpdb->get_row("SELECT * FROM cp_currencies WHERE abbrev like '%{$curency}%' ");
+
+            if(empty($get_currency)){
+                return array(
+                    "status" => false,
+                    "message" => "This currency does not exists."
+                );
+            }
+            // END
+
+            // Get wallet data
+            $wallet = $wpdb->get_row($wpdb->prepare("SELECT public_key, currency FROM cp_wallets WHERE wpid = %d AND currency = '%s' ", $wpid, $get_currency->ID ));
+
+            if (empty($wallet)) {
+                return array(
+                    "status" => false,
+                    "message" => "This user does not have wallet."
+                );
+            }
+            // END
+
+            // Check balance
+            $balance = $wpdb->get_row(
+                $wpdb->prepare(" SELECT
+                    COALESCE(
+                        SUM(COALESCE( CASE WHEN recipient = '%s' THEN amount END , 0 ))  -
+                        SUM(COALESCE( CASE WHEN sender = '%s' THEN amount END, 0 ))
+                        , 0 ) as balance
+                        FROM cp_transaction", $wallet->public_key, $wallet->public_key));
+
+            if (!empty($balance)) {
+                if ($balance->balance < $amount) {
+                    return array(
+                        "status" => false,
+                        "message" => "You dont have balance in your wallet."
+                    );
+                }
+            }
+            // END
+
+            // Check if Admin has wallet
+            $admin_wallet = $wpdb->get_row($wpdb->prepare("SELECT public_key, currency FROM cp_wallets WHERE wpid = %d AND currency = '%s' ", $wpid, $get_currency->ID ));
+            if (empty($admin_wallet)) {
+                return array(
+                    "status" => false,
+                    "message" => "Please contact your administrator. Admin has no wallet."
+                );
+            }
+            // End
+
+            // Step 13: Executing of transaction
+            $send_money = $wpdb->query("INSERT INTO cp_transaction ( `sender`, `recipient`, `amount`, `currency` ) VALUES ( '$wallet->public_key', '$admin_wallet->pubkey', '$amount', '$get_currency->hash_id' )  ");
+            $get_money_id = $wpdb->insert_id;
+
+            $get_money_data = $wpdb->get_row("SELECT * FROM cp_transaction WHERE ID = $get_money_id");
+
+            // Step 14: Hash transaction data for curhash
+            $hash = hash( 'sha256', $get_money_data->sender.$get_money_data->recipient.$get_money_data->amount.$get_money_data->date_created);
+
+            $hash_prevhash = hash( 'sha256', $master_key. $get_money_data->date_created );
+
+            $update_transaction = $wpdb->query("UPDATE cp_transaction SET `curhash` = '$hash', `prevhash` = '$hash_prevhash', `hash_id` = SHA2( '$get_money_id' , 256) WHERE ID = $get_money_id ");
+
+            // Step 15: Check if any queries above failed
+            if ( $send_money < 1 || $get_money_id < 1 || empty($get_money_data) || $update_transaction < 1 ) {
+                $wpdb->query("ROLLBACK");
+                return array(
+                    "status" => false,
+                    "message" => "An error occured while submitting data to server.",
+                );
+            }else{
+            // Step 16 : Commit if no errors found
+                $wpdb->query("COMMIT");
+                return array(
+                    "status" => true,
+                    "message" => "Data has been added successfully.",
+                );
+            }
+        } */
 
         public static function save_payment($odid, $method, $amount, $extra){
             global $wpdb;
