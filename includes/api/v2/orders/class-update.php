@@ -72,7 +72,7 @@
             }else{
 
                 if($user['stages'] != "accepted" && $user['stages'] != "cancelled"
-                   && $user['stages'] != "preparing" && $user['stages'] != "shipping"){
+                   && $user['stages'] != "preparing" && $user['stages'] != "shipping" && $user['stages'] != "completed"){
                     return array(
                         "status" => "failed",
                         "message" => "Invalid value of stages."
