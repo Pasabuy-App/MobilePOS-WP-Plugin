@@ -217,7 +217,7 @@
 
 
                 // Get Driver
-                    if ($value->stages == "completed" && $value->stages == "shipping" && $value->stages == "ongoing" ) {
+                    if ($value->stages == "Completed" || $value->stages == "Shipping" || $value->stages == "Ongoing" || $value->stages == "Preparing") {
                         #return $value->pubkey;
                         $driver_data = $wpdb->get_row("SELECT vhid FROM $tbl_delivery WHERE order_id = '$value->pubkey' ");
 
@@ -230,19 +230,20 @@
                             AND
                                 id IN ( SELECT MAX( id ) FROM $tbl_vehicle WHERE hsid = v.hsid GROUP BY hsid ) ");
 #                        $get_mover_avatar
-                        $wp_user = get_user_by("ID", $get_mover_data->wpid);
+                        $get_mover_wpid = $wpdb->get_row("SELECT  `wpid`  FROM  $tbl_mover WHERE id IN ( SELECT MAX( id ) FROM $tbl_mover v WHERE hsid = v.hsid GROUP BY hsid ) ");
+                        $wp_user = get_user_by("ID", $get_mover_wpid->wpid);
                         $value->driver_name = $wp_user->display_name;
                         $value->mover_id = $get_mover_data->mvid;
                         $avatar = get_user_meta( $get_mover_data->wpid,  $key = 'avatar', $single = false );
                         $value->driver_avatar = !$avatar ? SP_PLUGIN_URL . "assets/default-avatar.png" : $avatar[0];
                     }else{
-                        $value->driver_name = "";
+                        $value->driver_name = "awdawdawd";
                         $value->mover_id = "";
                         $value->driver_avatar = "";
                     }
                 // End
 
-                $value->stages = ucfirst($value->stages);
+                #$value->stages = ucfirst($value->stages);
             } // End
 
             return array(
