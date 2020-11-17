@@ -32,6 +32,7 @@
             global $wpdb;
 
             $tbl_order = MP_ORDERS_v2;
+            $tbl_operation = MP_OPERATIONS_v2;
             $tbl_order_field = MP_ORDERS_FILED_v2;
             $expiry = '';
 
@@ -91,7 +92,7 @@
                             $status = $user["stages"];
                         }
                         break;
-
+                        $expiry = '';
                     case 'preparing':
 
                         if ($get_data->stages != "ongoing" ) {
@@ -100,7 +101,7 @@
                             $status = $user["stages"];
                         }
                         break;
-
+                        $expiry = $get_data->expiry;
                     case 'shipping':
 
                         if ($get_data->stages != "preparing" ) {
@@ -109,27 +110,42 @@
                             $status = $user["stages"];
                         }
 
-                        // // Get user Address GPS Location
-                        //     $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$check_store->hsid' ");
+                        // Get store ID
+                            $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$get_data->opid' ");
+                        // End
 
-                        //     if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
-                        //         return array(
-                        //             "status" => "failed",
-                        //             "message" => "This store does not have an gps location in our database.",
-                        //         );
-                        //     }
+                        // Get user Address GPS Location
+                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$get_store_id->stid' ");
 
-                        //     $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$check_store->hsid' ");
+                            if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
+                                return array(
+                                    "status" => "failed",
+                                    "message" => "This store does not have an gps location in our database.",
+                                );
+                            }
 
-                        //     if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
-                        //         return array(
-                        //             "status" => "failed",
-                        //             "message" => "This store does not have an gps location in our database.",
-                        //         );
-                        //     }
-                        // // End
+                            $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$get_data->adid' ");
 
-                        // $distance_data = HP_Google_Apis_v2::get_distance("");
+                            if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
+                                return array(
+                                    "status" => "failed",
+                                    "message" => "This store does not have an gps location in our database.",
+                                );
+                            }
+                        // End
+                        $google_api_key = HP_Library_Config::hp_get_config('google_matrix_api', 0);
+
+                        $distance_data = HP_Google_Apis_v2::get_distance(
+                                $get_user_address->latitude.','.$get_user_address->longitude,
+                                $get_store_address->latitude.','.$get_store_address->longitude,
+                                $google_api_key, '0', '2');
+
+                        $duration = $distance_data['duration']['value'] + 1200;
+                        $duration = gmdate("i", $duration);
+
+                        $start = date('Y-m-d H:i:s');
+
+                        $expiry = date('Y-m-d H:i:s',strtotime( " +$duration minutes ", strtotime($start)));
 
                         break;
 
@@ -140,6 +156,7 @@
                         }else{
                             $status = $user["stages"];
                         }
+                        $expiry = '';
                         break;
                 }
 
@@ -160,7 +177,7 @@
                       '$get_data->delivery_charges',
                       '$get_data->psb_fee',
                       '$get_data->order_by',
-                      '$get_data->expiry' )");
+                      '$expiry' )");
 
             $order_data_id = $wpdb->insert_id;
 
