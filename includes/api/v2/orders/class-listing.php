@@ -134,6 +134,8 @@
                 }
             }
 
+            $sql .= " ORDER BY id DESC ";
+
             $order_data = $wpdb->get_results($sql);
             $smp = array();
             $total_variants = '';
