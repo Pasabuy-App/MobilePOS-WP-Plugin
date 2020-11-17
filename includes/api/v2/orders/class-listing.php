@@ -88,6 +88,7 @@
                 null as store_lat,
                 null as store_long,
                 stages,
+                expiry,
                 # Product Data
                 null as products,
                 null as total_price,
@@ -220,7 +221,6 @@
                     $value->method = ucfirst($value->method);
                 // End
 
-
                 // Get Driver
                     if ($value->stages == "Completed" || $value->stages == "Shipping" || $value->stages == "Ongoing" || $value->stages == "Preparing") {
                         #return $value->pubkey;
@@ -247,6 +247,12 @@
                         $value->driver_avatar = "";
                     }
                 // End
+
+                $now = strtotime("now");
+				$lock_expiry = strtotime($value->expiry);
+				$interval  = abs($lock_expiry - $now);
+                $time_left = round($interval / 60);
+                $value->expiry = $time_left;
 
                 #$value->stages = ucfirst($value->stages);
             } // End
