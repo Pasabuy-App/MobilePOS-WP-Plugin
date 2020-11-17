@@ -235,14 +235,14 @@
                             AND
                                 id IN ( SELECT MAX( id ) FROM $tbl_vehicle WHERE hsid = v.hsid GROUP BY hsid ) ");
                         #                        $get_mover_avatar
-                        $get_mover_wpid = $wpdb->get_row("SELECT  `wpid`  FROM  $tbl_mover WHERE id IN ( SELECT MAX( id ) FROM $tbl_mover v WHERE hsid = v.hsid GROUP BY hsid ) ");
+                        $get_mover_wpid = $wpdb->get_row("SELECT  `wpid`  FROM  $tbl_mover WHERE pubkey = '$get_mover_data->mvid' AND id IN ( SELECT MAX( id ) FROM $tbl_mover v WHERE hsid = v.hsid GROUP BY hsid ) ");
                         $wp_user = get_user_by("ID", $get_mover_wpid->wpid);
                         $value->driver_name = $wp_user->display_name;
                         $value->mover_id = $get_mover_data->mvid;
-                        $avatar = get_user_meta( $get_mover_data->wpid,  $key = 'avatar', $single = false );
+                        $avatar = get_user_meta( $get_mover_wpid->wpid,  $key = 'avatar', $single = false );
                         $value->driver_avatar = !$avatar ? SP_PLUGIN_URL . "assets/default-avatar.png" : $avatar[0];
                     }else{
-                        $value->driver_name = "awdawdawd";
+                        $value->driver_name = "";
                         $value->mover_id = "";
                         $value->driver_avatar = "";
                     }
