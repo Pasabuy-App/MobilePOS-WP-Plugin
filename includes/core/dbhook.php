@@ -345,6 +345,7 @@
 			$wpdb->query("CREATE INDEX date_created ON $tbl_config (`date_created`);");
 
 			$expiry = serialize(array("expiry"=> "+30 minutes" ));
+
 			$wpdb->query("INSERT INTO $tbl_config (`config_key`, `config_val`, `hsid`) VALUES ('order_expiry', '$expiry', sha2(1, 256) ) ");
 		}
 	}

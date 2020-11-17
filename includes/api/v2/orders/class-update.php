@@ -33,6 +33,7 @@
 
             $tbl_order = MP_ORDERS_v2;
             $tbl_order_field = MP_ORDERS_FILED_v2;
+            $expiry = '';
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {

@@ -56,7 +56,7 @@
                 hsid as ID,
                 stid,
                 wpid,
-                (SELECT title FROM $tbl_roles WHERE hsid = roid ) as position,
+                (SELECT title FROM $tbl_roles r WHERE hsid = roid AND id IN ( SELECT MAX( id ) FROM $tbl_roles WHERE r.hsid = hsid GROUP BY hsid ) ) as position,
                 (SELECT display_name FROM wp_users WHERE ID = wpid ) as display_name,
                 null as avatar,
                 `status`,
