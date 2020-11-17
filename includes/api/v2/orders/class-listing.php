@@ -247,12 +247,13 @@
                         $value->driver_avatar = "";
                     }
                 // End
-
-                $now = strtotime("now");
-				$lock_expiry = strtotime($value->expiry);
-				$interval  = abs($lock_expiry - $now);
-                $time_left = round($interval / 60);
-                $value->expiry = $time_left;
+                if ($value->expiry != null || $value->expiry != "") {
+                    $now = strtotime("now");
+                    $lock_expiry = strtotime($value->expiry);
+                    $interval  = abs($lock_expiry - $now);
+                    $time_left = round($interval / 60);
+                    $value->expiry = $time_left;
+                }
 
                 #$value->stages = ucfirst($value->stages);
             } // End
