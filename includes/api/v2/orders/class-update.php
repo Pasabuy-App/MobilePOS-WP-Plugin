@@ -109,27 +109,27 @@
                             $status = $user["stages"];
                         }
 
-                        // Get user Address GPS Location
-                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$check_store->hsid' ");
+                        // // Get user Address GPS Location
+                        //     $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$check_store->hsid' ");
 
-                            if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
-                                return array(
-                                    "status" => "failed",
-                                    "message" => "This store does not have an gps location in our database.",
-                                );
-                            }
+                        //     if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
+                        //         return array(
+                        //             "status" => "failed",
+                        //             "message" => "This store does not have an gps location in our database.",
+                        //         );
+                        //     }
 
-                            $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$check_store->hsid' ");
+                        //     $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$check_store->hsid' ");
 
-                            if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
-                                return array(
-                                    "status" => "failed",
-                                    "message" => "This store does not have an gps location in our database.",
-                                );
-                            }
-                        // End
+                        //     if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
+                        //         return array(
+                        //             "status" => "failed",
+                        //             "message" => "This store does not have an gps location in our database.",
+                        //         );
+                        //     }
+                        // // End
 
-                        $distance_data = HP_Google_Apis_v2::get_distance("");
+                        // $distance_data = HP_Google_Apis_v2::get_distance("");
 
                         break;
 
