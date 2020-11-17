@@ -217,7 +217,7 @@
 
 
                 // Get Driver
-                    if ($value->stages == "Completed" ) {
+                    if ($value->stages == "completed" && $value->stages == "shipping" && $value->stages == "ongoing" ) {
                         #return $value->pubkey;
                         $driver_data = $wpdb->get_row("SELECT vhid FROM $tbl_delivery WHERE order_id = '$value->pubkey' ");
 
@@ -241,6 +241,8 @@
                         $value->driver_avatar = "";
                     }
                 // End
+
+                $value->stages = ucfirst($value->stages);
             } // End
 
             return array(
