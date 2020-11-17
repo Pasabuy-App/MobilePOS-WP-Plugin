@@ -14,7 +14,7 @@
 
 	// VERSION TWO
 
-		define('MP_PREFIX_v2', 'mp_v2_');
+		define('MP_PREFIX_v2', 'mpv2_');
 
 		define('MP_CONFIGS_v2', MP_PREFIX_v2.'configs');
 		define('MP_CONFIGS_FILED_v2', ' `config_key`, `config_val` ');
