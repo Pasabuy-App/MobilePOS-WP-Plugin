@@ -108,6 +108,29 @@
                         }else{
                             $status = $user["stages"];
                         }
+
+                        // Get user Address GPS Location
+                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$check_store->hsid' ");
+
+                            if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
+                                return array(
+                                    "status" => "failed",
+                                    "message" => "This store does not have an gps location in our database.",
+                                );
+                            }
+
+                            $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$check_store->hsid' ");
+
+                            if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
+                                return array(
+                                    "status" => "failed",
+                                    "message" => "This store does not have an gps location in our database.",
+                                );
+                            }
+                        // End
+
+                        $distance_data = HP_Google_Apis_v2::get_distance("");
+
                         break;
 
                     case 'completed':
@@ -126,7 +149,7 @@
 
             $order_data = $wpdb->query("INSERT INTO
                 $tbl_order
-                    (`pubkey`, `opid`, `stages`, `status`, `adid`, `instructions`,  `delivery_charges`, `psb_fee`, `order_by` )
+                    (`pubkey`, `opid`, `stages`, `status`, `adid`, `instructions`,  `delivery_charges`, `psb_fee`, `order_by`, `expiry` )
                 VALUES
                     ( '$get_data->pubkey',
                       '$get_data->opid',
@@ -136,7 +159,8 @@
                       '$get_data->instructions',
                       '$get_data->delivery_charges',
                       '$get_data->psb_fee',
-                      '$get_data->order_by' )");
+                      '$get_data->order_by',
+                      '$get_data->expiry' )");
 
             $order_data_id = $wpdb->insert_id;
 

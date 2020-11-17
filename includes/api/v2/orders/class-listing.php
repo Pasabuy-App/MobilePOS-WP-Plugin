@@ -20,6 +20,7 @@
         public static function catch_post(){
             $curl_user = array();
 
+            isset($_POST['order_by']) && !empty($_POST['order_by'])? $curl_user['order_by'] =  $_POST['order_by'] :  $curl_user['order_by'] = null ;
             isset($_POST['odid']) && !empty($_POST['odid'])? $curl_user['odid'] =  $_POST['odid'] :  $curl_user['odid'] = null ;
             isset($_POST['stages']) && !empty($_POST['stages'])? $curl_user['stages'] =  $_POST['stages'] :  $curl_user['stages'] = null ;
             isset($_POST['stid']) && !empty($_POST['stid'])? $curl_user['stid'] =  $_POST['stid'] :  $curl_user['stid'] = null ;
@@ -102,6 +103,10 @@
 
             if ($user['stid'] != null) {
                 $sql .= " AND (SELECT stid FROM  $tbl_operation WHERE hsid = m.opid )  = '{$user["stid"]}' ";
+            }
+
+            if ($user['order_by'] != null) {
+                $sql .= " AND order_by = '{$user["order_by"]}' ";
             }
 
             if ($user["stages"] != null) {
@@ -229,7 +234,7 @@
                                 hsid = '$driver_data->vhid'
                             AND
                                 id IN ( SELECT MAX( id ) FROM $tbl_vehicle WHERE hsid = v.hsid GROUP BY hsid ) ");
-#                        $get_mover_avatar
+                        #                        $get_mover_avatar
                         $get_mover_wpid = $wpdb->get_row("SELECT  `wpid`  FROM  $tbl_mover WHERE id IN ( SELECT MAX( id ) FROM $tbl_mover v WHERE hsid = v.hsid GROUP BY hsid ) ");
                         $wp_user = get_user_by("ID", $get_mover_wpid->wpid);
                         $value->driver_name = $wp_user->display_name;
