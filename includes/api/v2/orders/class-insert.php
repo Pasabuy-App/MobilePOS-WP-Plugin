@@ -34,6 +34,7 @@
 
         public static function list_open(){
 
+
             global $wpdb;
             $tbl_product = TP_PRODUCT_v2;
             $tbl_order = MP_ORDERS_v2;
@@ -113,7 +114,7 @@
 
                 $expiry_config = MP_Library_Config::get_config('order_expiry', '');
 
-                $expiry = date('Y-m-d H:i:s',strtotime($expiry_config, strtotime($start)));
+                $expiry = date('Y-m-d H:i:s',strtotime( $expiry_config['expiry'], strtotime($start)));
             // End
 
             $wpdb->query("START TRANSACTION");
