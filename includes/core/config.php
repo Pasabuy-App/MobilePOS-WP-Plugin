@@ -14,13 +14,16 @@
 
 	// VERSION TWO
 
-		define('MP_PREFIX_v2', 'mpv2_');
+		define('MP_PREFIX_v2', 'mp_v2_');
+
+		define('MP_CONFIGS_v2', MP_PREFIX_v2.'configs');
+		define('MP_CONFIGS_FILED_v2', ' `config_key`, `config_val` ');
 
 		define('MP_ROLES_v2', MP_PREFIX_v2.'roles');
 		define('MP_ROLES_FILED_v2', ' `title`, `info`, `stid`, `created_by` ');
 
 		define('MP_ORDERS_v2', MP_PREFIX_v2.'orders');
-		define('MP_ORDERS_FILED_v2', ' `opid`, `stages`, `adid`, `instructions`, `order_by` ');
+		define('MP_ORDERS_FILED_v2', ' `opid`, `stages`, `adid`, `instructions`, `order_by`, `expiry` ');
 
 		define('MP_ORDERS_ITEMS_v2', MP_PREFIX_v2.'orders_items');
 		define('MP_ORDERS_ITEMS_FIELD_v2', ' `odid`, `pdid`, `remarks`, `quantity`, `created_by` ');

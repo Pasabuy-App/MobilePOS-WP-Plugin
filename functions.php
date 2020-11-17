@@ -36,6 +36,7 @@
     include_once ( MP_PLUGIN_PATH . '/includes/core/source.php' );
     include_once ( MP_PLUGIN_PATH . '/includes/core/config.php' );
     include_once ( MP_PLUGIN_PATH . '/includes/core/update.php' );
+    include_once ( MP_PLUGIN_PATH . '/includes/core/library.php' );
 
     //Make sure to create required mysql tables.
     include_once ( MP_PLUGIN_PATH . '/includes/core/dbhook.php' );

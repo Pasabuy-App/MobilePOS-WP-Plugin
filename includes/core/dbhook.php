@@ -30,6 +30,7 @@
 			$tbl_payments_v2 = MP_PAYMENTS_v2;
 			$tbl_wallet_v2 = MP_WALLETS_v2;
 			$tbl_inventory_v2 = MP_INVENTORY_v2;
+			$tbl_config = MP_CONFIGS_v2;
 
 		//Database table creation version two
 			if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_roles_v2'" ) != $tbl_roles_v2) {
@@ -66,6 +67,7 @@
 					$sql .= " `delivery_charges` varchar(150) NOT NULL COMMENT 'Method choosen for this order.',  ";
 					$sql .= " `psb_fee` double(6, 2) NOT NULL COMMENT 'Method choosen for this order.',  ";
 					$sql .= " `order_by` bigint(20) NOT NULL COMMENT 'The one who created this order.',  ";
+					$sql .= " `expiry` datetime  COMMENT 'Expiry date of this order.',  ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 					$sql .= "PRIMARY KEY (`ID`) ";
 					$sql .= ") ENGINE = InnoDB; ";
@@ -324,5 +326,26 @@
 				$wpdb->query("CREATE INDEX date_created ON $tbl_inventory_v2 (date_created);");
 			}
 		// End
+
+		//Database table creation for mover Operations
+		if($wpdb->get_var( "SHOW TABLES LIKE '$tbl_config'" ) != $tbl_config) {
+			$sql = "CREATE TABLE `".$tbl_config."` (";
+				$sql .= " `ID` bigint(20) NOT NULL AUTO_INCREMENT, ";
+				$sql .= " `hsid` varchar(255) NOT NULL COMMENT 'This column is used for table realtionship' , ";
+				$sql .= " `config_key` varchar(255) NOT NULL COMMENT 'Mover ID' , ";
+				$sql .= " `config_val` varchar(255) NOT NULL , ";
+				$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
+				$sql .= "PRIMARY KEY (`ID`) ";
+				$sql .= ") ENGINE = InnoDB; ";
+			$result = $wpdb->get_results($sql);
+			$tbl_fileds = MP_COUPONS_FIELD_v2;
+
+			$wpdb->query("CREATE INDEX hsid ON $tbl_config (`hsid`);");
+			$wpdb->query("CREATE INDEX config_key ON $tbl_config (`config_key`, `config_val`);");
+			$wpdb->query("CREATE INDEX date_created ON $tbl_config (`date_created`);");
+
+			$expiry = serialize(array("expiry"=> "+30 minutes" ));
+			$wpdb->query("INSERT INTO $tbl_config (`config_key`, `config_val`, `hsid`) VALUES ('order_expiry', '$expiry', sha2(1, 256) ) ");
+		}
 	}
     add_action( 'activated_plugin', 'mp_dbhook_activate' );

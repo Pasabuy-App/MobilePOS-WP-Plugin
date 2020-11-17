@@ -108,6 +108,14 @@
                 }
             // END
 
+            // Set expiration date of this order
+                $start = date('Y-m-d H:i:s');
+
+                $expiry_config = MP_Library_Config::get_config('order_expiry', '');
+
+                $expiry = date('Y-m-d H:i:s',strtotime($expiry_config, strtotime($start)));
+            // End
+
             $wpdb->query("START TRANSACTION");
 
             // IMPORT ORDER DATA
@@ -115,7 +123,7 @@
                     $tbl_order
                         (`delivery_charges`,$tbl_order_field)
                     VALUES
-                        ( '{$user["dlfee"]}','{$user["opid"]}', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}') ");
+                        ( '{$user["dlfee"]}','{$user["opid"]}', 'pending', '{$user["adid"]}', '{$user["msg"]}', '{$user["wpid"]}', '$expiry') ");
                 $insert_order_id = $wpdb->insert_id;
 
                 $insert_order_pubkey = MP_Globals_v2::generating_pubkey($insert_order_id, $tbl_order, 'pubkey', true, 5);
