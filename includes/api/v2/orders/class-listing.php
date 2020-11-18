@@ -161,7 +161,7 @@
 
                     if (is_numeric($get_store_data->avatar)) {
 
-                        $image = wp_get_attachment_image_src( $get_store_data->avatar, 'medium', $icon =false );
+                        $image = wp_get_attachment_image_src( $get_store_data->avatar, 'full', $icon =false );
                         if ($image != false) {
                             $get_store_data->avatar = $image[0];
                         }else{
@@ -177,6 +177,7 @@
                     }else{
                         $value->avatar = 'None';
                     }
+
 
                 // End
 
