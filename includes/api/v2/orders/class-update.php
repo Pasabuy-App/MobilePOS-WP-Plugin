@@ -117,7 +117,7 @@
                             $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$get_data->opid' ");
                         // End
                             // Get store Address ID
-                                $store_address_id = $wpdb->get_row("SELECT
+                            $store_address_id = $wpdb->get_row("SELECT
                                 adid
                             FROM
                                 $tbl_store
@@ -126,22 +126,23 @@
                             AND
                                 id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
                             // End
+                            
                         // Get user Address GPS Location
-                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$store_address_id->adid' ");
+                            $get_store_address = $wpdb->get_row("SELECT * FROM dv_address_view WHERE ID = '$store_address_id->adid' ");
 
-                            if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
+                            if (empty($get_store_address->latitude) && empty($get_store_address->longitude)) {
                                 return array(
                                     "status" => "failed",
                                     "message" => "This store does not have an gps location in our database.",
                                 );
                             }
 
-                            $get_user_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$get_data->adid' ");
+                            $get_user_address = $wpdb->get_row("SELECT * FROM dv_address_view WHERE ID = '$get_data->adid' ");
 
                             if (empty($get_user_address->latitude) || empty($get_user_address->longitude)) {
                                 return array(
                                     "status" => "failed",
-                                    "message" => "This store does not have an gps location in our database.",
+                                    "message" => "This user does not have an gps location in our database.",
                                 );
                             }
                         // End
