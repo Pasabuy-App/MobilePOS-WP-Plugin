@@ -146,7 +146,8 @@
                 // Get Store Data
                     $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$value->opid'");
 
-                    $get_store_data = $wpdb->get_row("SELECT adid, title, avatar FROM $tbl_store WHERE hsid = '$get_store_id->stid' ");
+                    $get_store_data = $wpdb->get_row("SELECT adid, title, avatar FROM $tbl_store WHERE hsid = '$get_store_id->stid'  AND
+                    id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
 
                     $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$get_store_data->adid' ");
                     $get_customer_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$value->adid' ");
@@ -163,7 +164,7 @@
 
                         $image = wp_get_attachment_image_src( $get_store_data->avatar, 'full', $icon =false );
                         if ($image != false) {
-                            $get_store_data->avatar = $image[0];
+                            $value->store_logo = $image[0];
                         }else{
                             $get_image = $wpdb->get_row("SELECT meta_value FROM wp_postmeta WHERE meta_id = $get_store_data->avatar ");
                             if(!empty($get_image)){
