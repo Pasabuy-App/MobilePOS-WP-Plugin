@@ -30,7 +30,7 @@
         public static function list_open(){
 
             global $wpdb;
-
+            $tbl_store = TP_STORES_v2;
             $tbl_order = MP_ORDERS_v2;
             $tbl_operation = MP_OPERATIONS_v2;
             $tbl_order_field = MP_ORDERS_FILED_v2;
@@ -91,8 +91,11 @@
                         }else{
                             $status = $user["stages"];
                         }
+
+                        $start = date('Y-m-d H:i:s');
+                        $expiry = date('Y-m-d H:i:s',strtotime( " +30 minutes ", strtotime($start)));;
+
                         break;
-                        $expiry = '';
                     case 'preparing':
 
                         if ($get_data->stages != "ongoing" ) {
@@ -100,8 +103,8 @@
                         }else{
                             $status = $user["stages"];
                         }
-                        break;
                         $expiry = $get_data->expiry;
+                        break;
                     case 'shipping':
 
                         if ($get_data->stages != "preparing" ) {
@@ -113,9 +116,18 @@
                         // Get store ID
                             $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$get_data->opid' ");
                         // End
-
+                            // Get store Address ID
+                                $store_address_id = $wpdb->get_row("SELECT
+                                adid
+                            FROM
+                                $tbl_store
+                            WHERE
+                                hsid = '$get_store_id->stid'
+                            AND
+                                id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
+                            // End
                         // Get user Address GPS Location
-                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE stid = '$get_store_id->stid' ");
+                            $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$store_address_id->adid' ");
 
                             if (empty($get_store_address->latitude) || empty($get_store_address->longitude)) {
                                 return array(
