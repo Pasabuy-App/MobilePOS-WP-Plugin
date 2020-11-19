@@ -116,16 +116,16 @@
                         // Get store ID
                             $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$get_data->opid' ");
                         // End
-                            // Get store Address ID
-                                $store_address_id = $wpdb->get_row("SELECT
-                                adid
-                            FROM
-                                $tbl_store
-                            WHERE
-                                hsid = '$get_store_id->stid'
-                            AND
-                                id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
-                            // End
+                        // Get store Address ID
+                            $store_address_id = $wpdb->get_row("SELECT
+                                    adid
+                                FROM
+                                    $tbl_store
+                                WHERE
+                                    hsid = '$get_store_id->stid'
+                                AND
+                                    id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
+                        // End
                         // Get user Address GPS Location
                             $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$store_address_id->adid' ");
 
