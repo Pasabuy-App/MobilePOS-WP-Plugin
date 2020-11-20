@@ -51,6 +51,7 @@
 
     // Orders
         require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
+        require plugin_dir_path(__FILE__) . '/v2/orders/class-store-order.php';
         require plugin_dir_path(__FILE__) . '/v2/orders/class-listing.php';
         require plugin_dir_path(__FILE__) . '/v2/orders/class-update.php';
 
@@ -161,6 +162,12 @@
              * ORDER REST API'S
              *
             */
+
+                register_rest_route( 'mobilepos/v2/orders/store', 'insert', array(
+                    'methods' => 'POST',
+                    'callback' => array('MP_Insert_Order_Store_v2','listen'),
+                ));
+
                 register_rest_route( 'mobilepos/v2/orders', 'insert', array(
                     'methods' => 'POST',
                     'callback' => array('MP_Insert_Order_v2','listen'),
