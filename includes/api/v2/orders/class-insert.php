@@ -34,7 +34,6 @@
 
         public static function list_open(){
 
-
             global $wpdb;
             $tbl_product = TP_PRODUCT_v2;
             $tbl_order = MP_ORDERS_v2;
@@ -227,10 +226,37 @@
 
                                     break;
                             }
-                        }else{
-                            $total = $TOTAL_PRICE + $delivery_fee;
                         }
                     // }
+
+                    // C
+                    if ($value['method'] == "pasabuy_plus") {
+
+                        $get_pls_mode = CP_Pasabuy_Pluss_Verify::verify_pls_store();
+
+                        switch ($get_pls_mode->action) {
+                            case 'free_ship':
+                                $delivery_fee = 0;
+                                break;
+
+                            case 'discount':
+                                $total = $total -  ($total * $get_pls_mode['data'][0]->amount) ;
+                                break;
+
+                            case 'min_spend':
+                                # code...
+                                break;
+
+                            case 'less':
+                                $total  = $total - $get_pls_mode['data'][0]->amount;
+                                break;
+                        }
+
+                    }
+
+                    // Compute Add delivery fee to total price
+                        $total = $total + $delivery_fee;
+                    // End
                 }
 
                 // END
@@ -263,7 +289,6 @@
                         }
                     }
 
-                    // Pasabuy wallet
                     if ($value['method'] == "savings") {
 
                         $saving = self::savings($_POST['wpid'], 'savings', $total, $user['stid']);
@@ -282,9 +307,16 @@
                             );
                         }
                     }
+
+                    // Pasabuy wallet
+                    if ($value['method'] == "pasabuy_plus") {
+
+                        $pls = self::pasabuy_plus($_POST['wpid'], $curency = "PLS", 300, $_POST['stid']);
+
+                    }
                     // End Pasabuy wallet
                 }
-            /**
+                /**
              * END Process payment
             */
             if ($insert_order < 1) {
@@ -406,5 +438,135 @@
                 $wpdb->query("COMMIT");
                 return true;
             }
+        }
+
+        public static function pasabuy_plus($wpid, $curency = "PLS", $amount, $stid, $odid, $mode){
+
+            global $wpdb;
+            $tbl_wallet = MP_WALLETS_v2;
+            $master_key = DV_Library_Config::dv_get_config('master_key', 123);
+
+            $wpdb->query("START TRANSACTION");
+
+            // Check if currency exists
+            $get_currency = $wpdb->get_row("SELECT * FROM cp_currencies WHERE abbrev like '%{$curency}%' ");
+
+            if(empty($get_currency)){
+                return array(
+                    "status" => false,
+                    "message" => "This currency does not exists."
+                );
+            }
+            // END
+
+            // Get wallet data
+            $wallet = $wpdb->get_row($wpdb->prepare("SELECT public_key, currency FROM cp_wallets WHERE wpid = %d AND currency = '%s' ", $wpid, $get_currency->ID ));
+
+            if (empty($wallet)) {
+                return array(
+                    "status" => false,
+                    "message" => "This user does not have wallet."
+                );
+            }
+            // END
+
+            // Check balance
+            $balance = $wpdb->get_row(
+                $wpdb->prepare(" SELECT
+                    COALESCE(
+                        SUM(COALESCE( CASE WHEN recipient = '%s' THEN amount END , 0 ))  -
+                        SUM(COALESCE( CASE WHEN sender = '%s' THEN amount END, 0 ))
+                        , 0 ) as balance
+                        FROM cp_transaction", $wallet->public_key, $wallet->public_key));
+
+            if (!empty($balance)) {
+                if ($balance->balance < $amount) {
+                    return array(
+                        "status" => false,
+                        "message" => "You dont have balance in your wallet."
+                    );
+                }
+            }
+            // END
+
+            // Check if Admin has wallet
+            $admin_wallet = $wpdb->get_row($wpdb->prepare("SELECT public_key, currency FROM cp_wallets WHERE wpid = %d AND currency = '%s' ", $wpid, $get_currency->ID ));
+            if (empty($admin_wallet)) {
+                return array(
+                    "status" => false,
+                    "message" => "Please contact your administrator. Admin has no wallet."
+                );
+            }
+            // End
+
+            // Step 13: Executing of transaction
+            $send_money = $wpdb->query("INSERT INTO cp_transaction ( `sender`, `recipient`, `amount`, `currency` ) VALUES ( '$wallet->public_key', '$admin_wallet->public_key', '$amount', '$get_currency->hash_id' )  ");
+            $get_money_id = $wpdb->insert_id;
+
+            $get_money_data = $wpdb->get_row("SELECT * FROM cp_transaction WHERE ID = $get_money_id");
+
+            // Step 14: Hash transaction data for curhash
+            $hash = hash( 'sha256', $get_money_data->sender.$get_money_data->recipient.$get_money_data->amount.$get_money_data->date_created);
+
+            $hash_prevhash = hash( 'sha256', $master_key. $get_money_data->date_created );
+
+            $update_transaction = $wpdb->query("UPDATE cp_transaction SET `curhash` = '$hash', `prevhash` = '$hash_prevhash', `hash_id` = SHA2( '$get_money_id' , 256) WHERE ID = $get_money_id ");
+
+            $get_transaction_id = $wpdb->get_row("SELECT hash_id FROM cp_transaction WHERE ID = '$get_money_id' ");
+
+            // Import pls transaction
+            $pls_transaction = self::pasabuy_plus_transaction($wpid, $mode, $get_transaction_id->hash_id, $odid, $stid);
+
+            // Step 15: Check if any queries above failed
+            if ( $send_money < 1 || $get_money_id < 1 || empty($get_money_data) || $update_transaction < 1 || $pls_transaction['status'] == "false") {
+                $wpdb->query("ROLLBACK");
+                return array(
+                    "status" => false,
+                    "message" => "An error occured while submitting data to server.",
+                );
+            }else{
+            // Step 16 : Commit if no errors found
+                $wpdb->query("COMMIT");
+                return array(
+                    "status" => true,
+                    "data" => $get_transaction_id->hash_id,
+                );
+            }
+        }
+
+        public static function pasabuy_plus_transaction($wpid, $mode, $tid, $odid, $stid){
+            global $wpdb;
+
+            // Check if cp_transaction ID is exists
+                $check_transaction = $wpdb->get_row("SELECT ID FROM cp_transaction WHERE hash_id = '$tid' ");
+
+                if (empty($check_transaction)) {
+                    return array(
+                        "status" => "false",
+                        "message" => "Please contact your administrator. Money transaction failed."
+                    );
+                }
+            // End
+
+            $import_data = $wpdb->query("INSERT INTO  cp_pls_transaction
+                    (`wpid`, `stid`, `mode`, `tid`, `odid`, `created_by` )
+                VALUES
+                    ('$wpid', '$stid', '$mode', '$tid', '$odid', '$wpid' )");
+            $import_data_id = $wpdb->insert_id;
+
+            $wpdb->query("UPDATE cp_pls_transaction SET hash_id = sha2($import_data_id, 256) WHERE ID = '$import_data_id'  ");
+
+            if ($import_data < 1) {
+                return array(
+                    "status" => "false",
+                    "message" => "An erro occured while submitting data to server."
+                );
+            }else{
+                return array(
+                    "status" => "true",
+                    "message" => "Data has been added successfully."
+                );
+            }
+
         }
     }

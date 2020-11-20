@@ -34,6 +34,9 @@
         public static function list_open(){
 
             global $wpdb;
+
+
+
             $tbl_product = TP_PRODUCT_v2;
             $tbl_order = MP_ORDERS_v2;
             $tbl_coupons = MP_COUPONS_v2;
@@ -80,9 +83,6 @@
                     "message" => "Required fileds cannot be empty "."'".ucfirst($validate)."'"."."
                 );
             }
-
-
-
 
             isset($_POST['msg']) && !empty($_POST['msg'])? $user['msg'] =  $_POST['msg'] :  $user['msg'] = null ;
 
@@ -285,7 +285,7 @@
                         }
                     }
 
-                    // Pasabuy wallet
+
                     if ($value['method'] == "savings") {
 
                         $saving = self::savings($_POST['wpid'], 'savings', $total, $user['stid']);
@@ -303,6 +303,12 @@
                                 "message" => "An error occured while submitting data to server!",
                             );
                         }
+                    }
+                    // Pasabuy wallet
+                    if ($value['method'] == "pasabuy_pluss") {
+
+
+
                     }
                     // End Pasabuy wallet
                 }
@@ -411,7 +417,7 @@
             }
         }
 
-        /* public static function pasabuy_pluss($wpid, $curency, $amount, $stid){
+        public static function pasabuy_pluss($wpid, $curency = "PLS", $amount, $stid){
 
             global $wpdb;
             $tbl_wallet = MP_WALLETS_v2;
@@ -498,7 +504,7 @@
                     "message" => "Data has been added successfully.",
                 );
             }
-        } */
+        }
 
         public static function save_payment($odid, $method, $amount, $extra){
             global $wpdb;
