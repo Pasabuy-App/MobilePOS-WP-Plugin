@@ -123,6 +123,8 @@
 					$sql .= " `groups` enum('product', 'store', 'category', 'wallet', 'variant', 'document', 'coupon', 'order', 'report', 'dashboard', 'schedule', 'operation', 'personnel', 'role') NOT NULL  COMMENT 'Categories of access.', ";
 					$sql .= " `title` varchar(150) NOT NULL  COMMENT 'Title of access to be displayed in app',  ";
 					$sql .= " `actions` varchar(150) NOT NULL  COMMENT 'Access key',  ";
+					$sql .= " `status` enum('active', 'inactive') NOT NULL  COMMENT 'Access key',  ";
+					$sql .= " `created_by` bigint(20) NOT NULL  COMMENT 'The one who create this access.,  ";
 					$sql .= " `date_created` datetime NOT NULL DEFAULT current_timestamp(), ";
 					$sql .= "PRIMARY KEY (`ID`) ";
 					$sql .= ") ENGINE = InnoDB; ";
