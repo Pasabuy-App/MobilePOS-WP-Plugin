@@ -267,6 +267,11 @@
                 //     $total = $TOTAL_PRICE - ($TOTAL_PRICE * $counpon_val);
                 // }
 
+                // Pasabuy commision
+                // $commision = CP_Order_Payment_Transactions::commission_computation(100, $get_store_data->stid);
+                // End
+
+
                 foreach ($user['payments'] as $key => $value) {
 
                     if ($value['method'] == "cash") {

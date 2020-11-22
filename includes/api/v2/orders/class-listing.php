@@ -50,6 +50,7 @@
             $tbl_delivery = HP_DELIVERIES_v2;
             $tbl_vehicle = HP_VEHICLES_v2;
             $tbl_mover = HP_MOVERS_v2;
+            $last_id = '';
 
             $plugin = MP_Globals_v2::verify_prerequisites();
             if ($plugin !== true) {
@@ -134,7 +135,15 @@
                 }
             }
 
-            $sql .= " ORDER BY id DESC ";
+            if (isset($_POST['lid'])) {
+                $last_id = " LIMIT 12 ";
+            }
+
+            if (!empty($_POST['lid'])) {
+                $last_id = " LIMIT 7 OFFSET {$_POST["lid"]} ";
+            }
+
+            $sql .= " ORDER BY id DESC $last_id ";
 
             $order_data = $wpdb->get_results($sql);
             $smp = array();
