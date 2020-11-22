@@ -48,6 +48,9 @@
 
                 // Access
                     require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-listing.php';
+                    require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-insert.php';
+                    require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-update.php';
+                    require plugin_dir_path(__FILE__) . '/v2/personnel/role/access/class-delete.php';
 
     // Orders
         require plugin_dir_path(__FILE__) . '/v2/orders/class-insert.php';
@@ -158,9 +161,23 @@
                             'methods' => 'POST',
                             'callback' => array('MP_Listing_Access_v2','listen'),
                         ));
+
+                        register_rest_route( 'mobilepos/v2/personnels/role/access', 'delete', array(
+                            'methods' => 'POST',
+                            'callback' => array('MP_Delete_Access_v2','listen'),
+                        ));
+
+                        register_rest_route( 'mobilepos/v2/personnels/role/access', 'update', array(
+                            'methods' => 'POST',
+                            'callback' => array('MP_Update_Access_v2','listen'),
+                        ));
+
+                        register_rest_route( 'mobilepos/v2/personnels/role/access', 'insert', array(
+                            'methods' => 'POST',
+                            'callback' => array('MP_Insert_Access_v2','listen'),
+                        ));
             /**
              * ORDER REST API'S
-             *
             */
 
                 register_rest_route( 'mobilepos/v2/orders/store', 'insert', array(
