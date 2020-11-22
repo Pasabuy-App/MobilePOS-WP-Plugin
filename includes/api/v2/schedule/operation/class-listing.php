@@ -20,9 +20,12 @@
         public static function catch_post(){
             $curl_user = array();
 
-            $curl_user['stid'] = $_POST['stid'];
+            isset($_POST['sdid'])   && !empty($_POST['sdid'])   ? $curl_user['sdid']   =  $_POST['sdid']   :  $curl_user['sdid'] = null ;
+            isset($_POST['ID'])     && !empty($_POST['ID'])     ? $curl_user['ID']     =  $_POST['ID']     :  $curl_user['ID'] = null ;
+            isset($_POST['stid'])   && !empty($_POST['stid'])   ? $curl_user['stid']   =  $_POST['stid']   :  $curl_user['stid'] = null ;
+            isset($_POST['status']) && !empty($_POST['status']) ? $curl_user['status'] =  $_POST['status'] :  $curl_user['status'] = null ;
+            isset($_POST['type'])   && !empty($_POST['type'])   ? $curl_user['type']   =  $_POST['type']   :  $curl_user['type'] = null ;
             $curl_user['wpid'] = $_POST['wpid'];
-            $curl_user['user_id'] = $_POST['user_id'];
 
             return $curl_user;
         }
@@ -49,7 +52,7 @@
                     "message" => "Please contact your administrator. ".$plugin." plugin missing!",
                 );
             }
-            
+
 
 			// Step 2: Validate user
 			if (DV_Verification::is_verified() == false) {
@@ -59,15 +62,40 @@
                 );
             }
 
-            $data = $wpdb->get_results("SELECT
-                hsid as ID,
-                (SELECT `started` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_open,
-                (SELECT `ended` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_close,
-                date_created
-            FROM
-                $tbl_operation op
-            WHERE
-                id IN ( SELECT MAX( id ) FROM $tbl_operation WHERE op.hsid = hsid  GROUP BY hsid ) ");
+            $user = self::catch_post();
+
+            $sql = "SELECT
+                    hsid as ID,
+                    stid,
+                    sdid,
+                    (SELECT `types` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as `type`,
+                    (SELECT `started` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_open,
+                    (SELECT `ended` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_close,
+                    `status`,
+                    date_created
+                FROM
+                    $tbl_operation op
+                WHERE
+                    id IN ( SELECT MAX( id ) FROM $tbl_operation WHERE op.hsid = hsid  GROUP BY hsid ) ";
+
+            if ($user['status'] != null) {
+                $sql .= " AND  `status` = '{$user["status"]}' ";
+            }
+
+            if ($user['stid'] != null) {
+                $sql .= " AND  `stid` = '{$user["stid"]}' ";
+            }
+
+            if ($user['ID'] != null) {
+                $sql .= " AND  `hsid` = '{$user["ID"]}' ";
+            }
+
+            if ($user['type'] != null) {
+                $sql .= " AND (SELECT `types` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )) = '{$user["type"]}' ";
+            }
+
+
+            $data = $wpdb->get_results($sql);
 
             foreach ($data as $key => $value) {
                 $order_data = $wpdb->get_row("SELECT
