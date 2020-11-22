@@ -22,7 +22,7 @@
             $curl_user = array();
 
             isset($_POST['groups']) && !empty($_POST['groups'])? $curl_user['groups'] =  $_POST['groups'] :  $curl_user['groups'] = null ;
-            // isset($_POST['actions']) && !empty($_POST['actions'])? $curl_user['actions'] =  $_POST['actions'] :  $curl_user['actions'] = null ;
+            isset($_POST['actions']) && !empty($_POST['actions'])? $curl_user['actions'] =  $_POST['actions'] :  $curl_user['actions'] = null ;
 
             return $curl_user;
         }
@@ -50,10 +50,10 @@
 
             $user = self::catch_post();
 
-            $sql_group = "SELECT groups FROM $tbl_access ";
+            $sql_group = "SELECT groups FROM $tbl_access  WHERE  id IN ( SELECT MAX( id ) FROM $tbl_access a WHERE a.hsid = hsid GROUP BY hsid )";
 
             if ($user['groups'] != null) {
-                $sql_group .= " WHERE groups = '{$user["groups"]}' ";
+                $sql_group .= " AND groups = '{$user["groups"]}' ";
             }
 
             $groups = $wpdb->get_results($sql_group);
@@ -62,7 +62,7 @@
 
             $count = 0;
             foreach($smp as $key => $value){
-                $access = $wpdb->get_results("SELECT hsid as ID, title, actions, groups  FROM $tbl_access WHERE groups = '$value' ");
+                $access = $wpdb->get_results("SELECT hsid as ID, title, actions, groups  FROM $tbl_access WHERE groups = '$value' AND  id IN ( SELECT MAX( id ) FROM $tbl_access a WHERE a.hsid = hsid GROUP BY hsid ) ");
                 $var[$count]['name'] = ucfirst($value);
                 $var[$count]['access'] = $access;
                 $count ++;
