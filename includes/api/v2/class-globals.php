@@ -12,8 +12,6 @@
 
   	class MP_Globals_v2 {
 
-
-
         public static function date_stamp(){
             return date("Y-m-d h:i:s");
 		}
