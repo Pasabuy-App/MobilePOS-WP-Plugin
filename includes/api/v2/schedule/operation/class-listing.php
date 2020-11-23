@@ -38,6 +38,7 @@
             $tbl_order = MP_ORDERS_v2;
             $tbl_order_items = MP_ORDERS_ITEMS_v2;
             $tbl_payment = MP_PAYMENTS_v2;
+            $tbl_store = TP_STORES_v2;
             $tbl_product = TP_PRODUCT_v2;
             $tbl_variants = TP_PRODUCT_VARIANTS_v2;
             $tbl_order_items_vars = MP_ORDERS_ITEMS_VARS_v2;
@@ -67,6 +68,7 @@
             $sql = "SELECT
                     hsid as ID,
                     stid,
+                    (SELECT title FROM $tbl_store WHERE id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ) as store_name,
                     sdid,
                     (SELECT `types` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as `type`,
                     (SELECT `started` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_open,
