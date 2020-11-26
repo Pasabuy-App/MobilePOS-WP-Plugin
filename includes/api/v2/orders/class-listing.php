@@ -70,14 +70,13 @@
             $user = self::catch_post();
 
             $sql = "SELECT
+                hsid,
                 pubkey,
                 (SELECT stid FROM  $tbl_operation WHERE hsid = m.opid ) as stid,
                 # Customer Data
                 order_by,
                 (SELECT display_name FROM $tbl_user WHERE ID = m.order_by) AS customer,
                 (SELECT meta_value FROM wp_usermeta WHERE `user_id` = m.order_by and meta_key = 'avatar' ) AS avatar,
-                (SELECT child_val FROM dv_revisions WHERE ID = (SELECT latitude FROM dv_address WHERE ID = m.adid )) as cutomer_lat,
-                (SELECT child_val FROM dv_revisions WHERE ID = (SELECT longitude FROM dv_address WHERE ID = m.adid )) as cutomer_long,
                 opid,
                 adid,
                 delivery_charges,
@@ -155,20 +154,34 @@
                 // Get Store Data
                     $get_store_id = $wpdb->get_row("SELECT stid FROM $tbl_operation WHERE hsid = '$value->opid'");
 
-                    $get_store_data = $wpdb->get_row("SELECT adid, title, avatar FROM $tbl_store WHERE hsid = '$get_store_id->stid'  AND
-                    id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
+                    $get_store_data = $wpdb->get_row("SELECT adid, title, avatar FROM $tbl_store WHERE hsid = '$get_store_id->stid' AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ");
 
-                    $get_store_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$get_store_data->adid' ");
-                    $get_customer_address = $wpdb->get_row("SELECT * FROM $tbl_address_view WHERE ID = '$value->adid' ");
+                    // Store Data
+                        #$get_store_address = DV_Address_Config::get_address(null, null, 'active', $get_store_data->adid );
+                        $get_store_address = DV_Address_Config::get_address( null, $get_store_id->stid, 'active', null, null, true);
 
-                    $value->store_address = $get_store_address->street.', '.$get_store_address->brgy.', '.$get_store_address->city.', '.$get_store_address->province.', '.$get_store_address->country;
-                    $value->store_name = $get_store_data->title;
-                    // $value->store_logo = $get_store_data->avatar;
-                    $value->store_lat = $get_store_address->latitude;
-                    $value->store_long = $get_store_address->longitude;
+                        if (!empty($get_store_address)) {
 
-                    $value->cutomer_address = $get_customer_address->street.', '.$get_customer_address->brgy.', '.$get_customer_address->city.', '.$get_customer_address->province.', '.$get_customer_address->country;
+                            $value->store_address = $get_store_address->street.', '.$get_store_address->brgy.', '.$get_store_address->city.', '.$get_store_address->province.', '.$get_store_address->country;
+                            $value->store_name = $get_store_data->title;
+                            // $value->store_logo = $get_store_data->avatar;
+                            $value->store_lat = $get_store_address->latitude;
+                            $value->store_long = $get_store_address->longitude;
+                        }
+                    // End
 
+                    // Customer Data
+                        $get_customer_address = DV_Address_Config::get_address( null,  null, 'active',  $value->adid , null, true );
+
+                        if (!empty($get_customer_address)) {
+                            $value->cutomer_lat = $get_customer_address->latitude;
+                            $value->cutomer_long = $get_customer_address->longitude;
+                            // Customer Address
+                            $value->cutomer_address = $get_customer_address->street.', '.$get_customer_address->brgy.', '.$get_customer_address->city.', '.$get_customer_address->province.', '.$get_customer_address->country;
+                        }
+                    // End
+
+                    // Store Avatar
                     if (is_numeric($get_store_data->avatar)) {
 
                         $image = wp_get_attachment_image_src( $get_store_data->avatar, 'full', $icon =false );
