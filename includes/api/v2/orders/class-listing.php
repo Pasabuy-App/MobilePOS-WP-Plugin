@@ -163,10 +163,14 @@
                         if (!empty($get_store_address)) {
 
                             $value->store_address = $get_store_address->street.', '.$get_store_address->brgy.', '.$get_store_address->city.', '.$get_store_address->province.', '.$get_store_address->country;
-                            $value->store_name = $get_store_data->title;
-                            // $value->store_logo = $get_store_data->avatar;
                             $value->store_lat = $get_store_address->latitude;
                             $value->store_long = $get_store_address->longitude;
+                        }else{
+                            $value->store_address = '';
+                            $value->store_name = $get_store_data->title;
+                            // $value->store_logo = $get_store_data->avatar;
+                            $value->store_lat = '';
+                            $value->store_long = '';
                         }
                     // End
 
