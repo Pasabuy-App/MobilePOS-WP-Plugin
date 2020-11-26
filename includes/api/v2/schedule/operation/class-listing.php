@@ -68,7 +68,7 @@
             $sql = "SELECT
                     hsid as ID,
                     stid,
-                    (SELECT title FROM $tbl_store WHERE id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ) as store_name,
+                    (SELECT title FROM $tbl_store WHERE hsid = op.stid AND id IN ( SELECT MAX( id ) FROM $tbl_store s WHERE s.hsid = hsid  GROUP BY hsid ) ) as store_name,
                     sdid,
                     (SELECT `types` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as `type`,
                     (SELECT `started` FROM $tbl_schedule s WHERE hsid = op.sdid AND  id IN ( SELECT MAX( id ) FROM $tbl_schedule WHERE s.hsid = hsid  GROUP BY hsid )   )as date_open,
